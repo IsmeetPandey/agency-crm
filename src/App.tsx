@@ -138,28 +138,28 @@ function AgencyOSApp() {
 	const activeClient = clients.find((c) => c.id === activeProject?.clientId);
 
 	const viewTitles: Record<string, string> = {
-		overview: "Agency Overview",
+		overview: "Command Center",
 		pipeline: "Sales Pipeline",
 		clients: "Client Accounts",
 		projects: "Projects & Delivery",
-		project: activeProject ? activeProject.name : "Project Detail",
-		handoffs: "Department Handoffs",
+		project: activeProject ? activeProject.name : "Project Cockpit",
+		handoffs: "Department Transit",
 		approvals: "Approval Center",
-		team: "Team Directory & Capacity",
+		team: "Team & Capacity Intelligence",
 		raci: "RACI Governance Matrix",
-		settings: "Settings & Infrastructure",
+		settings: "Settings & Storage",
 	};
 
 	if (isLoading) {
 		return (
-			<div className="flex h-screen w-full items-center justify-center tahoe-bg">
-				<div className="liquid-card p-8 text-center space-y-3">
-					<div className="w-8 h-8 rounded-full border-2 border-[#007AFF] border-t-transparent animate-spin mx-auto" />
-					<div className="text-[14px] font-[650] text-[#1D1D1F]">
-						Loading Kreatiwit AgencyOS...
+			<div className="flex h-screen w-full items-center justify-center studio-canvas">
+				<div className="studio-card p-8 text-center space-y-3 bg-white shadow-xl">
+					<div className="w-8 h-8 rounded-full border-2 border-blue-600 border-t-transparent animate-spin mx-auto" />
+					<div className="text-[14px] font-bold text-slate-900 tracking-tight">
+						Loading Kreatiwit AgencyOS Studio...
 					</div>
-					<div className="text-[12px] text-[#86868B]">
-						Synchronizing Liquid Glass Workspace
+					<div className="text-[12px] text-slate-500 font-mono">
+						Synchronizing Operational State
 					</div>
 				</div>
 			</div>
@@ -167,8 +167,8 @@ function AgencyOSApp() {
 	}
 
 	return (
-		<div className="flex min-h-screen w-full tahoe-bg text-[#1D1D1F]">
-			{/* Sidebar */}
+		<div className="flex min-h-screen w-full studio-canvas text-slate-900">
+			{/* Obsidian Studio Sidebar */}
 			<Sidebar
 				view={view}
 				setView={setView}
@@ -190,14 +190,14 @@ function AgencyOSApp() {
 			{/* Main Workspace Area */}
 			<div className="flex-1 flex flex-col min-w-0">
 				<Topbar
-					viewTitle={viewTitles[view] || "AgencyOS"}
+					viewTitle={viewTitles[view] || "AgencyOS Studio"}
 					search={search}
 					setSearch={setSearch}
 					openCmd={() => setCmdOpen(true)}
 					openModal={(type) => setModal({ type })}
 				/>
 
-				<main className="flex-1 p-4 lg:p-6 overflow-x-hidden">
+				<main className="flex-1 p-4 lg:p-7 overflow-x-hidden">
 					{view === "overview" && (
 						<DashboardOverview
 							leads={leads}

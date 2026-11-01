@@ -1,3 +1,4 @@
+@import "./styles/editorial-studio.css";
 @import "./styles/liquid-glass.css";
 
 @tailwind base;
@@ -7,6 +8,7 @@
 :root {
 	color-scheme: light dark;
 }
+
 * {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;

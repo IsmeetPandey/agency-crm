@@ -154,3 +154,4 @@ begin
   return v_gate_count;
 end;
 $$ language plpgsql security definer set search_path = public;
+

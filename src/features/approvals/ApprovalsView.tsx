@@ -1,4 +1,6 @@
 import type React from "react";
+import { useAuth } from "../../lib/auth/auth.context";
+import { useToast } from "../../lib/feedback/toast.context";
 import { workflowRepository } from "../../lib/repositories/workflow.repository";
 import type { ApprovalRequest, Project } from "../../types";
 
@@ -15,8 +17,21 @@ export const ApprovalsView: React.FC<ApprovalsViewProps> = ({
 	onRefresh,
 	onOpenProject,
 }) => {
-	const handleDecision = async (id: string, decision: any) => {
-		await workflowRepository.decideApproval(id, decision);
+	const { user } = useAuth();
+	const { showToast } = useToast();
+
+	const handleDecision = async (
+		id: string,
+		decision: "Approved" | "Rejected" | "Changes Requested",
+		title: string,
+	) => {
+		const actor = user?.name || "Abhishek";
+		await workflowRepository.decideApproval(id, decision, undefined, actor);
+		showToast({
+			type: decision === "Approved" ? "success" : "warning",
+			title: `Decision Recorded`,
+			message: `"${title}" has been ${decision.toLowerCase()} by ${actor}`,
+		});
 		onRefresh();
 	};
 
@@ -25,21 +40,23 @@ export const ApprovalsView: React.FC<ApprovalsViewProps> = ({
 	};
 
 	return (
-		<div className="space-y-4">
+		<div className="space-y-6">
+			{/* Header */}
 			<div className="flex items-center justify-between">
 				<div>
-					<h2 className="text-[18px] font-[700] tracking-[-0.02em] text-[#1D1D1F]">
-						Approval Center • Signoff Gates
+					<h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
+						Executive Approval Center
 					</h2>
-					<p className="text-[12px] text-[#86868B]">
-						Authorize milestone gates, scope expansions, and deliverables
+					<p className="text-[12px] text-slate-500">
+						Formal sign-off queue for milestone progression, scope expansion,
+						and client releases
 					</p>
 				</div>
 			</div>
 
 			<div className="space-y-3">
 				{approvals.length === 0 ? (
-					<div className="liquid-card p-10 text-center text-[#86868B] text-[13px]">
+					<div className="studio-card p-12 text-center text-slate-400 text-[13px] bg-white">
 						No pending approval requests in queue.
 					</div>
 				) : (
@@ -49,57 +66,63 @@ export const ApprovalsView: React.FC<ApprovalsViewProps> = ({
 						return (
 							<div
 								key={app.id}
-								className="liquid-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+								className="studio-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white hover:border-slate-300 transition"
 							>
-								<div>
-									<div className="text-[11px] font-[600] uppercase tracking-wider text-[#6D28D9] mb-1">
+								<div className="space-y-1 min-w-0">
+									<div className="text-[11px] font-mono uppercase tracking-wider text-blue-600 font-bold">
 										{projectName}
 									</div>
-									<h3 className="text-[15px] font-[650] text-[#1D1D1F]">
+									<h3 className="text-[15px] font-bold text-slate-900 truncate">
 										{app.title}
 									</h3>
-									<div className="text-[12px] text-[#86868B] mt-1">
+									<div className="text-[12px] text-slate-500">
 										Requested by{" "}
-										<span className="text-[#1D1D1F] font-[500]">
+										<span className="font-semibold text-slate-800">
 											{app.requestedBy}
 										</span>
-										{app.assignedApprover &&
-											` • Approver: ${app.assignedApprover}`}
+										{app.approverRole &&
+											` • Required Signoff: ${app.approverRole}`}
 									</div>
 								</div>
 
-								<div className="flex items-center gap-2">
+								<div className="flex items-center gap-2 shrink-0">
 									<button
 										type="button"
 										onClick={() => onOpenProject(app.projectId)}
-										className="btn-liquid !h-[30px] !text-[11px]"
+										className="btn-secondary !h-[32px] !text-[12px]"
 									>
-										Review Context →
+										Review Spec →
 									</button>
 
 									{app.status === "Pending" ? (
 										<>
 											<button
 												type="button"
-												onClick={() => handleDecision(app.id, "Approved")}
-												className="btn-liquid !h-[30px] !text-[11px] !bg-[#30D158] !text-white"
+												onClick={() =>
+													handleDecision(app.id, "Approved", app.title)
+												}
+												className="btn-primary !h-[32px] !text-[12px] !bg-emerald-600 hover:!bg-emerald-700"
 											>
 												Approve ✓
 											</button>
 											<button
 												type="button"
-												onClick={() => handleDecision(app.id, "Rejected")}
-												className="btn-liquid !h-[30px] !text-[11px] !text-[#FF2D55]"
+												onClick={() =>
+													handleDecision(app.id, "Rejected", app.title)
+												}
+												className="btn-secondary !h-[32px] !text-[12px] !text-rose-600 hover:!bg-rose-50"
 											>
 												Reject
 											</button>
 										</>
 									) : (
 										<span
-											className={`text-[11px] font-[600] px-3 py-1 rounded-full ${
+											className={`badge-status ${
 												app.status === "Approved"
-													? "bg-[#30D158]/10 text-[#30D158]"
-													: "bg-[#FF2D55]/10 text-[#FF2D55]"
+													? "badge-emerald"
+													: app.status === "Rejected"
+														? "badge-rose"
+														: "badge-amber"
 											}`}
 										>
 											{app.status}

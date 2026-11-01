@@ -1,4 +1,5 @@
 import type React from "react";
+import { useToast } from "../../lib/feedback/toast.context";
 import { handoffsRepository } from "../../lib/repositories/handoffs.repository";
 import type { Handoff, Project } from "../../types";
 
@@ -15,82 +16,105 @@ export const HandoffsView: React.FC<HandoffsViewProps> = ({
 	onOpenModal,
 	onRefresh,
 }) => {
+	const { showToast } = useToast();
+
 	const getProjectName = (projectId: string) => {
 		return projects.find((p) => p.id === projectId)?.name || "Project";
 	};
 
-	const handleUpdateStatus = async (id: string, status: any) => {
+	const handleUpdateStatus = async (id: string, status: any, title: string) => {
 		await handoffsRepository.updateStatus(id, status);
+		showToast({
+			type: status === "Accepted" ? "success" : "info",
+			title: "Handoff Updated",
+			message: `"${title}" status updated to ${status}`,
+		});
 		onRefresh();
 	};
 
 	return (
-		<div className="space-y-4">
-			<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+		<div className="space-y-6">
+			{/* Header */}
+			<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 				<div>
-					<h2 className="text-[18px] font-[700] tracking-[-0.02em] text-[#1D1D1F]">
-						Department Handoffs • Flow Pipeline
+					<h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
+						Department Transit & Handoff Pipeline
 					</h2>
-					<p className="text-[12px] text-[#86868B]">
-						Manage cross-department asset deliveries, review gates, and
-						acceptance
+					<p className="text-[12px] text-slate-500">
+						Deliverable handoffs moving across Design, Frontend, Backend, AI
+						Systems, and QA
 					</p>
 				</div>
 				<button
 					type="button"
 					onClick={() => onOpenModal("handoff")}
-					className="btn-liquid btn-liquid-primary !h-[32px]"
+					className="btn-primary !h-[34px]"
 				>
 					+ New Handoff
 				</button>
 			</div>
 
 			<div className="space-y-3">
-				{handoffs.map((h) => {
-					const projectName = getProjectName(h.projectId);
+				{handoffs.length === 0 ? (
+					<div className="studio-card p-12 text-center text-slate-400 text-[13px] bg-white">
+						No department handoffs in queue.
+					</div>
+				) : (
+					handoffs.map((h) => {
+						const projectName = getProjectName(h.projectId);
 
-					return (
-						<div
-							key={h.id}
-							className="liquid-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-						>
-							<div>
-								<div className="text-[11px] font-[600] uppercase tracking-wider text-[#007AFF] mb-0.5">
-									{projectName}
+						return (
+							<div
+								key={h.id}
+								className="studio-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white hover:border-slate-300 transition"
+							>
+								<div className="space-y-1 min-w-0">
+									<div className="text-[11px] font-mono uppercase tracking-wider text-blue-600 font-bold">
+										{projectName}
+									</div>
+									<h3 className="text-[15px] font-bold text-slate-900 truncate">
+										{h.deliverable}
+									</h3>
+									<div className="text-[12px] text-slate-500 flex items-center gap-2 font-mono">
+										<span className="font-semibold text-slate-800">
+											{h.fromDept}
+										</span>
+										<span className="text-blue-600">→</span>
+										<span className="font-semibold text-slate-800">
+											{h.toDept}
+										</span>
+										{h.notes && (
+											<span className="font-sans text-slate-400">
+												• {h.notes}
+											</span>
+										)}
+									</div>
 								</div>
-								<h3 className="text-[14px] font-[650] text-[#1D1D1F]">
-									{h.title}
-								</h3>
-								<div className="text-[12px] text-[#86868B] mt-1 flex items-center gap-2">
-									<span className="font-[600] text-[#6D28D9]">{h.from}</span>
-									<span>→</span>
-									<span className="font-[600] text-[#007AFF]">{h.to}</span>
-									{h.due && <span>• Due {h.due}</span>}
+
+								<div className="flex items-center gap-3 shrink-0">
+									<select
+										value={h.status}
+										onChange={(e) =>
+											handleUpdateStatus(h.id, e.target.value, h.deliverable)
+										}
+										className={`text-[12px] font-mono font-semibold rounded-md px-3 py-1.5 border outline-none ${
+											h.status === "Accepted"
+												? "bg-emerald-50 text-emerald-700 border-emerald-200"
+												: h.status === "Rejected"
+													? "bg-rose-50 text-rose-700 border-rose-200"
+													: "bg-amber-50 text-amber-700 border-amber-200"
+										}`}
+									>
+										<option value="Pending">Pending</option>
+										<option value="Accepted">Accepted</option>
+										<option value="Changes Requested">Changes Requested</option>
+										<option value="Rejected">Rejected</option>
+									</select>
 								</div>
 							</div>
-
-							<div className="flex items-center gap-2">
-								<select
-									value={h.status}
-									onChange={(e) => handleUpdateStatus(h.id, e.target.value)}
-									className={`text-[12px] font-[600] rounded-full px-3 py-1 border outline-none ${
-										h.status === "Accepted"
-											? "bg-[#30D158]/10 text-[#30D158] border-[#30D158]/20"
-											: h.status === "Pending"
-												? "bg-[#FF9500]/10 text-[#FF9500] border-[#FF9500]/20"
-												: "bg-[#007AFF]/10 text-[#007AFF] border-[#007AFF]/20"
-									}`}
-								>
-									<option value="Pending">Pending</option>
-									<option value="Accepted">Accepted</option>
-									<option value="Changes Requested">Changes Requested</option>
-									<option value="Rejected">Rejected</option>
-									<option value="Completed">Completed</option>
-								</select>
-							</div>
-						</div>
-					);
-				})}
+						);
+					})
+				)}
 			</div>
 		</div>
 	);

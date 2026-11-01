@@ -28,103 +28,117 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 	});
 
 	return (
-		<div className="space-y-4">
-			<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+		<div className="space-y-6">
+			{/* Header */}
+			<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 				<div>
-					<h2 className="text-[18px] font-[700] tracking-[-0.02em] text-[#1D1D1F]">
-						Client Management • Liquid Glass Directory
+					<h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
+						Client Accounts & Partnerships
 					</h2>
-					<p className="text-[12px] text-[#86868B]">
-						Manage client relationships, contacts, and linked deliverables
+					<p className="text-[12px] text-slate-500">
+						B2B enterprise client directory, key contacts, and connected active
+						projects
 					</p>
 				</div>
 				<button
 					type="button"
 					onClick={() => onOpenModal("client")}
-					className="btn-liquid btn-liquid-primary !h-[32px]"
+					className="btn-primary !h-[34px]"
 				>
-					+ Add Client
+					+ Add Client Account
 				</button>
 			</div>
 
-			<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+			{/* Client Grid */}
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
 				{filteredClients.map((client) => {
 					const clientProjects = projects.filter(
 						(p) => p.clientId === client.id,
 					);
 
 					return (
-						<div key={client.id} className="liquid-card p-5 space-y-3">
-							<div className="flex items-start justify-between">
-								<div>
-									<h3 className="text-[15px] font-[650] text-[#1D1D1F]">
+						<div key={client.id} className="studio-card p-5 space-y-4 bg-white">
+							{/* Client Title & Actions */}
+							<div className="flex items-start justify-between gap-2">
+								<div className="min-w-0">
+									<h3 className="text-[16px] font-bold text-slate-900 truncate">
 										{client.name}
 									</h3>
-									<div className="text-[12px] text-[#86868B] mt-0.5">
+									<div className="text-[12px] text-slate-500 mt-0.5">
 										Contact:{" "}
-										<span className="text-[#1D1D1F] font-[500]">
+										<span className="text-slate-800 font-semibold">
 											{client.contact || "—"}
 										</span>
 									</div>
 								</div>
-								<div className="flex items-center gap-1.5">
+								<div className="flex items-center gap-1.5 shrink-0">
 									<button
 										type="button"
 										onClick={() => onOpenModal("client", { client })}
-										className="p-1 rounded text-[#86868B] hover:text-[#007AFF] hover:bg-black/[0.04] transition text-[12px]"
+										className="p-1 rounded text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition text-[12px]"
 										title="Edit Client"
+										aria-label="Edit Client"
 									>
 										✎
 									</button>
-									<span className="w-7 h-7 rounded-[8px] bg-black/[0.04] flex items-center justify-center text-[11px]">
-										⚑
+									<span className="w-7 h-7 rounded-md bg-slate-100 text-slate-600 flex items-center justify-center text-[12px] font-bold">
+										◈
 									</span>
 								</div>
 							</div>
 
-							<div className="space-y-1">
+							{/* Email & Phone */}
+							<div className="space-y-1 font-mono text-[11px] bg-slate-50 p-2.5 rounded-lg border border-slate-100">
 								{client.email && (
-									<div className="text-[12px] text-[#007AFF] font-mono truncate">
-										{client.email}
+									<div className="text-blue-600 font-medium truncate">
+										✉ {client.email}
 									</div>
 								)}
 								{client.phone && (
-									<div className="text-[11px] text-[#86868B] font-mono">
+									<div className="text-slate-600 font-medium">
 										📞 {client.phone}
+									</div>
+								)}
+								{!client.email && !client.phone && (
+									<div className="text-slate-400 italic">
+										No direct contact info logged
 									</div>
 								)}
 							</div>
 
 							{client.notes && (
-								<div className="p-2.5 rounded-[8px] bg-black/[0.02] border border-black/[0.04] text-[11px] text-[#86868B]">
-									{client.notes}
-								</div>
+								<p className="text-[12px] text-slate-500 italic line-clamp-2">
+									&quot;{client.notes}&quot;
+								</p>
 							)}
 
-							{/* Linked Projects */}
-							<div className="pt-2 border-t border-black/[0.06]">
-								<div className="text-[11px] font-[600] uppercase tracking-wider text-[#86868B] mb-1.5 flex items-center justify-between">
-									<span>Linked Projects</span>
-									<span>{clientProjects.length}</span>
+							{/* Linked Projects Section */}
+							<div className="pt-3 border-t border-slate-100">
+								<div className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center justify-between">
+									<span>Linked Delivery Projects</span>
+									<span className="font-semibold text-slate-700">
+										{clientProjects.length}
+									</span>
 								</div>
+
 								{clientProjects.length > 0 ? (
-									<div className="space-y-1">
+									<div className="space-y-1.5">
 										{clientProjects.map((p) => (
 											<div
 												key={p.id}
 												onClick={() => onNavigate("project", p.id)}
-												className="text-[12px] p-1.5 rounded hover:bg-black/[0.04] cursor-pointer text-[#1D1D1F] flex items-center justify-between transition"
+												className="text-[12px] p-2 rounded-md hover:bg-blue-50/60 border border-slate-100 hover:border-blue-200 cursor-pointer text-slate-800 flex items-center justify-between transition"
 											>
-												<span className="truncate font-[500]">{p.name}</span>
-												<span className="text-[10px] text-[#007AFF] shrink-0 font-[600]">
+												<span className="truncate font-semibold">{p.name}</span>
+												<span className="badge-status badge-cobalt text-[10px] font-mono">
 													{p.phase}
 												</span>
 											</div>
 										))}
 									</div>
 								) : (
-									<div className="text-[11px] text-[#86868B] italic">
-										No active projects linked
+									<div className="text-[11px] text-slate-400 italic py-1">
+										No active delivery projects
 									</div>
 								)}
 							</div>

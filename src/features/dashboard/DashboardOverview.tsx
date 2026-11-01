@@ -3,9 +3,6 @@ import { useMemo } from "react";
 import {
 	Area,
 	AreaChart,
-	Cell,
-	Pie,
-	PieChart,
 	ResponsiveContainer,
 	Tooltip,
 	XAxis,
@@ -14,7 +11,6 @@ import {
 import {
 	formatHour,
 	isMemberOnline,
-	PERSON_COLOR,
 	STAGE_META,
 	STAGES,
 } from "../../lib/constants/agency";
@@ -59,7 +55,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 	onNavigate,
 	onOpenModal,
 }) => {
-	// Real derived metrics
+	// Active Pipeline Volume (excluding Won & Lost)
 	const activeLeads = useMemo(
 		() => leads.filter((l) => !["Won", "Lost"].includes(l.stage)),
 		[leads],
@@ -70,6 +66,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 		[activeLeads],
 	);
 
+	// Won Contract Revenue
 	const wonLeads = useMemo(
 		() => leads.filter((l) => l.stage === "Won"),
 		[leads],
@@ -79,6 +76,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 		[wonLeads],
 	);
 
+	// Active Projects
 	const activeProjects = useMemo(
 		() =>
 			projects.filter(
@@ -87,6 +85,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 		[projects],
 	);
 
+	// Deliverable Tasks Breakdown
 	const tasksByStatus = useMemo(() => {
 		return {
 			todo: tasks.filter((t) => t.status === "Todo").length,
@@ -96,6 +95,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 		};
 	}, [tasks]);
 
+	// Pending Items
 	const pendingApprovals = useMemo(
 		() => approvals.filter((a) => a.status === "Pending"),
 		[approvals],
@@ -106,14 +106,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 		[handoffs],
 	);
 
+	// Scheduled Team Availability (IST)
 	const onlineMembers = useMemo(
 		() => team.filter((m) => isMemberOnline(m, istHour)),
 		[team, istHour],
-	);
-
-	const overloadedMembers = useMemo(
-		() => team.filter((m) => m.overload),
-		[team],
 	);
 
 	const totalCapacityHours = useMemo(
@@ -125,7 +121,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 		[team],
 	);
 
-	// Real stage breakdown chart data (computed from actual lead values)
+	// Pipeline Stage Distribution
 	const stageDistribution = useMemo(() => {
 		return STAGES.map((st) => {
 			const stageLeads = leads.filter((l) => l.stage === st);
@@ -136,317 +132,474 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 			return {
 				stage: st,
 				count: stageLeads.length,
-				value: val / 1000, // in thousands (₹k)
-				color: STAGE_META[st]?.dot || "#007AFF",
+				value: Math.round(val / 1000), // in ₹k
 			};
 		});
 	}, [leads]);
 
-	// Project phase distribution
-	const phaseDistribution = useMemo(() => {
-		const phases = ["Design", "Build", "QA", "Launch", "Discovery"];
-		return phases
-			.map((ph, idx) => {
-				const count = projects.filter((p) => p.phase === ph).length;
-				const colors = ["#FF2D55", "#6D28D9", "#00C7BE", "#FFCC02", "#007AFF"];
-				return {
-					name: ph,
-					value: count || 1, // small visual baseline if 0
-					realCount: count,
-					color: colors[idx % colors.length],
-				};
-			})
-			.filter((d) => d.realCount > 0 || projects.length === 0);
-	}, [projects]);
-
 	return (
 		<div className="space-y-6">
-			{/* Hero Liquid KPI Cards */}
-			<div className="grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-4">
-				{/* Pipeline Value */}
-				<div className="liquid-card p-4 lg:p-5 tint-violet">
-					<div className="flex items-center justify-between text-[11px] font-[600] tracking-[-0.011em] text-[#6D28D9]">
-						<span>Active Pipeline</span>
-						<span className="w-2 h-2 rounded-full bg-[#6D28D9]" />
-					</div>
-					<div className="text-[24px] lg:text-[28px] font-[750] tracking-[-0.03em] text-[#1D1D1F] mt-1">
-						₹{(pipelineValue / 1000).toFixed(0)}k
-					</div>
-					<div className="text-[11px] text-[#86868B] mt-1 font-[450]">
-						{activeLeads.length} active opportunities
-					</div>
-				</div>
-
-				{/* Won Value */}
-				<div className="liquid-card p-4 lg:p-5 tint-green">
-					<div className="flex items-center justify-between text-[11px] font-[600] tracking-[-0.011em] text-[#30D158]">
-						<span>Won Deals</span>
-						<span className="w-2 h-2 rounded-full bg-[#30D158]" />
-					</div>
-					<div className="text-[24px] lg:text-[28px] font-[750] tracking-[-0.03em] text-[#1D1D1F] mt-1">
-						₹{(wonValue / 1000).toFixed(0)}k
-					</div>
-					<div className="text-[11px] text-[#86868B] mt-1 font-[450]">
-						{wonLeads.length} closed won • {clients.length} clients
-					</div>
-				</div>
-
-				{/* Active Projects */}
-				<div className="liquid-card p-4 lg:p-5 tint-blue">
-					<div className="flex items-center justify-between text-[11px] font-[600] tracking-[-0.011em] text-[#007AFF]">
-						<span>Active Projects</span>
-						<span className="w-2 h-2 rounded-full bg-[#007AFF]" />
-					</div>
-					<div className="text-[24px] lg:text-[28px] font-[750] tracking-[-0.03em] text-[#1D1D1F] mt-1">
-						{activeProjects.length}
-					</div>
-					<div className="text-[11px] text-[#86868B] mt-1 font-[450]">
-						{tasksByStatus.inProgress} tasks in progress
-					</div>
-				</div>
-
-				{/* Team Capacity */}
-				<div className="liquid-card p-4 lg:p-5 tint-orange">
-					<div className="flex items-center justify-between text-[11px] font-[600] tracking-[-0.011em] text-[#FF9500]">
-						<span>Capacity & Shifts</span>
-						<span className="w-2 h-2 rounded-full bg-[#FF9500]" />
-					</div>
-					<div className="text-[24px] lg:text-[28px] font-[750] tracking-[-0.03em] text-[#1D1D1F] mt-1">
-						{totalCapacityHours}h{" "}
-						<span className="text-[13px] font-[500] text-[#86868B]">
-							({totalFocusHours}h focus)
+			{/* Command Header Banner */}
+			<div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-xl bg-slate-900 text-white shadow-lg border border-slate-800">
+				<div className="space-y-1">
+					<div className="flex items-center gap-2">
+						<span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+						<span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-emerald-400">
+							Active Operations Window • IST {formatHour(istHour)}
 						</span>
 					</div>
-					<div className="text-[11px] text-[#86868B] mt-1 font-[450]">
-						{onlineMembers.length} active • {overloadedMembers.length}{" "}
-						overloaded
+					<h2 className="text-[20px] font-extrabold tracking-tight">
+						Kreatiwit Operations Command Center
+					</h2>
+					<p className="text-[13px] text-slate-300">
+						{activeProjects.length} active delivery projects •{" "}
+						{activeLeads.length} pipeline opportunities • {onlineMembers.length}{" "}
+						specialists scheduled on-duty
+					</p>
+				</div>
+
+				<div className="flex items-center gap-2">
+					<button
+						type="button"
+						onClick={() => onOpenModal("lead")}
+						className="btn-primary !h-[34px] !text-[12px] !px-3"
+					>
+						+ Opportunity
+					</button>
+					<button
+						type="button"
+						onClick={() => onOpenModal("project")}
+						className="btn-secondary !h-[34px] !text-[12px] !px-3 !bg-white/10 !text-white !border-white/20 hover:!bg-white/20"
+					>
+						+ Project
+					</button>
+					<button
+						type="button"
+						onClick={() => onOpenModal("task")}
+						className="btn-secondary !h-[34px] !text-[12px] !px-3 !bg-white/10 !text-white !border-white/20 hover:!bg-white/20"
+					>
+						+ Deliverable
+					</button>
+				</div>
+			</div>
+
+			{/* 4 Executive Pulse Metrics */}
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+				{/* Card 1: Active Pipeline */}
+				<div className="studio-card p-4 space-y-2">
+					<div className="flex items-center justify-between text-slate-500 text-[11px] font-mono uppercase tracking-wider">
+						<span>Active Pipeline</span>
+						<span className="text-blue-600 font-semibold">Growth</span>
+					</div>
+					<div className="text-[26px] font-extrabold tracking-tight text-slate-900 font-mono">
+						₹{(pipelineValue / 1000).toFixed(0)}k
+					</div>
+					<div className="text-[12px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+						<span>{activeLeads.length} Opportunities</span>
+						<button
+							type="button"
+							onClick={() => onNavigate("pipeline")}
+							className="text-blue-600 font-semibold hover:underline"
+						>
+							View Board →
+						</button>
+					</div>
+				</div>
+
+				{/* Card 2: Won Revenue */}
+				<div className="studio-card p-4 space-y-2">
+					<div className="flex items-center justify-between text-slate-500 text-[11px] font-mono uppercase tracking-wider">
+						<span>Won Contracts</span>
+						<span className="text-emerald-600 font-semibold">Closed</span>
+					</div>
+					<div className="text-[26px] font-extrabold tracking-tight text-slate-900 font-mono">
+						₹{(wonValue / 1000).toFixed(0)}k
+					</div>
+					<div className="text-[12px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+						<span>{wonLeads.length} Clients Won</span>
+						<button
+							type="button"
+							onClick={() => onNavigate("clients")}
+							className="text-blue-600 font-semibold hover:underline"
+						>
+							Client Roster →
+						</button>
+					</div>
+				</div>
+
+				{/* Card 3: Active Deliverables */}
+				<div className="studio-card p-4 space-y-2">
+					<div className="flex items-center justify-between text-slate-500 text-[11px] font-mono uppercase tracking-wider">
+						<span>Deliverables</span>
+						<span className="text-indigo-600 font-semibold">Delivery</span>
+					</div>
+					<div className="text-[26px] font-extrabold tracking-tight text-slate-900 font-mono">
+						{tasksByStatus.inProgress}
+						<span className="text-[14px] font-normal text-slate-500 ml-1.5">
+							/ {tasks.length} total
+						</span>
+					</div>
+					<div className="text-[12px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+						<span
+							className={
+								tasksByStatus.blocked > 0
+									? "text-rose-600 font-medium"
+									: "text-emerald-600 font-medium"
+							}
+						>
+							{tasksByStatus.blocked} Blocked
+						</span>
+						<span className="text-slate-400 font-mono">
+							{tasksByStatus.completed} Done
+						</span>
+					</div>
+				</div>
+
+				{/* Card 4: Daily Capacity */}
+				<div className="studio-card p-4 space-y-2">
+					<div className="flex items-center justify-between text-slate-500 text-[11px] font-mono uppercase tracking-wider">
+						<span>Daily Workload</span>
+						<span className="text-amber-600 font-semibold">Capacity</span>
+					</div>
+					<div className="text-[26px] font-extrabold tracking-tight text-slate-900 font-mono">
+						{totalFocusHours}h
+						<span className="text-[14px] font-normal text-slate-500 ml-1.5">
+							/ {totalCapacityHours}h planned
+						</span>
+					</div>
+					<div className="text-[12px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+						<span>{onlineMembers.length} Specialists On-Duty</span>
+						<button
+							type="button"
+							onClick={() => onNavigate("team")}
+							className="text-blue-600 font-semibold hover:underline"
+						>
+							Capacity Grid →
+						</button>
 					</div>
 				</div>
 			</div>
 
-			{/* Main Grid: Charts & Action items */}
-			<div className="grid lg:grid-cols-3 gap-5">
-				{/* Left 2 Cols: Pipeline Distribution & Project Delivery */}
-				<div className="lg:col-span-2 space-y-5">
-					{/* Pipeline Stage Distribution Chart */}
-					<div className="liquid-card p-5">
-						<div className="flex items-center justify-between mb-3">
-							<div>
-								<h3 className="text-[14px] font-[650] tracking-[-0.015em] text-[#1D1D1F]">
-									Pipeline Stage Breakdown (₹k)
-								</h3>
-								<p className="text-[11px] text-[#86868B]">
-									Derived from active opportunity values across all 6 stages
-								</p>
-							</div>
-							<button
-								type="button"
-								onClick={() => onNavigate("pipeline")}
-								className="btn-liquid !h-[26px] !text-[11px]"
-							>
-								View Pipeline →
-							</button>
-						</div>
-
-						<div className="h-[180px] w-full">
-							<ResponsiveContainer width="100%" height="100%">
-								<AreaChart data={stageDistribution}>
-									<defs>
-										<linearGradient
-											id="pipelineGrad"
-											x1="0"
-											y1="0"
-											x2="0"
-											y2="1"
-										>
-											<stop
-												offset="5%"
-												stopColor="#6D28D9"
-												stopOpacity={0.25}
-											/>
-											<stop
-												offset="95%"
-												stopColor="#6D28D9"
-												stopOpacity={0.0}
-											/>
-										</linearGradient>
-									</defs>
-									<XAxis
-										dataKey="stage"
-										stroke="#86868B"
-										fontSize={11}
-										tickLine={false}
-									/>
-									<YAxis stroke="#86868B" fontSize={11} tickLine={false} />
-									<Tooltip
-										contentStyle={{
-											backgroundColor: "rgba(255, 255, 255, 0.9)",
-											backdropFilter: "blur(12px)",
-											borderRadius: "10px",
-											border: "0.5px solid rgba(0,0,0,0.1)",
-											fontSize: "12px",
-										}}
-										formatter={(val: any) => [`₹${val}k`, "Value"]}
-									/>
-									<Area
-										type="monotone"
-										dataKey="value"
-										stroke="#6D28D9"
-										strokeWidth={2}
-										fillOpacity={1}
-										fill="url(#pipelineGrad)"
-									/>
-								</AreaChart>
-							</ResponsiveContainer>
-						</div>
+			{/* Operational Horizon: Action Inbox & Active Projects */}
+			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+				{/* Action Inbox (Left 1 col) */}
+				<div className="studio-card p-5 space-y-4">
+					<div className="flex items-center justify-between pb-3 border-b border-slate-100">
+						<h3 className="text-[14px] font-bold text-slate-900 tracking-tight flex items-center gap-2">
+							<span>⚡</span> Priority Action Inbox
+						</h3>
+						<span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-semibold border border-blue-200">
+							{pendingApprovals.length + pendingHandoffs.length} Pending
+						</span>
 					</div>
 
-					{/* Active Projects Quick Grid */}
-					<div className="liquid-card p-5">
-						<div className="flex items-center justify-between mb-3">
-							<h3 className="text-[14px] font-[650] tracking-[-0.015em] text-[#1D1D1F]">
-								Active Project Delivery
-							</h3>
-							<button
-								type="button"
-								onClick={() => onNavigate("projects")}
-								className="btn-liquid !h-[26px] !text-[11px]"
-							>
-								All Projects ({projects.length}) →
-							</button>
+					<div className="space-y-3">
+						{/* Approvals Section */}
+						<div>
+							<div className="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1.5 font-bold">
+								Executive Approvals Awaiting Decision
+							</div>
+							{pendingApprovals.length === 0 ? (
+								<div className="text-[12px] text-slate-400 italic p-2 rounded bg-slate-50 border border-slate-100">
+									No pending approvals
+								</div>
+							) : (
+								<div className="space-y-1.5">
+									{pendingApprovals.slice(0, 3).map((app) => (
+										<div
+											key={app.id}
+											onClick={() => onNavigate("approvals")}
+											className="p-2.5 rounded-lg border border-slate-200 hover:border-blue-400 hover:bg-blue-50/40 cursor-pointer transition flex items-center justify-between"
+										>
+											<div className="min-w-0 pr-2">
+												<div className="text-[12px] font-semibold text-slate-900 truncate">
+													{app.title}
+												</div>
+												<div className="text-[10px] text-slate-500">
+													Req by:{" "}
+													<span className="text-slate-700">
+														{app.requestedBy}
+													</span>{" "}
+													• Approver: {app.approverRole}
+												</div>
+											</div>
+											<span className="badge-status badge-amber shrink-0 text-[10px]">
+												Decide →
+											</span>
+										</div>
+									))}
+								</div>
+							)}
 						</div>
 
-						<div className="grid md:grid-cols-2 gap-3">
-							{projects.map((p) => (
-								<div
-									key={p.id}
-									onClick={() => onNavigate("project", p.id)}
-									className="p-3.5 rounded-[12px] bg-white/60 backdrop-blur border border-black/[0.06] hover:bg-white/90 cursor-pointer transition space-y-2.5"
-								>
-									<div className="flex items-center justify-between">
-										<span className="text-[13px] font-[650] text-[#1D1D1F] truncate">
-											{p.name}
-										</span>
-										<span className="text-[10px] font-[600] px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF]">
-											{p.phase}
-										</span>
-									</div>
-									<div className="text-[11px] text-[#86868B] truncate">
-										Lead: {p.owner} • Stack: {p.stackNeeded || "—"}
-									</div>
-									{/* Progress bar */}
-									<div>
-										<div className="flex justify-between text-[10px] text-[#86868B] mb-1 font-[500]">
-											<span>Progress</span>
-											<span>{p.progress}%</span>
-										</div>
-										<div className="w-full h-1.5 rounded-full bg-black/[0.06] overflow-hidden">
-											<div
-												className="h-full bg-[#007AFF] rounded-full transition-all duration-300"
-												style={{ width: `${p.progress}%` }}
-											/>
-										</div>
-									</div>
+						{/* Handoffs Section */}
+						<div>
+							<div className="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1.5 font-bold">
+								Department Transit Handoffs
+							</div>
+							{pendingHandoffs.length === 0 ? (
+								<div className="text-[12px] text-slate-400 italic p-2 rounded bg-slate-50 border border-slate-100">
+									No pending handoffs
 								</div>
-							))}
+							) : (
+								<div className="space-y-1.5">
+									{pendingHandoffs.slice(0, 3).map((h) => (
+										<div
+											key={h.id}
+											onClick={() => onNavigate("handoffs")}
+											className="p-2.5 rounded-lg border border-slate-200 hover:border-blue-400 hover:bg-blue-50/40 cursor-pointer transition flex items-center justify-between"
+										>
+											<div className="min-w-0 pr-2">
+												<div className="text-[12px] font-semibold text-slate-900 truncate">
+													{h.deliverable}
+												</div>
+												<div className="text-[10px] text-slate-500 font-mono">
+													{h.fromDept} → {h.toDept}
+												</div>
+											</div>
+											<span className="badge-status badge-cobalt shrink-0 text-[10px]">
+												Review →
+											</span>
+										</div>
+									))}
+								</div>
+							)}
 						</div>
 					</div>
 				</div>
 
-				{/* Right Col: Approvals, Handoffs & Activity */}
-				<div className="space-y-5">
-					{/* Action Center: Pending Approvals & Handoffs */}
-					<div className="liquid-card p-5">
-						<h3 className="text-[13px] font-[650] tracking-[-0.015em] text-[#1D1D1F] mb-3 flex items-center justify-between">
-							<span>Operational Signals</span>
-							<span className="text-[10px] px-2 py-0.5 rounded-full bg-[#30D158]/10 text-[#30D158] font-[600]">
-								Live
-							</span>
-						</h3>
-
-						<div className="space-y-2">
-							<div
-								onClick={() => onNavigate("approvals")}
-								className="p-3 rounded-[10px] bg-white/70 backdrop-blur border border-black/[0.06] flex items-center justify-between cursor-pointer hover:bg-white/90 transition"
-							>
-								<div>
-									<div className="text-[12px] font-[600] text-[#1D1D1F]">
-										Pending Approvals
-									</div>
-									<div className="text-[10px] text-[#86868B]">
-										Milestone gate reviews & signoffs
-									</div>
-								</div>
-								<span className="text-[13px] font-[700] text-[#6D28D9]">
-									{pendingApprovals.length}
-								</span>
-							</div>
-
-							<div
-								onClick={() => onNavigate("handoffs")}
-								className="p-3 rounded-[10px] bg-white/70 backdrop-blur border border-black/[0.06] flex items-center justify-between cursor-pointer hover:bg-white/90 transition"
-							>
-								<div>
-									<div className="text-[12px] font-[600] text-[#1D1D1F]">
-										Department Handoffs
-									</div>
-									<div className="text-[10px] text-[#86868B]">
-										Design → Dev → QA transitions
-									</div>
-								</div>
-								<span className="text-[13px] font-[700] text-[#007AFF]">
-									{pendingHandoffs.length}
-								</span>
-							</div>
-
-							<div className="p-3 rounded-[10px] bg-white/70 backdrop-blur border border-black/[0.06] flex items-center justify-between">
-								<div>
-									<div className="text-[12px] font-[600] text-[#1D1D1F]">
-										Task Health
-									</div>
-									<div className="text-[10px] text-[#86868B]">
-										{tasksByStatus.blocked} blocked • {tasksByStatus.todo} todo
-									</div>
-								</div>
-								<span className="text-[13px] font-[700] text-[#30D158]">
-									{tasksByStatus.completed}/{tasks.length}
-								</span>
-							</div>
+				{/* Active Projects Roster (Right 2 cols) */}
+				<div className="lg:col-span-2 studio-card p-5 space-y-4">
+					<div className="flex items-center justify-between pb-3 border-b border-slate-100">
+						<div>
+							<h3 className="text-[14px] font-bold text-slate-900 tracking-tight">
+								Active Projects & Delivery Health
+							</h3>
+							<p className="text-[12px] text-slate-500">
+								Current operational phase, completion velocity, and tech stacks
+							</p>
 						</div>
+						<button
+							type="button"
+							onClick={() => onNavigate("projects")}
+							className="text-[12px] text-blue-600 font-semibold hover:underline"
+						>
+							View All ({projects.length}) →
+						</button>
 					</div>
 
-					{/* Real Activity Stream */}
-					<div className="liquid-card p-5">
-						<h3 className="text-[13px] font-[650] tracking-[-0.015em] text-[#1D1D1F] mb-3 flex items-center justify-between">
-							<span>Agency Activity</span>
-							<span className="text-[10px] text-[#86868B] font-mono">
-								{activity.length} events
-							</span>
-						</h3>
-
-						<div className="space-y-3 max-h-[300px] overflow-y-auto pr-1 mac-scroll">
-							{activity.slice(0, 8).map((act) => (
+					<div className="space-y-2.5">
+						{activeProjects.map((proj) => {
+							const client = clients.find((c) => c.id === proj.clientId);
+							return (
 								<div
-									key={act.id}
-									className="text-[12px] leading-tight pb-2 border-b border-black/[0.04] last:border-none"
+									key={proj.id}
+									onClick={() => onNavigate("project", proj.id)}
+									className="p-3.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-sm cursor-pointer transition bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-3"
 								>
-									<div className="text-[#1D1D1F] font-[500]">{act.text}</div>
-									<div className="text-[10px] text-[#86868B] mt-1 flex items-center gap-2">
-										<span className="font-[600] text-[#6D28D9]">
-											{act.actor}
-										</span>
-										<span>•</span>
-										<span>
-											{new Date(act.at).toLocaleTimeString([], {
-												hour: "2-digit",
-												minute: "2-digit",
-											})}
+									<div className="space-y-1 min-w-0">
+										<div className="flex items-center gap-2">
+											<span className="text-[13px] font-bold text-slate-900 hover:text-blue-600 transition truncate">
+												{proj.name}
+											</span>
+											<span className="badge-status badge-neutral text-[10px]">
+												{client?.name || "Client"}
+											</span>
+										</div>
+										<div className="text-[11px] text-slate-500 flex items-center gap-2">
+											<span className="font-mono text-blue-600 font-semibold">
+												{proj.phase}
+											</span>
+											<span>•</span>
+											<span>
+												Budget:{" "}
+												<span className="font-mono font-medium text-slate-700">
+													₹{(proj.budget / 1000).toFixed(0)}k
+												</span>
+											</span>
+											<span>•</span>
+											<span>Deadline: {proj.deadline}</span>
+										</div>
+									</div>
+
+									{/* Progress bar */}
+									<div className="flex items-center gap-3 shrink-0">
+										<div className="w-28 bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
+											<div
+												className="bg-blue-600 h-full rounded-full transition-all duration-300"
+												style={{ width: `${proj.progress}%` }}
+											/>
+										</div>
+										<span className="font-mono text-[12px] font-bold text-slate-700 w-9 text-right">
+											{proj.progress}%
 										</span>
 									</div>
 								</div>
-							))}
-						</div>
+							);
+						})}
 					</div>
+				</div>
+			</div>
+
+			{/* Pipeline Volume Chart & Team Duty Overview */}
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+				{/* Opportunity Volume by Stage */}
+				<div className="studio-card p-5 space-y-4">
+					<div className="flex items-center justify-between">
+						<div>
+							<h3 className="text-[14px] font-bold text-slate-900 tracking-tight">
+								Sales Pipeline Value by Stage
+							</h3>
+							<p className="text-[12px] text-slate-500">
+								Weighted distribution across live sales stages (in ₹ thousands)
+							</p>
+						</div>
+						<span className="font-mono text-[12px] font-bold text-blue-600">
+							₹{(pipelineValue / 1000).toFixed(0)}k Active
+						</span>
+					</div>
+
+					<div className="h-[220px] w-full pt-2">
+						<ResponsiveContainer width="100%" height="100%">
+							<AreaChart data={stageDistribution}>
+								<defs>
+									<linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1">
+										<stop offset="5%" stopColor="#2563EB" stopOpacity={0.3} />
+										<stop offset="95%" stopColor="#2563EB" stopOpacity={0.0} />
+									</linearGradient>
+								</defs>
+								<XAxis
+									dataKey="stage"
+									tick={{ fontSize: 11, fill: "#64748B" }}
+									axisLine={{ stroke: "#E2E8F0" }}
+									tickLine={false}
+								/>
+								<YAxis
+									tick={{ fontSize: 11, fill: "#64748B" }}
+									axisLine={{ stroke: "#E2E8F0" }}
+									tickLine={false}
+									unit="k"
+								/>
+								<Tooltip
+									formatter={(val: number) => [`₹${val}k`, "Value"]}
+									contentStyle={{
+										backgroundColor: "#0F172A",
+										borderRadius: "8px",
+										border: "none",
+										color: "#FFFFFF",
+										fontSize: "12px",
+									}}
+								/>
+								<Area
+									type="monotone"
+									dataKey="value"
+									stroke="#2563EB"
+									strokeWidth={2}
+									fillOpacity={1}
+									fill="url(#colorVal)"
+								/>
+							</AreaChart>
+						</ResponsiveContainer>
+					</div>
+				</div>
+
+				{/* Scheduled Team Roster */}
+				<div className="studio-card p-5 space-y-4">
+					<div className="flex items-center justify-between">
+						<div>
+							<h3 className="text-[14px] font-bold text-slate-900 tracking-tight">
+								Specialist Capacity & IST Shifts
+							</h3>
+							<p className="text-[12px] text-slate-500">
+								Real-time scheduled availability and daily allocation
+							</p>
+						</div>
+						<button
+							type="button"
+							onClick={() => onNavigate("team")}
+							className="text-[12px] text-blue-600 font-semibold hover:underline"
+						>
+							Directory →
+						</button>
+					</div>
+
+					<div className="space-y-2">
+						{team.map((member) => {
+							const isOnline = isMemberOnline(member, istHour);
+							return (
+								<div
+									key={member.id}
+									className="p-2.5 rounded-lg border border-slate-100 bg-slate-50/60 flex items-center justify-between text-[12px]"
+								>
+									<div className="flex items-center gap-2.5 min-w-0">
+										<div className="w-7 h-7 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-[10px] font-mono shrink-0">
+											{member.initials}
+										</div>
+										<div className="min-w-0">
+											<div className="font-semibold text-slate-900 truncate">
+												{member.name}
+											</div>
+											<div className="text-[10px] text-slate-500 truncate">
+												{member.roleTitle}
+											</div>
+										</div>
+									</div>
+
+									<div className="flex items-center gap-3 shrink-0">
+										<span className="font-mono text-[11px] text-slate-600">
+											{member.focus}h / {member.avail}h
+										</span>
+										<span
+											className={`w-2 h-2 rounded-full ${
+												isOnline
+													? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.8)]"
+													: "bg-slate-300"
+											}`}
+											title={isOnline ? "Scheduled On-Duty" : "Off-Shift"}
+										/>
+									</div>
+								</div>
+							);
+						})}
+					</div>
+				</div>
+			</div>
+
+			{/* Recent Agency Audit Stream */}
+			<div className="studio-card p-5 space-y-3">
+				<div className="flex items-center justify-between pb-2 border-b border-slate-100">
+					<h3 className="text-[14px] font-bold text-slate-900 tracking-tight">
+						Recent Operational Activity
+					</h3>
+					<span className="text-[11px] text-slate-500 font-mono">
+						Live Audit Trail
+					</span>
+				</div>
+
+				<div className="divide-y divide-slate-100">
+					{activity.slice(0, 5).map((act) => (
+						<div
+							key={act.id}
+							className="py-2.5 flex items-center justify-between text-[12px]"
+						>
+							<div className="flex items-center gap-2.5 min-w-0 pr-4">
+								<span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
+								<span className="font-medium text-slate-800 truncate">
+									{act.text}
+								</span>
+							</div>
+							<div className="flex items-center gap-3 shrink-0 text-[11px] text-slate-400 font-mono">
+								<span>{act.actor}</span>
+								<span>•</span>
+								<span>
+									{new Date(act.timestamp).toLocaleTimeString([], {
+										hour: "2-digit",
+										minute: "2-digit",
+									})}
+								</span>
+							</div>
+						</div>
+					))}
 				</div>
 			</div>
 		</div>

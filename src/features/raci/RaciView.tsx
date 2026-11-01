@@ -38,30 +38,31 @@ export const RaciView: React.FC<RaciViewProps> = ({ projects }) => {
 		);
 		const updated = await workflowRepository.getProjectRaci(selectedProjectId);
 		setRaciList(updated);
-		setTimeout(() => setIsSaving(false), 300);
+		setTimeout(() => setIsSaving(false), 250);
 	};
 
 	return (
-		<div className="space-y-4">
-			<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+		<div className="space-y-6">
+			{/* Header */}
+			<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 				<div>
-					<h2 className="text-[18px] font-[700] tracking-[-0.02em] text-[#1D1D1F]">
-						Global RACI Governance Matrix
+					<h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
+						RACI Governance Matrix
 					</h2>
-					<p className="text-[12px] text-[#86868B]">
-						Enforce clear ownership: Responsible (R), Accountable (A), Consulted
-						(C), Informed (I)
+					<p className="text-[12px] text-slate-500">
+						Cross-functional accountability: Responsible (R), Accountable (A),
+						Consulted (C), Informed (I)
 					</p>
 				</div>
 
 				<div className="flex items-center gap-3">
-					<label className="text-[12px] font-[500] text-[#86868B]">
+					<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">
 						Project:
 					</label>
 					<select
 						value={selectedProjectId}
 						onChange={(e) => setSelectedProjectId(e.target.value)}
-						className="input-glass !w-[220px] !h-[32px] text-[12px]"
+						className="studio-input !w-[220px] !h-[34px] text-[12px] font-semibold"
 					>
 						{projects.map((p) => (
 							<option key={p.id} value={p.id}>
@@ -70,60 +71,68 @@ export const RaciView: React.FC<RaciViewProps> = ({ projects }) => {
 						))}
 					</select>
 					{isSaving && (
-						<span className="text-[11px] text-[#30D158] font-[600] animate-pulse">
+						<span className="text-[11px] text-emerald-600 font-mono font-semibold animate-pulse">
 							Saving...
 						</span>
 					)}
 				</div>
 			</div>
 
-			<div className="liquid-card p-6">
-				<div className="overflow-x-auto mac-scroll">
-					<table className="w-full text-[13px] min-w-[650px]">
+			<div className="studio-card p-6 bg-white overflow-hidden">
+				<div className="overflow-x-auto">
+					<table className="w-full text-[13px] min-w-[700px] border-collapse">
 						<thead>
-							<tr className="border-b border-black/[0.08]">
-								<th className="text-left font-[700] p-3 text-[#1D1D1F]">
+							<tr className="border-b border-slate-200">
+								<th className="text-left font-bold p-3 text-slate-900">
 									Deliverable Work Item
 								</th>
 								{RACI_ROLES.map((r) => (
 									<th
 										key={r}
-										className="p-3 font-[700] text-center text-[#1D1D1F]"
+										className="p-3 font-mono font-bold text-center text-slate-700"
 									>
-										<span className="w-8 h-8 rounded-[10px] bg-black/[0.04] inline-flex items-center justify-center text-[12px] font-[650]">
+										<span className="px-2 py-1 rounded bg-slate-100 text-slate-700 text-[11px]">
 											{r}
 										</span>
 									</th>
 								))}
 							</tr>
 						</thead>
-						<tbody>
+						<tbody className="divide-y divide-slate-100">
 							{RACI_DELIVERABLES.map((deliv) => (
-								<tr
-									key={deliv}
-									className="border-b border-black/[0.04] hover:bg-white/50 transition"
-								>
-									<td className="p-3 font-[650] text-[#1D1D1F]">{deliv}</td>
-									{RACI_ROLES.map((roleCode) => {
-										const item = raciList.find(
-											(x) => x.deliverable === deliv && x.roleCode === roleCode,
-										);
-										const currentVal = item?.assignment || "—";
+								<tr key={deliv} className="hover:bg-slate-50/60 transition">
+									<td className="p-3 font-semibold text-slate-900">{deliv}</td>
+									{RACI_ROLES.map((role) => {
+										const current =
+											raciList.find(
+												(r) => r.deliverable === deliv && r.roleCode === role,
+											)?.assignment || "—";
 
 										return (
-											<td key={roleCode} className="p-3 text-center">
+											<td key={role} className="p-3 text-center">
 												<select
-													value={currentVal}
+													value={current}
 													onChange={(e) =>
-														handleChange(deliv, roleCode, e.target.value as any)
+														handleChange(deliv, role, e.target.value as any)
 													}
-													className="input-glass !h-[32px] !w-[64px] !px-1 text-center font-[600] !rounded-[8px]"
+													className={`font-mono text-[11px] font-bold px-2 py-1 rounded border outline-none cursor-pointer ${
+														current === "R" || current === "A/R"
+															? "bg-blue-50 text-blue-700 border-blue-200"
+															: current === "A"
+																? "bg-emerald-50 text-emerald-700 border-emerald-200"
+																: current === "C"
+																	? "bg-amber-50 text-amber-700 border-amber-200"
+																	: current === "I"
+																		? "bg-indigo-50 text-indigo-700 border-indigo-200"
+																		: "bg-slate-50 text-slate-400 border-slate-200"
+													}`}
 												>
-													{["R", "A", "C", "I", "—", "A/R"].map((opt) => (
-														<option key={opt} value={opt}>
-															{opt}
-														</option>
-													))}
+													<option value="—">—</option>
+													<option value="R">R</option>
+													<option value="A">A</option>
+													<option value="C">C</option>
+													<option value="I">I</option>
+													<option value="A/R">A/R</option>
 												</select>
 											</td>
 										);
@@ -132,26 +141,6 @@ export const RaciView: React.FC<RaciViewProps> = ({ projects }) => {
 							))}
 						</tbody>
 					</table>
-				</div>
-
-				{/* Legend */}
-				<div className="mt-6 pt-4 border-t border-black/[0.06] grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px] text-[#86868B]">
-					<div>
-						<strong className="text-[#1D1D1F]">R</strong> = Responsible (Does
-						the work)
-					</div>
-					<div>
-						<strong className="text-[#1D1D1F]">A</strong> = Accountable (Final
-						approval)
-					</div>
-					<div>
-						<strong className="text-[#1D1D1F]">C</strong> = Consulted (Provides
-						input)
-					</div>
-					<div>
-						<strong className="text-[#1D1D1F]">I</strong> = Informed (Kept
-						updated)
-					</div>
 				</div>
 			</div>
 		</div>

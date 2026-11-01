@@ -23,7 +23,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 		const s = search.toLowerCase();
 		return (
 			p.name.toLowerCase().includes(s) ||
-			p.stackNeeded.toLowerCase().includes(s)
+			p.stackNeeded.toLowerCase().includes(s) ||
+			p.phase.toLowerCase().includes(s)
 		);
 	});
 
@@ -32,27 +33,29 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 	};
 
 	return (
-		<div className="space-y-4">
+		<div className="space-y-6">
+			{/* Header */}
 			<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
 				<div>
-					<h2 className="text-[18px] font-[700] tracking-[-0.02em] text-[#1D1D1F]">
-						Projects & Delivery • Operations
+					<h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
+						Projects & Delivery Operations
 					</h2>
-					<p className="text-[12px] text-[#86868B]">
-						Track delivery progress, tech stacks, milestones, and team
-						assignments
+					<p className="text-[12px] text-slate-500">
+						Active creative & engineering builds, milestones, tech stacks, and
+						team assignments
 					</p>
 				</div>
 				<button
 					type="button"
 					onClick={() => onOpenModal("project")}
-					className="btn-liquid btn-liquid-primary !h-[32px]"
+					className="btn-primary !h-[34px]"
 				>
 					+ New Project
 				</button>
 			</div>
 
-			<div className="grid md:grid-cols-2 gap-4">
+			{/* Project Cards Grid */}
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 				{filteredProjects.map((project) => {
 					const clientName = getClientName(project.clientId);
 
@@ -60,70 +63,69 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 						<div
 							key={project.id}
 							onClick={() => onOpenProject(project.id)}
-							className="liquid-card p-5 cursor-pointer hover:shadow-lg transition space-y-4"
+							className="studio-card p-5 cursor-pointer hover:border-blue-400 hover:shadow-md transition bg-white space-y-4 group"
 						>
-							<div className="flex items-start justify-between">
-								<div>
-									<div className="text-[11px] font-[600] uppercase tracking-wider text-[#007AFF] mb-1">
+							{/* Top info */}
+							<div className="flex items-start justify-between gap-3">
+								<div className="min-w-0">
+									<div className="text-[11px] font-mono uppercase tracking-wider text-blue-600 font-semibold mb-1">
 										{clientName}
 									</div>
-									<h3 className="text-[16px] font-[700] text-[#1D1D1F] leading-tight">
+									<h3 className="text-[16px] font-bold text-slate-900 group-hover:text-blue-600 transition truncate">
 										{project.name}
 									</h3>
 								</div>
-								<span className="text-[11px] font-[600] px-2.5 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20">
+								<span className="badge-status badge-cobalt shrink-0 font-mono text-[11px]">
 									{project.phase}
 								</span>
 							</div>
 
 							{project.scope && (
-								<div className="text-[12px] text-[#86868B] line-clamp-2">
+								<p className="text-[12px] text-slate-500 line-clamp-2 leading-relaxed">
 									{project.scope}
-								</div>
+								</p>
 							)}
 
-							{/* Progress & Budget */}
-							<div className="space-y-1.5 pt-2 border-t border-black/[0.04]">
-								<div className="flex justify-between text-[11px] font-[500] text-[#86868B]">
-									<span>Progress</span>
-									<span className="font-[600] text-[#1D1D1F]">
+							{/* Progress Bar */}
+							<div className="space-y-1.5 pt-2 border-t border-slate-100">
+								<div className="flex justify-between text-[11px] font-medium text-slate-500">
+									<span>Delivery Velocity</span>
+									<span className="font-mono font-bold text-slate-900">
 										{project.progress}%
 									</span>
 								</div>
-								<div className="w-full h-2 rounded-full bg-black/[0.06] overflow-hidden">
+								<div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden border border-slate-200">
 									<div
-										className="h-full bg-gradient-to-r from-[#007AFF] to-[#30D158] rounded-full transition-all duration-300"
+										className="h-full bg-blue-600 rounded-full transition-all duration-300"
 										style={{ width: `${project.progress}%` }}
 									/>
 								</div>
 							</div>
 
-							{/* Footer info: Budget, Due date, Assigned team pills */}
-							<div className="flex items-center justify-between pt-2 border-t border-black/[0.04] text-[11px] text-[#86868B]">
-								<div>
-									Budget:{" "}
-									<span className="font-[650] text-[#1D1D1F]">
-										₹{(project.budget / 1000).toFixed(0)}k
-									</span>
-									{project.due && <span> • Due {project.due}</span>}
+							{/* Stack & Team & Budget Footer */}
+							<div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px]">
+								<div className="flex items-center gap-1.5 overflow-hidden">
+									{project.stackNeeded
+										.split(",")
+										.slice(0, 3)
+										.map((tag) => (
+											<span
+												key={tag.trim()}
+												className="font-mono text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200"
+											>
+												{tag.trim()}
+											</span>
+										))}
 								</div>
 
-								{/* Team Avatars */}
-								<div className="flex -space-x-1.5">
-									{project.assignedTeam.map((memberId) => {
-										const member = team.find(
-											(m) => m.id === memberId || m.legacyId === memberId,
-										);
-										return (
-											<div
-												key={memberId}
-												title={member?.name || memberId}
-												className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#6D28D9] to-[#007AFF] border-2 border-white flex items-center justify-center text-[9px] font-[700] text-white"
-											>
-												{member?.initials || memberId.slice(0, 2).toUpperCase()}
-											</div>
-										);
-									})}
+								<div className="flex items-center gap-2 shrink-0">
+									<span className="font-mono font-semibold text-slate-900">
+										₹{(project.budget / 1000).toFixed(0)}k
+									</span>
+									<span className="text-slate-300">•</span>
+									<span className="text-blue-600 font-semibold group-hover:underline">
+										Cockpit →
+									</span>
 								</div>
 							</div>
 						</div>
