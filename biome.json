@@ -1,0 +1,24 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.6.4/schema.json",
+	"files": { "includes": ["src/**", "*.ts", "*.js", "!node_modules", "!dist"] },
+	"formatter": { "indentStyle": "tab" },
+	"javascript": { "formatter": { "quoteStyle": "double" } },
+	"linter": {
+		"rules": {
+			"preset": "recommended",
+			"a11y": {
+				"noStaticElementInteractions": "off",
+				"useKeyWithClickEvents": "off",
+				"noAutofocus": "off",
+				"noLabelWithoutControl": "off"
+			},
+			"suspicious": {
+				"noUnknownAtRules": "off",
+				"noExplicitAny": "warn",
+				"noArrayIndexKey": "warn"
+			},
+			"style": { "noNonNullAssertion": "warn" },
+			"correctness": { "useExhaustiveDependencies": "warn" }
+		}
+	}
+}
