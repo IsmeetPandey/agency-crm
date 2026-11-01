@@ -1,18 +1,23 @@
 import type React from "react";
 import { useState } from "react";
 import { clientsRepository } from "../../lib/repositories/clients.repository";
+import type { Client } from "../../types";
 
 interface ClientModalProps {
+	initialClient?: Client | null;
 	onClose: () => void;
 	onSuccess: () => void;
 }
 
 export const ClientModal: React.FC<ClientModalProps> = ({
+	initialClient,
 	onClose,
 	onSuccess,
 }) => {
 	const [error, setError] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	const isEditing = !!initialClient;
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -26,17 +31,27 @@ export const ClientModal: React.FC<ClientModalProps> = ({
 
 		setIsSubmitting(true);
 		try {
-			await clientsRepository.create({
-				name,
-				contact: String(fd.get("contact") || ""),
-				email: String(fd.get("email") || ""),
-				phone: String(fd.get("phone") || ""),
-				notes: String(fd.get("notes") || ""),
-			});
+			if (isEditing && initialClient) {
+				await clientsRepository.update(initialClient.id, {
+					name,
+					contact: String(fd.get("contact") || ""),
+					email: String(fd.get("email") || ""),
+					phone: String(fd.get("phone") || ""),
+					notes: String(fd.get("notes") || ""),
+				});
+			} else {
+				await clientsRepository.create({
+					name,
+					contact: String(fd.get("contact") || ""),
+					email: String(fd.get("email") || ""),
+					phone: String(fd.get("phone") || ""),
+					notes: String(fd.get("notes") || ""),
+				});
+			}
 			onSuccess();
 			onClose();
 		} catch (err: any) {
-			setError(err.message || "Failed to create client");
+			setError(err.message || "Failed to save client");
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -47,7 +62,8 @@ export const ClientModal: React.FC<ClientModalProps> = ({
 			<div className="liquid-modal w-full max-w-md p-6 space-y-4">
 				<div className="flex items-center justify-between pb-3 border-b border-black/[0.08]">
 					<h3 className="text-[16px] font-[700] text-[#1D1D1F]">
-						New Client Account • Liquid Glass
+						{isEditing ? "Edit Client Account" : "New Client Account"} • Liquid
+						Glass
 					</h3>
 					<button
 						type="button"
@@ -72,6 +88,7 @@ export const ClientModal: React.FC<ClientModalProps> = ({
 						<input
 							name="name"
 							required
+							defaultValue={initialClient?.name || ""}
 							placeholder="e.g. Orbit Technologies"
 							className="input-glass"
 						/>
@@ -83,6 +100,7 @@ export const ClientModal: React.FC<ClientModalProps> = ({
 						</label>
 						<input
 							name="contact"
+							defaultValue={initialClient?.contact || ""}
 							placeholder="e.g. Avery Quinn"
 							className="input-glass"
 						/>
@@ -96,6 +114,7 @@ export const ClientModal: React.FC<ClientModalProps> = ({
 							<input
 								name="email"
 								type="email"
+								defaultValue={initialClient?.email || ""}
 								placeholder="avery@orbit.example"
 								className="input-glass"
 							/>
@@ -106,6 +125,7 @@ export const ClientModal: React.FC<ClientModalProps> = ({
 							</label>
 							<input
 								name="phone"
+								defaultValue={initialClient?.phone || ""}
 								placeholder="+91..."
 								className="input-glass"
 							/>
@@ -119,6 +139,7 @@ export const ClientModal: React.FC<ClientModalProps> = ({
 						<textarea
 							name="notes"
 							rows={2}
+							defaultValue={initialClient?.notes || ""}
 							placeholder="B2B client background, billing requirements..."
 							className="input-glass !h-auto py-2"
 						/>
@@ -137,7 +158,11 @@ export const ClientModal: React.FC<ClientModalProps> = ({
 							disabled={isSubmitting}
 							className="btn-liquid btn-liquid-primary !h-[32px]"
 						>
-							{isSubmitting ? "Saving..." : "Add Client"}
+							{isSubmitting
+								? "Saving..."
+								: isEditing
+									? "Update Client"
+									: "Add Client"}
 						</button>
 					</div>
 				</form>

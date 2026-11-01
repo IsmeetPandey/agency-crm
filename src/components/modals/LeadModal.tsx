@@ -5,13 +5,20 @@ import { leadsRepository } from "../../lib/repositories/leads.repository";
 import type { Lead } from "../../types";
 
 interface LeadModalProps {
+	initialLead?: Lead | null;
 	onClose: () => void;
 	onSuccess: () => void;
 }
 
-export const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSuccess }) => {
+export const LeadModal: React.FC<LeadModalProps> = ({
+	initialLead,
+	onClose,
+	onSuccess,
+}) => {
 	const [error, setError] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	const isEditing = !!initialLead;
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -25,21 +32,35 @@ export const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSuccess }) => {
 
 		setIsSubmitting(true);
 		try {
-			await leadsRepository.create({
-				name,
-				contact: String(fd.get("contact") || ""),
-				email: String(fd.get("email") || ""),
-				service: String(fd.get("service") || ""),
-				value: Number(fd.get("value") || 0),
-				stage: String(fd.get("stage") || "New") as any,
-				owner: String(fd.get("owner") || "Abhishek"),
-				followup: String(fd.get("followup") || ""),
-				notes: String(fd.get("notes") || ""),
-			});
+			if (isEditing && initialLead) {
+				await leadsRepository.update(initialLead.id, {
+					name,
+					contact: String(fd.get("contact") || ""),
+					email: String(fd.get("email") || ""),
+					service: String(fd.get("service") || ""),
+					value: Number(fd.get("value") || 0),
+					stage: String(fd.get("stage") || "New") as any,
+					owner: String(fd.get("owner") || "Abhishek"),
+					followup: String(fd.get("followup") || ""),
+					notes: String(fd.get("notes") || ""),
+				});
+			} else {
+				await leadsRepository.create({
+					name,
+					contact: String(fd.get("contact") || ""),
+					email: String(fd.get("email") || ""),
+					service: String(fd.get("service") || ""),
+					value: Number(fd.get("value") || 0),
+					stage: String(fd.get("stage") || "New") as any,
+					owner: String(fd.get("owner") || "Abhishek"),
+					followup: String(fd.get("followup") || ""),
+					notes: String(fd.get("notes") || ""),
+				});
+			}
 			onSuccess();
 			onClose();
 		} catch (err: any) {
-			setError(err.message || "Failed to create lead");
+			setError(err.message || "Failed to save lead");
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -50,7 +71,8 @@ export const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSuccess }) => {
 			<div className="liquid-modal w-full max-w-lg p-6 space-y-4">
 				<div className="flex items-center justify-between pb-3 border-b border-black/[0.08]">
 					<h3 className="text-[16px] font-[700] text-[#1D1D1F]">
-						New Opportunity • Sales Pipeline
+						{isEditing ? "Edit Opportunity" : "New Opportunity"} • Sales
+						Pipeline
 					</h3>
 					<button
 						type="button"
@@ -75,6 +97,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSuccess }) => {
 						<input
 							name="name"
 							required
+							defaultValue={initialLead?.name || ""}
 							placeholder="e.g. Acme Health"
 							className="input-glass"
 						/>
@@ -87,6 +110,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSuccess }) => {
 							</label>
 							<input
 								name="contact"
+								defaultValue={initialLead?.contact || ""}
 								placeholder="e.g. Jordan Lee"
 								className="input-glass"
 							/>
@@ -98,6 +122,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSuccess }) => {
 							<input
 								name="email"
 								type="email"
+								defaultValue={initialLead?.email || ""}
 								placeholder="jordan@acme.example"
 								className="input-glass"
 							/>
@@ -111,6 +136,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSuccess }) => {
 							</label>
 							<input
 								name="service"
+								defaultValue={initialLead?.service || ""}
 								placeholder="e.g. Next.js Commerce + Brand"
 								className="input-glass"
 							/>
@@ -122,6 +148,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSuccess }) => {
 							<input
 								name="value"
 								type="number"
+								defaultValue={initialLead?.value || 250000}
 								placeholder="250000"
 								className="input-glass"
 							/>
@@ -131,9 +158,13 @@ export const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSuccess }) => {
 					<div className="grid grid-cols-2 gap-3">
 						<div>
 							<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
-								Initial Stage
+								Stage
 							</label>
-							<select name="stage" defaultValue="New" className="input-glass">
+							<select
+								name="stage"
+								defaultValue={initialLead?.stage || "New"}
+								className="input-glass"
+							>
 								{STAGES.map((s) => (
 									<option key={s} value={s}>
 										{s}
@@ -147,7 +178,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSuccess }) => {
 							</label>
 							<input
 								name="owner"
-								defaultValue="Abhishek"
+								defaultValue={initialLead?.owner || "Abhishek"}
 								className="input-glass"
 							/>
 						</div>
@@ -157,7 +188,12 @@ export const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSuccess }) => {
 						<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
 							Follow-up Date
 						</label>
-						<input name="followup" type="date" className="input-glass" />
+						<input
+							name="followup"
+							type="date"
+							defaultValue={initialLead?.followup || ""}
+							className="input-glass"
+						/>
 					</div>
 
 					<div>
@@ -167,6 +203,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSuccess }) => {
 						<textarea
 							name="notes"
 							rows={2}
+							defaultValue={initialLead?.notes || ""}
 							placeholder="Key client requirements, scope notes..."
 							className="input-glass !h-auto py-2"
 						/>
@@ -185,7 +222,11 @@ export const LeadModal: React.FC<LeadModalProps> = ({ onClose, onSuccess }) => {
 							disabled={isSubmitting}
 							className="btn-liquid btn-liquid-primary !h-[32px]"
 						>
-							{isSubmitting ? "Saving..." : "Create Opportunity"}
+							{isSubmitting
+								? "Saving..."
+								: isEditing
+									? "Update Opportunity"
+									: "Create Opportunity"}
 						</button>
 					</div>
 				</form>

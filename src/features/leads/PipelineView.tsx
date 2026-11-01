@@ -1,13 +1,14 @@
 import type React from "react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { STAGE_META, STAGES } from "../../lib/constants/agency";
+import { useToast } from "../../lib/feedback/toast.context";
 import { leadsRepository } from "../../lib/repositories/leads.repository";
 import type { Lead, LeadStage } from "../../types";
 
 interface PipelineViewProps {
 	leads: Lead[];
 	onRefresh: () => void;
-	onOpenModal: (type: string) => void;
+	onOpenModal: (type: string, data?: any) => void;
 	search: string;
 }
 
@@ -19,15 +20,38 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 }) => {
 	const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
 	const [convertingId, setConvertingId] = useState<string | null>(null);
-	const [successMessage, setSuccessMessage] = useState<string | null>(null);
+	const [selectedOwner, setSelectedOwner] = useState<string>("All");
+	const [selectedService, setSelectedService] = useState<string>("All");
+	const { showToast } = useToast();
+
+	// Distinct owners & services for filtering
+	const owners = useMemo(() => {
+		const set = new Set<string>();
+		for (const l of leads) {
+			if (l.owner) set.add(l.owner);
+		}
+		return ["All", ...Array.from(set).sort()];
+	}, [leads]);
+
+	const services = useMemo(() => {
+		const set = new Set<string>();
+		for (const l of leads) {
+			if (l.service) set.add(l.service);
+		}
+		return ["All", ...Array.from(set).sort()];
+	}, [leads]);
 
 	const filteredLeads = leads.filter((l) => {
+		if (selectedOwner !== "All" && l.owner !== selectedOwner) return false;
+		if (selectedService !== "All" && l.service !== selectedService)
+			return false;
 		if (!search) return true;
 		const s = search.toLowerCase();
 		return (
 			l.name.toLowerCase().includes(s) ||
 			l.service.toLowerCase().includes(s) ||
-			l.contact.toLowerCase().includes(s)
+			l.contact.toLowerCase().includes(s) ||
+			l.owner.toLowerCase().includes(s)
 		);
 	});
 
@@ -39,9 +63,18 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 		if (!draggedLeadId) return;
 		try {
 			await leadsRepository.updateStage(draggedLeadId, stage);
+			showToast({
+				type: "info",
+				title: "Pipeline Updated",
+				message: `Opportunity stage updated to "${stage}"`,
+			});
 			onRefresh();
-		} catch (e) {
-			console.error("Failed to update stage:", e);
+		} catch (e: any) {
+			showToast({
+				type: "error",
+				title: "Update Failed",
+				message: e.message || "Failed to update stage",
+			});
 		} finally {
 			setDraggedLeadId(null);
 		}
@@ -51,13 +84,18 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 		setConvertingId(leadId);
 		try {
 			const { lead, client } = await leadsRepository.convertToClient(leadId);
-			setSuccessMessage(
-				`Converted "${lead.name}" to Client "${client.name}" successfully!`,
-			);
-			setTimeout(() => setSuccessMessage(null), 4000);
+			showToast({
+				type: "success",
+				title: "Opportunity Converted",
+				message: `Converted "${lead.name}" to Client "${client.name}" successfully!`,
+			});
 			onRefresh();
 		} catch (e: any) {
-			alert(`Conversion error: ${e.message}`);
+			showToast({
+				type: "error",
+				title: "Conversion Error",
+				message: e.message || "Failed to convert opportunity to client",
+			});
 		} finally {
 			setConvertingId(null);
 		}
@@ -72,8 +110,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 						Sales Pipeline • Liquid Board
 					</h2>
 					<p className="text-[12px] text-[#86868B]">
-						Drag cards between stages or use quick actions to convert won
-						opportunities to clients
+						Drag cards between stages, filter by owner or service, and click
+						cards to edit details
 					</p>
 				</div>
 				<button
@@ -85,18 +123,55 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 				</button>
 			</div>
 
-			{successMessage && (
-				<div className="p-3 rounded-[12px] bg-[#30D158]/15 border border-[#30D158]/25 text-[#1D1D1F] text-[12px] font-[500] flex items-center justify-between animate-in fade-in">
-					<span>✓ {successMessage}</span>
+			{/* Filter Controls Bar */}
+			<div className="liquid-card p-2.5 flex flex-wrap items-center gap-3 text-[12px]">
+				<div className="flex items-center gap-1.5">
+					<span className="text-[#86868B] font-[550] text-[11px] uppercase tracking-wider">
+						Owner:
+					</span>
+					<select
+						value={selectedOwner}
+						onChange={(e) => setSelectedOwner(e.target.value)}
+						className="input-glass !h-[28px] !py-0 !text-[11px] !px-2 rounded-lg"
+					>
+						{owners.map((o) => (
+							<option key={o} value={o}>
+								{o}
+							</option>
+						))}
+					</select>
+				</div>
+
+				<div className="flex items-center gap-1.5">
+					<span className="text-[#86868B] font-[550] text-[11px] uppercase tracking-wider">
+						Service:
+					</span>
+					<select
+						value={selectedService}
+						onChange={(e) => setSelectedService(e.target.value)}
+						className="input-glass !h-[28px] !py-0 !text-[11px] !px-2 rounded-lg max-w-[200px]"
+					>
+						{services.map((s) => (
+							<option key={s} value={s}>
+								{s}
+							</option>
+						))}
+					</select>
+				</div>
+
+				{(selectedOwner !== "All" || selectedService !== "All") && (
 					<button
 						type="button"
-						onClick={() => setSuccessMessage(null)}
-						className="text-[11px] font-[600] text-[#30D158]"
+						onClick={() => {
+							setSelectedOwner("All");
+							setSelectedService("All");
+						}}
+						className="text-[11px] text-[#007AFF] hover:underline font-[500] ml-auto"
 					>
-						Dismiss
+						Reset Filters
 					</button>
-				</div>
-			)}
+				)}
+			</div>
 
 			{/* Kanban Board - 6 stages */}
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
@@ -146,12 +221,16 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 										key={lead.id}
 										draggable
 										onDragStart={() => handleDragStart(lead.id)}
-										className="p-3 rounded-[12px] bg-white/75 backdrop-blur border border-black/[0.06] hover:bg-white hover:shadow-md cursor-grab active:cursor-grabbing transition space-y-2"
+										className="p-3 rounded-[12px] bg-white/75 backdrop-blur border border-black/[0.06] hover:bg-white hover:shadow-md cursor-grab active:cursor-grabbing transition space-y-2 group"
 									>
 										<div className="flex items-start justify-between">
-											<span className="text-[13px] font-[650] text-[#1D1D1F] leading-tight">
+											<button
+												type="button"
+												onClick={() => onOpenModal("lead", { lead })}
+												className="text-[13px] font-[650] text-[#1D1D1F] leading-tight text-left hover:text-[#007AFF] transition"
+											>
 												{lead.name}
-											</span>
+											</button>
 											<span className="text-[11px] font-[700] text-[#6D28D9]">
 												₹{(lead.value / 1000).toFixed(0)}k
 											</span>
@@ -197,21 +276,37 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 												</span>
 											)}
 
-											<select
-												value={lead.stage}
-												onChange={(e) => {
-													leadsRepository
-														.updateStage(lead.id, e.target.value as LeadStage)
-														.then(onRefresh);
-												}}
-												className="text-[10px] bg-transparent border border-black/[0.08] rounded px-1 py-0.5 text-[#86868B]"
-											>
-												{STAGES.map((s) => (
-													<option key={s} value={s}>
-														{s}
-													</option>
-												))}
-											</select>
+											<div className="flex items-center gap-1">
+												<button
+													type="button"
+													onClick={() => onOpenModal("lead", { lead })}
+													className="text-[10px] px-1.5 py-0.5 rounded text-[#86868B] hover:text-[#1D1D1F] hover:bg-black/[0.05]"
+													title="Edit Opportunity"
+												>
+													✎
+												</button>
+												<select
+													value={lead.stage}
+													onChange={(e) => {
+														leadsRepository
+															.updateStage(lead.id, e.target.value as LeadStage)
+															.then(() => {
+																showToast({
+																	type: "info",
+																	message: `Stage set to ${e.target.value}`,
+																});
+																onRefresh();
+															});
+													}}
+													className="text-[10px] bg-transparent border border-black/[0.08] rounded px-1 py-0.5 text-[#86868B]"
+												>
+													{STAGES.map((s) => (
+														<option key={s} value={s}>
+															{s}
+														</option>
+													))}
+												</select>
+											</div>
 										</div>
 									</div>
 								))}

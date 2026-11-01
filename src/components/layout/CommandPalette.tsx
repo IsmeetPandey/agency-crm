@@ -20,6 +20,16 @@ interface CommandPaletteProps {
 	onOpenModal: (type: string) => void;
 }
 
+interface PaletteAction {
+	id: string;
+	title: string;
+	subtitle?: string;
+	badge?: string;
+	icon: string;
+	section: string;
+	perform: () => void;
+}
+
 export const CommandPalette: React.FC<CommandPaletteProps> = ({
 	isOpen,
 	onClose,
@@ -32,69 +42,214 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 	onOpenModal,
 }) => {
 	const [query, setQuery] = useState("");
+	const [selectedIndex, setSelectedIndex] = useState(0);
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
 		if (isOpen) {
+			setSelectedIndex(0);
 			setTimeout(() => inputRef.current?.focus(), 50);
 		} else {
 			setQuery("");
 		}
 	}, [isOpen]);
 
-	if (!isOpen) return null;
-
 	const q = query.toLowerCase().trim();
 
-	const matchingLeads = q
-		? leads
-				.filter(
-					(l) =>
-						l.name.toLowerCase().includes(q) ||
-						l.service.toLowerCase().includes(q),
-				)
-				.slice(0, 4)
-		: [];
-	const matchingProjects = q
-		? projects
-				.filter(
-					(p) =>
-						p.name.toLowerCase().includes(q) ||
-						p.stackNeeded.toLowerCase().includes(q),
-				)
-				.slice(0, 4)
-		: [];
-	const matchingClients = q
-		? clients
-				.filter(
-					(c) =>
-						c.name.toLowerCase().includes(q) ||
-						c.contact.toLowerCase().includes(q),
-				)
-				.slice(0, 3)
-		: [];
-	const matchingTasks = q
-		? tasks.filter((t) => t.name.toLowerCase().includes(q)).slice(0, 3)
-		: [];
-	const matchingTeam = q
-		? team
-				.filter(
-					(m) =>
-						m.name.toLowerCase().includes(q) ||
-						m.roleTitle.toLowerCase().includes(q),
-				)
-				.slice(0, 3)
-		: [];
+	const items: PaletteAction[] = [];
 
-	const hasResults =
-		matchingLeads.length > 0 ||
-		matchingProjects.length > 0 ||
-		matchingClients.length > 0 ||
-		matchingTasks.length > 0 ||
-		matchingTeam.length > 0;
+	if (!q) {
+		items.push({
+			id: "action-lead",
+			title: "Create New Opportunity",
+			subtitle: "Log pipeline lead with value and owner",
+			badge: "+Lead",
+			icon: "❖",
+			section: "Quick Actions",
+			perform: () => {
+				onOpenModal("lead");
+				onClose();
+			},
+		});
+		items.push({
+			id: "action-project",
+			title: "New Project with Auto-Team",
+			subtitle: "Allocate resources and setup gates",
+			badge: "+Project",
+			icon: "◼",
+			section: "Quick Actions",
+			perform: () => {
+				onOpenModal("project");
+				onClose();
+			},
+		});
+		items.push({
+			id: "action-client",
+			title: "Add Client Company",
+			subtitle: "Register brand account and contact",
+			badge: "+Client",
+			icon: "⚑",
+			section: "Quick Actions",
+			perform: () => {
+				onOpenModal("client");
+				onClose();
+			},
+		});
+		items.push({
+			id: "action-task",
+			title: "Create Deliverable Task",
+			subtitle: "Assign work item to department owner",
+			badge: "+Task",
+			icon: "✓",
+			section: "Quick Actions",
+			perform: () => {
+				onOpenModal("task");
+				onClose();
+			},
+		});
+	} else {
+		// Projects
+		const matchingProjects = projects
+			.filter(
+				(p) =>
+					p.name.toLowerCase().includes(q) ||
+					p.stackNeeded.toLowerCase().includes(q),
+			)
+			.slice(0, 4);
+		for (const p of matchingProjects) {
+			items.push({
+				id: `p-${p.id}`,
+				title: p.name,
+				subtitle: `${p.phase} • ${p.progress}% completed`,
+				badge: "Project",
+				icon: "◼",
+				section: "Projects",
+				perform: () => {
+					onNavigate("project", p.id);
+					onClose();
+				},
+			});
+		}
+
+		// Leads
+		const matchingLeads = leads
+			.filter(
+				(l) =>
+					l.name.toLowerCase().includes(q) ||
+					l.service.toLowerCase().includes(q) ||
+					l.contact.toLowerCase().includes(q),
+			)
+			.slice(0, 4);
+		for (const l of matchingLeads) {
+			items.push({
+				id: `l-${l.id}`,
+				title: l.name,
+				subtitle: `${l.service} • Owner: ${l.owner}`,
+				badge: `₹${(l.value / 1000).toFixed(0)}k • ${l.stage}`,
+				icon: "❖",
+				section: "Opportunities",
+				perform: () => {
+					onNavigate("pipeline");
+					onClose();
+				},
+			});
+		}
+
+		// Clients
+		const matchingClients = clients
+			.filter(
+				(c) =>
+					c.name.toLowerCase().includes(q) ||
+					c.contact.toLowerCase().includes(q),
+			)
+			.slice(0, 3);
+		for (const c of matchingClients) {
+			items.push({
+				id: `c-${c.id}`,
+				title: c.name,
+				subtitle: `Contact: ${c.contact}`,
+				badge: "Client",
+				icon: "⚑",
+				section: "Clients",
+				perform: () => {
+					onNavigate("clients");
+					onClose();
+				},
+			});
+		}
+
+		// Tasks
+		const matchingTasks = tasks
+			.filter(
+				(t) =>
+					t.name.toLowerCase().includes(q) || t.owner.toLowerCase().includes(q),
+			)
+			.slice(0, 3);
+		for (const t of matchingTasks) {
+			items.push({
+				id: `t-${t.id}`,
+				title: t.name,
+				subtitle: `Dept: ${t.dept} • Assignee: ${t.owner}`,
+				badge: t.status,
+				icon: "✓",
+				section: "Tasks",
+				perform: () => {
+					onNavigate("project", t.projectId);
+					onClose();
+				},
+			});
+		}
+
+		// Team
+		const matchingTeam = team
+			.filter(
+				(m) =>
+					m.name.toLowerCase().includes(q) ||
+					m.roleTitle.toLowerCase().includes(q),
+			)
+			.slice(0, 3);
+		for (const m of matchingTeam) {
+			items.push({
+				id: `m-${m.id}`,
+				title: m.name,
+				subtitle: m.roleTitle,
+				badge: "Team",
+				icon: "👤",
+				section: "Team Directory",
+				perform: () => {
+					onNavigate("team");
+					onClose();
+				},
+			});
+		}
+	}
+
+	// Keyboard arrow navigation
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (e.key === "ArrowDown") {
+			e.preventDefault();
+			setSelectedIndex((prev) =>
+				items.length ? (prev + 1) % items.length : 0,
+			);
+		} else if (e.key === "ArrowUp") {
+			e.preventDefault();
+			setSelectedIndex((prev) =>
+				items.length ? (prev - 1 + items.length) % items.length : 0,
+			);
+		} else if (e.key === "Enter") {
+			e.preventDefault();
+			if (items[selectedIndex]) {
+				items[selectedIndex].perform();
+			}
+		} else if (e.key === "Escape") {
+			onClose();
+		}
+	};
+
+	if (!isOpen) return null;
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/30 backdrop-blur-sm animate-in fade-in">
+		<div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/35 backdrop-blur-md animate-in fade-in">
 			<div className="spotlight w-full max-w-xl overflow-hidden shadow-2xl border border-black/10">
 				{/* Search header */}
 				<div className="flex items-center px-4 py-3 border-b border-black/[0.08]">
@@ -102,9 +257,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 					<input
 						ref={inputRef}
 						type="text"
-						placeholder="Type a command, project, lead, or team member..."
+						placeholder="Search projects, leads, team, or run command... (↑↓ to navigate, ↵ to select)"
 						value={query}
-						onChange={(e) => setQuery(e.target.value)}
+						onChange={(e) => {
+							setQuery(e.target.value);
+							setSelectedIndex(0);
+						}}
+						onKeyDown={handleKeyDown}
 						className="w-full bg-transparent text-[14px] text-[#1D1D1F] outline-none placeholder-[#86868B]"
 					/>
 					<button
@@ -117,150 +276,76 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 				</div>
 
 				{/* Results or Quick Actions */}
-				<div className="max-h-[380px] overflow-y-auto p-2 space-y-3 mac-scroll">
-					{q && !hasResults && (
+				<div className="max-h-[380px] overflow-y-auto p-2 space-y-1 mac-scroll">
+					{q && items.length === 0 && (
 						<div className="py-8 text-center text-[13px] text-[#86868B]">
 							No records found matching &ldquo;{query}&rdquo;
 						</div>
 					)}
 
-					{/* Quick Actions (when query is empty) */}
-					{!q && (
-						<div>
-							<div className="px-2 py-1 text-[11px] font-[600] uppercase tracking-wider text-[#86868B]">
-								Quick Actions
-							</div>
-							<div className="space-y-0.5">
-								<button
-									type="button"
-									onClick={() => {
-										onOpenModal("lead");
-										onClose();
-									}}
-									className="w-full text-left px-3 py-2 rounded-lg text-[13px] hover:bg-black/[0.04] flex items-center justify-between"
-								>
-									<span className="flex items-center gap-2">
-										<span className="text-[#6D28D9]">❖</span> Create New
-										Opportunity
-									</span>
-									<span className="text-[11px] text-[#86868B] font-mono">
-										+Lead
-									</span>
-								</button>
-								<button
-									type="button"
-									onClick={() => {
-										onOpenModal("project");
-										onClose();
-									}}
-									className="w-full text-left px-3 py-2 rounded-lg text-[13px] hover:bg-black/[0.04] flex items-center justify-between"
-								>
-									<span className="flex items-center gap-2">
-										<span className="text-[#007AFF]">◼</span> New Project with
-										Auto-Team
-									</span>
-									<span className="text-[11px] text-[#86868B] font-mono">
-										+Project
-									</span>
-								</button>
-								<button
-									type="button"
-									onClick={() => {
-										onOpenModal("client");
-										onClose();
-									}}
-									className="w-full text-left px-3 py-2 rounded-lg text-[13px] hover:bg-black/[0.04] flex items-center justify-between"
-								>
-									<span className="flex items-center gap-2">
-										<span className="text-[#30D158]">⚑</span> Add Client Company
-									</span>
-									<span className="text-[11px] text-[#86868B] font-mono">
-										+Client
-									</span>
-								</button>
-							</div>
-						</div>
-					)}
+					{items.map((item, idx) => {
+						const isSelected = idx === selectedIndex;
+						const showSectionHeader =
+							idx === 0 || items[idx - 1].section !== item.section;
 
-					{/* Matching Projects */}
-					{matchingProjects.length > 0 && (
-						<div>
-							<div className="px-2 py-1 text-[11px] font-[600] uppercase tracking-wider text-[#86868B]">
-								Projects
-							</div>
-							{matchingProjects.map((p) => (
+						return (
+							<div key={item.id}>
+								{showSectionHeader && (
+									<div className="px-2 pt-2.5 pb-1 text-[10px] font-[650] uppercase tracking-wider text-[#86868B]">
+										{item.section}
+									</div>
+								)}
 								<button
-									key={p.id}
 									type="button"
-									onClick={() => {
-										onNavigate("project", p.id);
-										onClose();
-									}}
-									className="w-full text-left px-3 py-2 rounded-lg text-[13px] hover:bg-black/[0.04] flex items-center justify-between"
+									onClick={item.perform}
+									onMouseEnter={() => setSelectedIndex(idx)}
+									className={`w-full text-left px-3 py-2 rounded-lg text-[13px] transition flex items-center justify-between ${
+										isSelected
+											? "bg-[#007AFF]/10 text-[#007AFF] shadow-sm"
+											: "hover:bg-black/[0.04] text-[#1D1D1F]"
+									}`}
 								>
-									<span className="font-[550]">{p.name}</span>
-									<span className="text-[11px] text-[#86868B]">
-										{p.phase} • {p.progress}%
-									</span>
-								</button>
-							))}
-						</div>
-					)}
-
-					{/* Matching Leads */}
-					{matchingLeads.length > 0 && (
-						<div>
-							<div className="px-2 py-1 text-[11px] font-[600] uppercase tracking-wider text-[#86868B]">
-								Opportunities
-							</div>
-							{matchingLeads.map((l) => (
-								<button
-									key={l.id}
-									type="button"
-									onClick={() => {
-										onNavigate("pipeline");
-										onClose();
-									}}
-									className="w-full text-left px-3 py-2 rounded-lg text-[13px] hover:bg-black/[0.04] flex items-center justify-between"
-								>
-									<span>
-										<span className="font-[550]">{l.name}</span>
-										<span className="text-[11px] text-[#86868B] ml-2 font-[400]">
-											{l.service}
+									<span className="flex items-center gap-2.5 min-w-0">
+										<span className="text-[12px] opacity-75 shrink-0">
+											{item.icon}
+										</span>
+										<span className="truncate">
+											<span className="font-[550]">{item.title}</span>
+											{item.subtitle && (
+												<span className="text-[11px] text-[#86868B] ml-2 font-[400] truncate">
+													{item.subtitle}
+												</span>
+											)}
 										</span>
 									</span>
-									<span className="text-[11px] font-[600] text-[#6D28D9]">
-										₹{(l.value / 1000).toFixed(0)}k • {l.stage}
-									</span>
-								</button>
-							))}
-						</div>
-					)}
 
-					{/* Matching Team */}
-					{matchingTeam.length > 0 && (
-						<div>
-							<div className="px-2 py-1 text-[11px] font-[600] uppercase tracking-wider text-[#86868B]">
-								Team Directory
-							</div>
-							{matchingTeam.map((m) => (
-								<button
-									key={m.id}
-									type="button"
-									onClick={() => {
-										onNavigate("team");
-										onClose();
-									}}
-									className="w-full text-left px-3 py-2 rounded-lg text-[13px] hover:bg-black/[0.04] flex items-center justify-between"
-								>
-									<span className="font-[550]">{m.name}</span>
-									<span className="text-[11px] text-[#86868B]">
-										{m.roleTitle}
-									</span>
+									{item.badge && (
+										<span
+											className={`text-[11px] font-mono shrink-0 ml-2 ${
+												isSelected
+													? "text-[#007AFF] font-[600]"
+													: "text-[#86868B]"
+											}`}
+										>
+											{item.badge}
+										</span>
+									)}
 								</button>
-							))}
-						</div>
-					)}
+							</div>
+						);
+					})}
+				</div>
+
+				{/* Footer helper */}
+				<div className="px-4 py-2 bg-black/[0.02] border-t border-black/[0.06] flex items-center justify-between text-[11px] text-[#86868B]">
+					<div className="flex items-center gap-2">
+						<span>↑↓ Navigate</span>
+						<span>•</span>
+						<span>↵ Execute</span>
+						<span>•</span>
+						<span>esc Dismiss</span>
+					</div>
+					<span className="font-mono text-[10px]">Liquid Glass Spotlight</span>
 				</div>
 			</div>
 		</div>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { ErrorBoundary } from "./components/feedback/ErrorBoundary";
 import { CommandPalette } from "./components/layout/CommandPalette";
 import { Sidebar } from "./components/layout/Sidebar";
 import { Topbar } from "./components/layout/Topbar";
@@ -8,6 +9,7 @@ import { LeadModal } from "./components/modals/LeadModal";
 import { ProjectModal } from "./components/modals/ProjectModal";
 import { ScopeChangeModal } from "./components/modals/ScopeChangeModal";
 import { TaskModal } from "./components/modals/TaskModal";
+import { ToastContainer } from "./components/ui/Toast";
 import { ApprovalsView } from "./features/approvals/ApprovalsView";
 import { ClientsView } from "./features/clients/ClientsView";
 import { DashboardOverview } from "./features/dashboard/DashboardOverview";
@@ -20,6 +22,7 @@ import { SettingsView } from "./features/settings/SettingsView";
 import { TeamView } from "./features/team/TeamView";
 import { AuthProvider } from "./lib/auth/auth.context";
 import { DEPARTMENTS, getISTHour } from "./lib/constants/agency";
+import { ToastProvider } from "./lib/feedback/toast.context";
 import { activityRepository } from "./lib/repositories/activity.repository";
 import { clientsRepository } from "./lib/repositories/clients.repository";
 import { handoffsRepository } from "./lib/repositories/handoffs.repository";
@@ -219,7 +222,7 @@ function AgencyOSApp() {
 						<PipelineView
 							leads={leads}
 							onRefresh={loadData}
-							onOpenModal={(t) => setModal({ type: t })}
+							onOpenModal={(t, data) => setModal({ type: t, data })}
 							search={search}
 						/>
 					)}
@@ -228,7 +231,7 @@ function AgencyOSApp() {
 						<ClientsView
 							clients={clients}
 							projects={projects}
-							onOpenModal={(t) => setModal({ type: t })}
+							onOpenModal={(t, data) => setModal({ type: t, data })}
 							onNavigate={(v, pId) => {
 								if (pId) openProject(pId);
 								else setView(v);
@@ -318,10 +321,18 @@ function AgencyOSApp() {
 
 			{/* Modals */}
 			{modal?.type === "lead" && (
-				<LeadModal onClose={() => setModal(null)} onSuccess={loadData} />
+				<LeadModal
+					initialLead={modal.data?.lead}
+					onClose={() => setModal(null)}
+					onSuccess={loadData}
+				/>
 			)}
 			{modal?.type === "client" && (
-				<ClientModal onClose={() => setModal(null)} onSuccess={loadData} />
+				<ClientModal
+					initialClient={modal.data?.client}
+					onClose={() => setModal(null)}
+					onSuccess={loadData}
+				/>
 			)}
 			{modal?.type === "project" && (
 				<ProjectModal
@@ -358,14 +369,21 @@ function AgencyOSApp() {
 					onSuccess={loadData}
 				/>
 			)}
+
+			{/* Global Toast Feedback Container */}
+			<ToastContainer />
 		</div>
 	);
 }
 
 export default function App() {
 	return (
-		<AuthProvider>
-			<AgencyOSApp />
-		</AuthProvider>
+		<ErrorBoundary>
+			<AuthProvider>
+				<ToastProvider>
+					<AgencyOSApp />
+				</ToastProvider>
+			</AuthProvider>
+		</ErrorBoundary>
 	);
 }

@@ -4,7 +4,7 @@ import type { Client, Project } from "../../types";
 interface ClientsViewProps {
 	clients: Client[];
 	projects: Project[];
-	onOpenModal: (type: string) => void;
+	onOpenModal: (type: string, data?: any) => void;
 	onNavigate: (view: string, projectId?: string) => void;
 	search: string;
 }
@@ -22,7 +22,8 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 		return (
 			c.name.toLowerCase().includes(s) ||
 			c.contact.toLowerCase().includes(s) ||
-			c.email.toLowerCase().includes(s)
+			c.email.toLowerCase().includes(s) ||
+			(c.phone && c.phone.includes(s))
 		);
 	});
 
@@ -66,16 +67,33 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 										</span>
 									</div>
 								</div>
-								<span className="w-8 h-8 rounded-[10px] bg-black/[0.04] flex items-center justify-center text-[12px]">
-									⚑
-								</span>
+								<div className="flex items-center gap-1.5">
+									<button
+										type="button"
+										onClick={() => onOpenModal("client", { client })}
+										className="p-1 rounded text-[#86868B] hover:text-[#007AFF] hover:bg-black/[0.04] transition text-[12px]"
+										title="Edit Client"
+									>
+										✎
+									</button>
+									<span className="w-7 h-7 rounded-[8px] bg-black/[0.04] flex items-center justify-center text-[11px]">
+										⚑
+									</span>
+								</div>
 							</div>
 
-							{client.email && (
-								<div className="text-[12px] text-[#007AFF] font-mono truncate">
-									{client.email}
-								</div>
-							)}
+							<div className="space-y-1">
+								{client.email && (
+									<div className="text-[12px] text-[#007AFF] font-mono truncate">
+										{client.email}
+									</div>
+								)}
+								{client.phone && (
+									<div className="text-[11px] text-[#86868B] font-mono">
+										📞 {client.phone}
+									</div>
+								)}
+							</div>
 
 							{client.notes && (
 								<div className="p-2.5 rounded-[8px] bg-black/[0.02] border border-black/[0.04] text-[11px] text-[#86868B]">
