@@ -37,7 +37,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
 	pendingHandoffsCount,
 	onlineCount,
 	istHour,
-	departments,
 }) => {
 	const sections: NavSection[] = [
 		{
@@ -104,7 +103,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 					{/* Brand Header */}
 					<div className="flex items-center justify-between px-2 py-2 mb-2 border-b border-white/[0.08]">
 						<div className="flex items-center gap-2.5 min-w-0">
-							<div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-[14px] shrink-0 shadow-[0_0_12px_rgba(37,99,235,0.4)]">
+							<div className="w-8 h-8 rounded-lg bg-[#49B3FC] text-slate-950 flex items-center justify-center font-bold text-[14px] shrink-0 shadow-[0_0_12px_rgba(73,179,252,0.35)]">
 								K
 							</div>
 							{!collapsed && (
@@ -152,7 +151,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 											>
 												<div className="flex items-center gap-2.5 min-w-0">
 													<span
-														className={`text-[13px] font-mono shrink-0 ${active ? "text-blue-400" : "opacity-75"}`}
+														className={`text-[13px] font-mono shrink-0 ${active ? "text-[#49B3FC]" : "opacity-75"}`}
 													>
 														{item.icon}
 													</span>
@@ -168,7 +167,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 														<span
 															className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono font-semibold ${
 																active
-																	? "bg-blue-600 text-white"
+																	? "bg-[#49B3FC] text-slate-950"
 																	: "bg-white/[0.1] text-slate-300"
 															}`}
 														>

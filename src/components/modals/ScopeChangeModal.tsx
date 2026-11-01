@@ -54,36 +54,36 @@ export const ScopeChangeModal: React.FC<ScopeChangeModalProps> = ({
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in">
-			<div className="liquid-modal w-full max-w-md p-6 space-y-4">
-				<div className="flex items-center justify-between pb-3 border-b border-black/[0.08]">
-					<h3 className="text-[16px] font-[700] text-[#1D1D1F]">
+			<div className="studio-modal w-full max-w-md p-6 space-y-4">
+				<div className="flex items-center justify-between pb-3 border-b border-[#DEDEDE]">
+					<h3 className="text-[16px] font-[700] text-[#111111]">
 						Log Scope Change & Schedule Impact
 					</h3>
 					<button
 						type="button"
 						onClick={onClose}
-						className="text-[#86868B] hover:text-[#1D1D1F] text-[18px]"
+						className="text-[#767676] hover:text-[#111111] text-[18px] transition-colors"
 					>
 						×
 					</button>
 				</div>
 
 				{error && (
-					<div className="p-2.5 rounded-[8px] bg-[#FF2D55]/10 text-[#FF2D55] text-[12px] font-[500]">
+					<div className="p-2.5 rounded-[4px] bg-[#C62828]/10 text-[#C62828] text-[12px] font-[500]">
 						{error}
 					</div>
 				)}
 
 				<form onSubmit={handleSubmit} className="space-y-3">
 					<div>
-						<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+						<label className="text-[11px] font-[600] uppercase tracking-wider text-[#767676] mb-1 block">
 							Project *
 						</label>
 						<select
 							name="projectId"
 							defaultValue={initialProjectId || projects[0]?.id}
 							required
-							className="input-glass"
+							className="studio-input"
 						>
 							{projects.map((p) => (
 								<option key={p.id} value={p.id}>
@@ -94,26 +94,26 @@ export const ScopeChangeModal: React.FC<ScopeChangeModalProps> = ({
 					</div>
 
 					<div>
-						<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+						<label className="text-[11px] font-[600] uppercase tracking-wider text-[#767676] mb-1 block">
 							Scope Change Title *
 						</label>
 						<input
 							name="title"
 							required
 							placeholder="e.g. Add Multi-Currency Checkout Gateway"
-							className="input-glass"
+							className="studio-input"
 						/>
 					</div>
 
 					<div className="grid grid-cols-3 gap-3">
 						<div>
-							<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+							<label className="text-[11px] font-[600] uppercase tracking-wider text-[#767676] mb-1 block">
 								Category
 							</label>
 							<select
 								name="category"
 								defaultValue="Scope"
-								className="input-glass"
+								className="studio-input"
 							>
 								<option value="Scope">Scope</option>
 								<option value="Timeline">Timeline</option>
@@ -123,75 +123,75 @@ export const ScopeChangeModal: React.FC<ScopeChangeModalProps> = ({
 							</select>
 						</div>
 						<div>
-							<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+							<label className="text-[11px] font-[600] uppercase tracking-wider text-[#767676] mb-1 block">
 								Cost Delta (₹)
 							</label>
 							<input
 								name="costDelta"
 								type="number"
 								defaultValue={45000}
-								className="input-glass"
+								className="studio-input"
 							/>
 						</div>
 						<div>
-							<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+							<label className="text-[11px] font-[600] uppercase tracking-wider text-[#767676] mb-1 block">
 								Schedule (+Days)
 							</label>
 							<input
 								name="daysDelta"
 								type="number"
 								defaultValue={5}
-								className="input-glass"
+								className="studio-input"
 							/>
 						</div>
 					</div>
 
 					<div>
-						<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+						<label className="text-[11px] font-[600] uppercase tracking-wider text-[#767676] mb-1 block">
 							Requested By
 						</label>
 						<input
 							name="requestedBy"
 							defaultValue="Shradha"
-							className="input-glass"
+							className="studio-input"
 						/>
 					</div>
 
 					<div>
-						<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+						<label className="text-[11px] font-[600] uppercase tracking-wider text-[#767676] mb-1 block">
 							Change Description & Impact
 						</label>
 						<textarea
 							name="description"
 							rows={2}
 							placeholder="Why this change is required and impact on milestones..."
-							className="input-glass !h-auto py-2"
+							className="studio-input !h-auto py-2"
 						/>
 					</div>
 
 					<div>
-						<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+						<label className="text-[11px] font-[600] uppercase tracking-wider text-[#767676] mb-1 block">
 							Mitigation Strategy
 						</label>
 						<input
 							name="mitigation"
 							placeholder="e.g. Reallocate 2 devs from night shift..."
-							className="input-glass"
+							className="studio-input"
 						/>
 					</div>
 
-					<div className="flex justify-end gap-2 pt-3 border-t border-black/[0.08]">
+					<div className="flex justify-end gap-2 pt-3 border-t border-[#DEDEDE]">
 						<button
 							type="button"
 							onClick={onClose}
-							className="btn-liquid !h-[32px]"
+							className="btn-secondary !h-[34px]"
 						>
 							Cancel
 						</button>
 						<button
 							type="submit"
 							disabled={isSubmitting}
-							className="btn-liquid btn-liquid-primary !h-[32px]"
+							className="btn-primary !h-[34px]"
 						>
 							{isSubmitting ? "Logging..." : "Log Scope Change"}
 						</button>

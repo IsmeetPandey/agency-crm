@@ -58,31 +58,31 @@ export const ClientModal: React.FC<ClientModalProps> = ({
 	};
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in">
-			<div className="liquid-modal w-full max-w-md p-6 space-y-4">
-				<div className="flex items-center justify-between pb-3 border-b border-black/[0.08]">
-					<h3 className="text-[16px] font-[700] text-[#1D1D1F]">
-						{isEditing ? "Edit Client Account" : "New Client Account"} • Liquid
-						Glass
+		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-xs animate-in fade-in">
+			<div className="studio-modal w-full max-w-md p-6 space-y-4 bg-white border border-[#DEDEDE] shadow-xl rounded-xl">
+				<div className="flex items-center justify-between pb-3 border-b border-[#EDEDED]">
+					<h3 className="text-[16px] font-bold text-[#111111]">
+						{isEditing ? "Edit Client Account" : "New Client Account"}
 					</h3>
 					<button
 						type="button"
 						onClick={onClose}
-						className="text-[#86868B] hover:text-[#1D1D1F] text-[18px]"
+						className="text-[#808080] hover:text-[#111111] text-[18px]"
+						aria-label="Close"
 					>
 						×
 					</button>
 				</div>
 
 				{error && (
-					<div className="p-2.5 rounded-[8px] bg-[#FF2D55]/10 text-[#FF2D55] text-[12px] font-[500]">
+					<div className="p-2.5 rounded-md bg-[#FFF0F0] text-[#C62828] border border-[#F8C2C2] text-[12px] font-medium">
 						{error}
 					</div>
 				)}
 
 				<form onSubmit={handleSubmit} className="space-y-3">
 					<div>
-						<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+						<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
 							Company Name *
 						</label>
 						<input
@@ -90,25 +90,25 @@ export const ClientModal: React.FC<ClientModalProps> = ({
 							required
 							defaultValue={initialClient?.name || ""}
 							placeholder="e.g. Orbit Technologies"
-							className="input-glass"
+							className="studio-input"
 						/>
 					</div>
 
 					<div>
-						<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+						<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
 							Primary Contact Person
 						</label>
 						<input
 							name="contact"
 							defaultValue={initialClient?.contact || ""}
 							placeholder="e.g. Avery Quinn"
-							className="input-glass"
+							className="studio-input"
 						/>
 					</div>
 
 					<div className="grid grid-cols-2 gap-3">
 						<div>
-							<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
 								Email
 							</label>
 							<input
@@ -116,24 +116,24 @@ export const ClientModal: React.FC<ClientModalProps> = ({
 								type="email"
 								defaultValue={initialClient?.email || ""}
 								placeholder="avery@orbit.example"
-								className="input-glass"
+								className="studio-input"
 							/>
 						</div>
 						<div>
-							<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
 								Phone
 							</label>
 							<input
 								name="phone"
 								defaultValue={initialClient?.phone || ""}
 								placeholder="+91..."
-								className="input-glass"
+								className="studio-input font-mono"
 							/>
 						</div>
 					</div>
 
 					<div>
-						<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+						<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
 							Client Account Notes
 						</label>
 						<textarea
@@ -141,22 +141,22 @@ export const ClientModal: React.FC<ClientModalProps> = ({
 							rows={2}
 							defaultValue={initialClient?.notes || ""}
 							placeholder="B2B client background, billing requirements..."
-							className="input-glass !h-auto py-2"
+							className="studio-input !h-auto py-2"
 						/>
 					</div>
 
-					<div className="flex justify-end gap-2 pt-3 border-t border-black/[0.08]">
+					<div className="flex justify-end gap-2.5 pt-3 border-t border-[#EDEDED]">
 						<button
 							type="button"
 							onClick={onClose}
-							className="btn-liquid !h-[32px]"
+							className="btn-secondary !h-[34px]"
 						>
 							Cancel
 						</button>
 						<button
 							type="submit"
 							disabled={isSubmitting}
-							className="btn-liquid btn-liquid-primary !h-[32px]"
+							className="btn-primary !h-[34px]"
 						>
 							{isSubmitting
 								? "Saving..."

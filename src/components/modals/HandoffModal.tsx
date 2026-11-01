@@ -55,36 +55,36 @@ export const HandoffModal: React.FC<HandoffModalProps> = ({
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in">
-			<div className="liquid-modal w-full max-w-md p-6 space-y-4">
-				<div className="flex items-center justify-between pb-3 border-b border-black/[0.08]">
-					<h3 className="text-[16px] font-[700] text-[#1D1D1F]">
+			<div className="studio-modal w-full max-w-md p-6 space-y-4">
+				<div className="flex items-center justify-between pb-3 border-b border-[#DEDEDE]">
+					<h3 className="text-[16px] font-[700] text-[#111111]">
 						New Department Handoff • Flow
 					</h3>
 					<button
 						type="button"
 						onClick={onClose}
-						className="text-[#86868B] hover:text-[#1D1D1F] text-[18px]"
+						className="text-[#767676] hover:text-[#111111] text-[18px] transition-colors"
 					>
 						×
 					</button>
 				</div>
 
 				{error && (
-					<div className="p-2.5 rounded-[8px] bg-[#FF2D55]/10 text-[#FF2D55] text-[12px] font-[500]">
+					<div className="p-2.5 rounded-[4px] bg-[#C62828]/10 text-[#C62828] text-[12px] font-[500]">
 						{error}
 					</div>
 				)}
 
 				<form onSubmit={handleSubmit} className="space-y-3">
 					<div>
-						<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+						<label className="text-[11px] font-[600] uppercase tracking-wider text-[#767676] mb-1 block">
 							Project *
 						</label>
 						<select
 							name="projectId"
 							defaultValue={initialProjectId || projects[0]?.id}
 							required
-							className="input-glass"
+							className="studio-input"
 						>
 							{projects.map((p) => (
 								<option key={p.id} value={p.id}>
@@ -95,23 +95,27 @@ export const HandoffModal: React.FC<HandoffModalProps> = ({
 					</div>
 
 					<div>
-						<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+						<label className="text-[11px] font-[600] uppercase tracking-wider text-[#767676] mb-1 block">
 							Handoff Deliverable Summary *
 						</label>
 						<input
 							name="title"
 							required
 							placeholder="e.g. Design Tokens & UI Specs Package"
-							className="input-glass"
+							className="studio-input"
 						/>
 					</div>
 
 					<div className="grid grid-cols-2 gap-3">
 						<div>
-							<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+							<label className="text-[11px] font-[600] uppercase tracking-wider text-[#767676] mb-1 block">
 								From Department
 							</label>
-							<select name="from" defaultValue="Design" className="input-glass">
+							<select
+								name="from"
+								defaultValue="Design"
+								className="studio-input"
+							>
 								{departments.map((d) => (
 									<option key={d.id} value={d.code}>
 										{d.code}
@@ -120,10 +124,14 @@ export const HandoffModal: React.FC<HandoffModalProps> = ({
 							</select>
 						</div>
 						<div>
-							<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+							<label className="text-[11px] font-[600] uppercase tracking-wider text-[#767676] mb-1 block">
 								To Department
 							</label>
-							<select name="to" defaultValue="Frontend" className="input-glass">
+							<select
+								name="to"
+								defaultValue="Frontend"
+								className="studio-input"
+							>
 								{departments.map((d) => (
 									<option key={d.id} value={d.code}>
 										{d.code}
@@ -134,36 +142,36 @@ export const HandoffModal: React.FC<HandoffModalProps> = ({
 					</div>
 
 					<div>
-						<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+						<label className="text-[11px] font-[600] uppercase tracking-wider text-[#767676] mb-1 block">
 							Target Acceptance Date
 						</label>
-						<input name="due" type="date" className="input-glass" />
+						<input name="due" type="date" className="studio-input" />
 					</div>
 
 					<div>
-						<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+						<label className="text-[11px] font-[600] uppercase tracking-wider text-[#767676] mb-1 block">
 							Handoff Context / Notes
 						</label>
 						<textarea
 							name="description"
 							rows={2}
 							placeholder="Figma links, build notes, review checklist..."
-							className="input-glass !h-auto py-2"
+							className="studio-input !h-auto py-2"
 						/>
 					</div>
 
-					<div className="flex justify-end gap-2 pt-3 border-t border-black/[0.08]">
+					<div className="flex justify-end gap-2 pt-3 border-t border-[#DEDEDE]">
 						<button
 							type="button"
 							onClick={onClose}
-							className="btn-liquid !h-[32px]"
+							className="btn-secondary !h-[34px]"
 						>
 							Cancel
 						</button>
 						<button
 							type="submit"
 							disabled={isSubmitting}
-							className="btn-liquid btn-liquid-primary !h-[32px]"
+							className="btn-primary !h-[34px]"
 						>
 							{isSubmitting ? "Submitting..." : "Initiate Handoff"}
 						</button>

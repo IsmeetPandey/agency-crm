@@ -1,4 +1,4 @@
-import React, { Component, type ErrorInfo, type ReactNode } from "react";
+import { Component, type ErrorInfo, type ReactNode } from "react";
 
 interface Props {
 	children: ReactNode;
@@ -34,24 +34,24 @@ export class ErrorBoundary extends Component<Props, State> {
 	public render() {
 		if (this.state.hasError) {
 			return (
-				<div className="flex min-h-screen w-full items-center justify-center p-6 tahoe-bg text-[#1D1D1F]">
-					<div className="liquid-modal max-w-lg w-full p-8 text-center space-y-4 shadow-2xl">
-						<div className="w-12 h-12 rounded-2xl bg-[#FF2D55]/10 text-[#FF2D55] border border-[#FF2D55]/20 flex items-center justify-center text-[22px] mx-auto shadow-inner">
+				<div className="flex min-h-screen w-full items-center justify-center p-6 bg-[#F8F8F8] text-[#222222]">
+					<div className="studio-modal max-w-lg w-full p-8 text-center space-y-4 shadow-xl border border-[#DEDEDE] bg-white rounded-xl">
+						<div className="w-12 h-12 rounded-xl bg-[#FFF0F0] text-[#C62828] border border-[#F8C2C2] flex items-center justify-center text-[22px] mx-auto shadow-2xs">
 							⚠
 						</div>
 
 						<div className="space-y-1">
-							<h2 className="text-[18px] font-[700] text-[#1D1D1F] tracking-[-0.015em]">
+							<h2 className="text-[18px] font-bold text-[#111111] tracking-tight">
 								AgencyOS Encountered an Interruption
 							</h2>
-							<p className="text-[13px] text-[#86868B] max-w-md mx-auto">
+							<p className="text-[13px] text-[#666666] max-w-md mx-auto">
 								A presentation exception occurred. Your local agency business
 								records are protected and safe.
 							</p>
 						</div>
 
 						{this.state.error && (
-							<div className="p-3 rounded-[10px] bg-black/[0.04] border border-black/[0.08] text-left font-mono text-[11px] text-[#FF2D55] overflow-x-auto max-h-36">
+							<div className="p-3 rounded-lg bg-[#F8F8F8] border border-[#DEDEDE] text-left font-mono text-[11px] text-[#C62828] overflow-x-auto max-h-36">
 								{this.state.error.toString()}
 							</div>
 						)}
@@ -60,7 +60,7 @@ export class ErrorBoundary extends Component<Props, State> {
 							<button
 								type="button"
 								onClick={this.handleReset}
-								className="btn-liquid btn-liquid-primary !h-[36px] !px-5 text-[13px]"
+								className="btn-primary !h-[36px] !px-5 text-[13px]"
 							>
 								Reload Workspace
 							</button>
@@ -73,7 +73,7 @@ export class ErrorBoundary extends Component<Props, State> {
 										errorInfo: null,
 									});
 								}}
-								className="btn-liquid !h-[36px] !px-4 text-[13px]"
+								className="btn-secondary !h-[36px] !px-4 text-[13px]"
 							>
 								Try Dismissing
 							</button>

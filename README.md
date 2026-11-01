@@ -39,7 +39,7 @@ src/
 │   ├── repositories/             # Centralized typed data access layer (Supabase / local fallback)
 │   └── supabase/                 # Typed Supabase client, database types, RLS helpers
 ├── styles/
-│   └── liquid-glass.css          # Tahoe glass tokens (blur 30px, saturate 200%, 0.5px hairlines)
+│   └── awwwards-light.css        # Awwwards light tokens (Inter Tight, #49B3FC accent, #F8F8F8 canvas)
 └── types/                        # Core TypeScript domain entities
 ```
 

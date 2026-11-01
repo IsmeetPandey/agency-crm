@@ -1,4 +1,21 @@
-import type { Department, LeadershipRole, TeamMemberDetail } from "../../types";
+import type {
+	Department,
+	LeadershipRole,
+	ProjectPhase,
+	TeamMemberDetail,
+} from "../../types";
+
+export const PHASES: ProjectPhase[] = [
+	"Kickoff",
+	"Discovery",
+	"Design",
+	"Prototype",
+	"Build",
+	"QA",
+	"UAT",
+	"Launch",
+	"Close",
+];
 
 export const STAGES = [
 	"New",

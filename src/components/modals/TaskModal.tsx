@@ -28,7 +28,9 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 		setError(null);
 		const fd = new FormData(e.currentTarget);
 		const name = String(fd.get("name") || "").trim();
-		const projectId = String(fd.get("projectId") || "");
+		const projectId = String(
+			fd.get("projectId") || initialProjectId || projects[0]?.id || "",
+		);
 
 		if (!name || !projectId) {
 			setError("Task title and project are required");
@@ -57,37 +59,38 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 	};
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in">
-			<div className="liquid-modal w-full max-w-md p-6 space-y-4">
-				<div className="flex items-center justify-between pb-3 border-b border-black/[0.08]">
-					<h3 className="text-[16px] font-[700] text-[#1D1D1F]">
-						New Deliverable Task • Liquid Flow
+		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-xs animate-in fade-in">
+			<div className="studio-modal w-full max-w-md p-6 space-y-4 bg-white border border-[#DEDEDE] shadow-xl rounded-xl">
+				<div className="flex items-center justify-between pb-3 border-b border-[#EDEDED]">
+					<h3 className="text-[16px] font-bold text-[#111111]">
+						New Deliverable Work Item
 					</h3>
 					<button
 						type="button"
 						onClick={onClose}
-						className="text-[#86868B] hover:text-[#1D1D1F] text-[18px]"
+						className="text-[#808080] hover:text-[#111111] text-[18px]"
+						aria-label="Close"
 					>
 						×
 					</button>
 				</div>
 
 				{error && (
-					<div className="p-2.5 rounded-[8px] bg-[#FF2D55]/10 text-[#FF2D55] text-[12px] font-[500]">
+					<div className="p-2.5 rounded-md bg-[#FFF0F0] text-[#C62828] border border-[#F8C2C2] text-[12px] font-medium">
 						{error}
 					</div>
 				)}
 
 				<form onSubmit={handleSubmit} className="space-y-3">
 					<div>
-						<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+						<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
 							Project *
 						</label>
 						<select
 							name="projectId"
 							defaultValue={initialProjectId || projects[0]?.id}
 							required
-							className="input-glass"
+							className="studio-input font-medium"
 						>
 							{projects.map((p) => (
 								<option key={p.id} value={p.id}>
@@ -98,58 +101,50 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 					</div>
 
 					<div>
-						<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
-							Task Deliverable Title *
+						<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
+							Deliverable Title *
 						</label>
 						<input
 							name="name"
 							required
-							placeholder="e.g. Implement Cart Checkout Interaction"
-							className="input-glass"
+							placeholder="e.g. Implement WebGL Hero Animation"
+							className="studio-input"
 						/>
 					</div>
 
 					<div className="grid grid-cols-2 gap-3">
 						<div>
-							<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
 								Department
 							</label>
-							<select
-								name="dept"
-								defaultValue="Frontend"
-								className="input-glass"
-							>
+							<select name="dept" className="studio-input font-medium">
 								{departments.map((d) => (
-									<option key={d.id} value={d.code}>
-										{d.code} ({d.label})
+									<option key={d.code} value={d.name}>
+										{d.name}
 									</option>
 								))}
 							</select>
 						</div>
 						<div>
-							<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
 								Assignee
 							</label>
-							<select name="owner" defaultValue="Ansul" className="input-glass">
-								{team.map((m) => (
-									<option key={m.id} value={m.name}>
-										{m.name} ({m.roleTitle})
+							<select name="owner" className="studio-input font-medium">
+								{team.map((t) => (
+									<option key={t.id} value={t.name}>
+										{t.name} ({t.initials})
 									</option>
 								))}
 							</select>
 						</div>
 					</div>
 
-					<div className="grid grid-cols-2 gap-3">
+					<div className="grid grid-cols-3 gap-3">
 						<div>
-							<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
 								Status
 							</label>
-							<select
-								name="status"
-								defaultValue="In progress"
-								className="input-glass"
-							>
+							<select name="status" className="studio-input font-medium">
 								<option value="Todo">Todo</option>
 								<option value="In progress">In progress</option>
 								<option value="Blocked">Blocked</option>
@@ -157,39 +152,54 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 							</select>
 						</div>
 						<div>
-							<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
+							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
+								Priority
+							</label>
+							<select name="priority" className="studio-input font-medium">
+								<option value="Low">Low</option>
+								<option value="Medium">Medium</option>
+								<option value="High">High</option>
+								<option value="Critical">Critical</option>
+							</select>
+						</div>
+						<div>
+							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
 								Due Date
 							</label>
-							<input name="due" type="date" className="input-glass" />
+							<input
+								name="due"
+								type="date"
+								className="studio-input font-mono"
+							/>
 						</div>
 					</div>
 
 					<div>
-						<label className="text-[11px] font-[600] uppercase text-[#86868B] mb-1 block">
-							Description
+						<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
+							Technical Specification Notes
 						</label>
 						<textarea
 							name="description"
 							rows={2}
-							placeholder="Task acceptance criteria..."
-							className="input-glass !h-auto py-2"
+							placeholder="Deliverable dependencies, acceptance criteria..."
+							className="studio-input !h-auto py-2"
 						/>
 					</div>
 
-					<div className="flex justify-end gap-2 pt-3 border-t border-black/[0.08]">
+					<div className="flex justify-end gap-2.5 pt-3 border-t border-[#EDEDED]">
 						<button
 							type="button"
 							onClick={onClose}
-							className="btn-liquid !h-[32px]"
+							className="btn-secondary !h-[34px]"
 						>
 							Cancel
 						</button>
 						<button
 							type="submit"
 							disabled={isSubmitting}
-							className="btn-liquid btn-liquid-primary !h-[32px]"
+							className="btn-primary !h-[34px]"
 						>
-							{isSubmitting ? "Creating..." : "Create Task"}
+							{isSubmitting ? "Creating..." : "Create Deliverable"}
 						</button>
 					</div>
 				</form>

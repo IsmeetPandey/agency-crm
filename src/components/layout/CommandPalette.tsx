@@ -249,11 +249,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 	if (!isOpen) return null;
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/35 backdrop-blur-md animate-in fade-in">
-			<div className="spotlight w-full max-w-xl overflow-hidden shadow-2xl border border-black/10">
+		<div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/25 backdrop-blur-xs animate-in fade-in">
+			<div className="spotlight w-full max-w-xl overflow-hidden shadow-xl border border-[#DEDEDE] bg-white rounded-xl">
 				{/* Search header */}
-				<div className="flex items-center px-4 py-3 border-b border-black/[0.08]">
-					<span className="text-[#86868B] mr-3 text-[14px]">🔍</span>
+				<div className="flex items-center px-4 py-3.5 border-b border-[#EDEDED]">
+					<span className="text-[#808080] mr-3 text-[14px]">🔍</span>
 					<input
 						ref={inputRef}
 						type="text"
@@ -264,21 +264,21 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 							setSelectedIndex(0);
 						}}
 						onKeyDown={handleKeyDown}
-						className="w-full bg-transparent text-[14px] text-[#1D1D1F] outline-none placeholder-[#86868B]"
+						className="w-full bg-transparent text-[14px] text-[#222222] outline-none placeholder-[#808080] font-medium"
 					/>
 					<button
 						type="button"
 						onClick={onClose}
-						className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-black/[0.05] text-[#86868B] hover:text-[#1D1D1F]"
+						className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-[#F8F8F8] border border-[#DEDEDE] text-[#666666] hover:text-[#222222]"
 					>
 						ESC
 					</button>
 				</div>
 
 				{/* Results or Quick Actions */}
-				<div className="max-h-[380px] overflow-y-auto p-2 space-y-1 mac-scroll">
+				<div className="max-h-[380px] overflow-y-auto p-2 space-y-1">
 					{q && items.length === 0 && (
-						<div className="py-8 text-center text-[13px] text-[#86868B]">
+						<div className="py-8 text-center text-[13px] text-[#808080]">
 							No records found matching &ldquo;{query}&rdquo;
 						</div>
 					)}
@@ -291,7 +291,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 						return (
 							<div key={item.id}>
 								{showSectionHeader && (
-									<div className="px-2 pt-2.5 pb-1 text-[10px] font-[650] uppercase tracking-wider text-[#86868B]">
+									<div className="px-2 pt-2.5 pb-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#808080]">
 										{item.section}
 									</div>
 								)}
@@ -299,10 +299,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 									type="button"
 									onClick={item.perform}
 									onMouseEnter={() => setSelectedIndex(idx)}
-									className={`w-full text-left px-3 py-2 rounded-lg text-[13px] transition flex items-center justify-between ${
+									className={`w-full text-left px-3 py-2 rounded-lg text-[13px] transition flex items-center justify-between border ${
 										isSelected
-											? "bg-[#007AFF]/10 text-[#007AFF] shadow-sm"
-											: "hover:bg-black/[0.04] text-[#1D1D1F]"
+											? "bg-[#EAF6FF] text-[#168FCE] border-[#B8E2FE] shadow-2xs"
+											: "hover:bg-[#F8F8F8] text-[#222222] border-transparent"
 									}`}
 								>
 									<span className="flex items-center gap-2.5 min-w-0">
@@ -310,9 +310,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 											{item.icon}
 										</span>
 										<span className="truncate">
-											<span className="font-[550]">{item.title}</span>
+											<span className="font-semibold">{item.title}</span>
 											{item.subtitle && (
-												<span className="text-[11px] text-[#86868B] ml-2 font-[400] truncate">
+												<span className="text-[11px] text-[#666666] ml-2 font-normal truncate">
 													{item.subtitle}
 												</span>
 											)}
@@ -323,8 +323,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 										<span
 											className={`text-[11px] font-mono shrink-0 ml-2 ${
 												isSelected
-													? "text-[#007AFF] font-[600]"
-													: "text-[#86868B]"
+													? "text-[#168FCE] font-bold"
+													: "text-[#808080]"
 											}`}
 										>
 											{item.badge}
@@ -337,15 +337,17 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 				</div>
 
 				{/* Footer helper */}
-				<div className="px-4 py-2 bg-black/[0.02] border-t border-black/[0.06] flex items-center justify-between text-[11px] text-[#86868B]">
-					<div className="flex items-center gap-2">
+				<div className="px-4 py-2.5 bg-[#F8F8F8] border-t border-[#EDEDED] flex items-center justify-between text-[11px] text-[#666666]">
+					<div className="flex items-center gap-2 font-mono">
 						<span>↑↓ Navigate</span>
 						<span>•</span>
 						<span>↵ Execute</span>
 						<span>•</span>
 						<span>esc Dismiss</span>
 					</div>
-					<span className="font-mono text-[10px]">Liquid Glass Spotlight</span>
+					<span className="font-mono text-[10px] text-[#808080]">
+						Studio Command Spotlight
+					</span>
 				</div>
 			</div>
 		</div>

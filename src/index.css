@@ -1,15 +1,16 @@
-@import "./styles/editorial-studio.css";
-@import "./styles/liquid-glass.css";
+@import "./styles/awwwards-light.css";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-	color-scheme: light dark;
+	color-scheme: light !important;
 }
 
-* {
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
+html,
+body {
+	color-scheme: light !important;
+	background-color: var(--canvas);
+	color: var(--ink);
 }

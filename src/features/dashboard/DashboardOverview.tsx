@@ -464,36 +464,39 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 							<AreaChart data={stageDistribution}>
 								<defs>
 									<linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1">
-										<stop offset="5%" stopColor="#2563EB" stopOpacity={0.3} />
-										<stop offset="95%" stopColor="#2563EB" stopOpacity={0.0} />
+										<stop offset="5%" stopColor="#49B3FC" stopOpacity={0.25} />
+										<stop offset="95%" stopColor="#49B3FC" stopOpacity={0.0} />
 									</linearGradient>
 								</defs>
 								<XAxis
 									dataKey="stage"
-									tick={{ fontSize: 11, fill: "#64748B" }}
-									axisLine={{ stroke: "#E2E8F0" }}
+									tick={{ fontSize: 11, fill: "#767676" }}
+									axisLine={{ stroke: "#DEDEDE" }}
 									tickLine={false}
 								/>
 								<YAxis
-									tick={{ fontSize: 11, fill: "#64748B" }}
-									axisLine={{ stroke: "#E2E8F0" }}
+									tick={{ fontSize: 11, fill: "#767676" }}
+									axisLine={{ stroke: "#DEDEDE" }}
 									tickLine={false}
 									unit="k"
 								/>
 								<Tooltip
 									formatter={(val: number) => [`₹${val}k`, "Value"]}
 									contentStyle={{
-										backgroundColor: "#0F172A",
-										borderRadius: "8px",
-										border: "none",
-										color: "#FFFFFF",
+										backgroundColor: "#FFFFFF",
+										borderRadius: "4px",
+										border: "1px solid #DEDEDE",
+										boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+										color: "#111111",
 										fontSize: "12px",
 									}}
+									itemStyle={{ color: "#111111", fontWeight: 600 }}
+									labelStyle={{ color: "#767676", marginBottom: "4px" }}
 								/>
 								<Area
 									type="monotone"
 									dataKey="value"
-									stroke="#2563EB"
+									stroke="#49B3FC"
 									strokeWidth={2}
 									fillOpacity={1}
 									fill="url(#colorVal)"

@@ -20,10 +20,11 @@ export const ToastContainer: React.FC = () => {
 
 interface ToastCardProps {
 	toast: ToastItem;
-	onDismiss: (id: string) => void;
 }
 
-const ToastCard: React.FC<ToastCardProps> = ({ toast, onDismiss }) => {
+const ToastCard: React.FC<
+	ToastCardProps & { onDismiss: (id: string) => void }
+> = ({ toast, onDismiss }) => {
 	const icons = {
 		success: "✓",
 		error: "✕",
@@ -33,24 +34,20 @@ const ToastCard: React.FC<ToastCardProps> = ({ toast, onDismiss }) => {
 
 	const colors = {
 		success: {
-			badge: "bg-[#30D158]/15 text-[#30D158] border-[#30D158]/30",
-			border: "border-[#30D158]/25",
-			glow: "shadow-[0_8px_24px_rgba(48,209,88,0.15)]",
+			badge: "bg-[#EAF6EE] text-[#16834A] border-[#B9E3CB]",
+			border: "border-[#B9E3CB]",
 		},
 		error: {
-			badge: "bg-[#FF2D55]/15 text-[#FF2D55] border-[#FF2D55]/30",
-			border: "border-[#FF2D55]/25",
-			glow: "shadow-[0_8px_24px_rgba(255,45,85,0.15)]",
+			badge: "bg-[#FFF0F0] text-[#C62828] border-[#F8C2C2]",
+			border: "border-[#F8C2C2]",
 		},
 		warning: {
-			badge: "bg-[#FF9500]/15 text-[#FF9500] border-[#FF9500]/30",
-			border: "border-[#FF9500]/25",
-			glow: "shadow-[0_8px_24px_rgba(255,149,0,0.15)]",
+			badge: "bg-[#FFF5DF] text-[#A96500] border-[#F5D898]",
+			border: "border-[#F5D898]",
 		},
 		info: {
-			badge: "bg-[#007AFF]/15 text-[#007AFF] border-[#007AFF]/30",
-			border: "border-[#007AFF]/25",
-			glow: "shadow-[0_8px_24px_rgba(0,122,255,0.15)]",
+			badge: "bg-[#EAF6FF] text-[#1677B8] border-[#BDE0F7]",
+			border: "border-[#BDE0F7]",
 		},
 	};
 
@@ -58,21 +55,21 @@ const ToastCard: React.FC<ToastCardProps> = ({ toast, onDismiss }) => {
 
 	return (
 		<div
-			className={`pointer-events-auto liquid-modal p-3.5 flex items-start gap-3 backdrop-blur-xl border ${style.border} ${style.glow} animate-in fade-in slide-in-from-bottom-2 duration-200`}
+			className={`pointer-events-auto bg-white p-3.5 flex items-start gap-3 rounded-xl border ${style.border} shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-150`}
 		>
 			<span
-				className={`w-6 h-6 rounded-full flex items-center justify-center text-[12px] font-[700] border shrink-0 ${style.badge}`}
+				className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold border shrink-0 ${style.badge}`}
 			>
 				{icons[toast.type]}
 			</span>
 
 			<div className="flex-1 min-w-0 pr-1">
 				{toast.title && (
-					<h4 className="text-[13px] font-[650] text-[#1D1D1F] leading-tight">
+					<h4 className="text-[13px] font-bold text-[#111111] leading-tight">
 						{toast.title}
 					</h4>
 				)}
-				<p className="text-[12px] text-[#48484A] font-[450] leading-snug mt-0.5">
+				<p className="text-[12px] text-[#666666] font-normal leading-snug mt-0.5">
 					{toast.message}
 				</p>
 			</div>
@@ -80,7 +77,8 @@ const ToastCard: React.FC<ToastCardProps> = ({ toast, onDismiss }) => {
 			<button
 				type="button"
 				onClick={() => onDismiss(toast.id)}
-				className="text-[#86868B] hover:text-[#1D1D1F] text-[14px] p-0.5 shrink-0 rounded transition"
+				className="text-[#808080] hover:text-[#222222] text-[14px] p-0.5 shrink-0 rounded transition"
+				aria-label="Dismiss notification"
 			>
 				×
 			</button>
