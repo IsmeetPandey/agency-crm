@@ -141,4 +141,76 @@ describe("Opportunity Lifecycle & SKU Allocation", () => {
 		);
 		expect(second.client.id).toBe(first.client.id);
 	});
+
+	it("preserves customized new client fields (name, contact, email, notes) without data loss", async () => {
+		const rawLead = await leadsRepository.create({
+			name: `Raw Lead Name ${Date.now()}`,
+			contact: "Raw Contact",
+			email: "raw@leadexample.test",
+			service: "Cloud Architecture",
+			value: 450000,
+			stage: "Contacted",
+			owner: "Ansul",
+			followup: "",
+			notes: "Initial discovery notes",
+		});
+
+		const conversion = await leadsRepository.convertToOpportunityAndClient(
+			rawLead.id,
+			{
+				actor: "Ansul",
+				title: "Enterprise Cloud Overhaul 2026",
+				initialStage: "Proposal",
+				value: 480000,
+				newClientData: {
+					name: `Custom Legal Entity Ltd ${Date.now()}`,
+					contact: "Deepa Verma (VP Tech)",
+					email: "deepa@customlegal.test",
+					notes: "24/7 dedicated support SLA required.",
+				},
+			},
+		);
+
+		// Assert customized client data was fully preserved and NOT overwritten by raw lead values
+		expect(conversion.client.name).toMatch(/Custom Legal Entity Ltd/);
+		expect(conversion.client.contact).toBe("Deepa Verma (VP Tech)");
+		expect(conversion.client.email).toBe("deepa@customlegal.test");
+		expect(conversion.client.notes).toBe(
+			"24/7 dedicated support SLA required.",
+		);
+
+		// Assert opportunity properties
+		expect(conversion.opportunity.title).toBe(
+			"Enterprise Cloud Overhaul 2026",
+		);
+		expect(conversion.opportunity.value).toBe(480000);
+		expect(conversion.opportunity.stage).toBe("Proposal");
+		expect(conversion.opportunity.opportunityNo).toMatch(/^KW-OPP-\d{6}$/);
+	});
+
+	it("supports manual direct opportunity creation with permanent sequential SKU", async () => {
+		const clients = await clientsRepository.list();
+		const client = clients[0];
+
+		const opp = await opportunitiesRepository.create({
+			clientId: client.id,
+			title: "Direct Strategic Initiative",
+			service: "Design & Full-Stack",
+			description: "Created directly from Opportunities section.",
+			value: 350000,
+			stage: "Qualified",
+			owner: "Abhishek",
+			expectedCloseDate: "2026-12-31",
+		});
+
+		expect(opp.opportunityNo).toMatch(/^KW-OPP-\d{6}$/);
+		expect(opp.clientId).toBe(client.id);
+		expect(opp.title).toBe("Direct Strategic Initiative");
+		expect(opp.value).toBe(350000);
+		expect(opp.stage).toBe("Qualified");
+
+		const fetched = await opportunitiesRepository.getById(opp.id);
+		expect(fetched).toBeDefined();
+		expect(fetched?.opportunityNo).toBe(opp.opportunityNo);
+	});
 });

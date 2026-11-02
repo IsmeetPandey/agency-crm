@@ -129,7 +129,9 @@ export const leadsRepository = {
 	},
 
 	async create(payload: Omit<Lead, "id"> & { id?: string }): Promise<Lead> {
-		const id = payload.id || `l${Date.now()}`;
+		const id =
+			payload.id ||
+			`l_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 		const newLead: Lead = {
 			...payload,
 			id,
@@ -275,6 +277,7 @@ export const leadsRepository = {
 	 * Atomic, idempotent lead-to-opportunity-and-client conversion.
 	 * Protects against duplicate clients, duplicate opportunities, and race conditions.
 	 * Distinguishes qualified conversion from commercial won state (defaults to 'Qualified', never forces 'Won').
+	 * Fully persists customized new-client information (name, contact, email, notes).
 	 */
 	async convertToOpportunityAndClient(
 		leadId: string,
@@ -287,6 +290,14 @@ export const leadsRepository = {
 					title?: string;
 					value?: number;
 					expectedCloseDate?: string;
+					owner?: string;
+					description?: string;
+					newClientData?: {
+						name?: string;
+						contact?: string;
+						email?: string;
+						notes?: string;
+					};
 			  },
 	): Promise<{
 		lead: Lead;
@@ -302,84 +313,90 @@ export const leadsRepository = {
 		const initialStage: OpportunityStage = opts.initialStage || "Qualified";
 
 		if (isSupabaseConfigured()) {
-			try {
-				const { data, error } = await (supabase.rpc as any)(
-					"rpc_convert_lead_to_opportunity_and_client",
-					{
-						p_lead_id: leadId,
-						p_actor: actor,
-						p_target_client_id: opts.targetClientId || null,
-						p_initial_opp_stage: initialStage,
-						p_opportunity_title: opts.title || null,
-						p_estimated_value: opts.value !== undefined ? opts.value : null,
-						p_expected_close_date: opts.expectedCloseDate || null,
+			const { data, error } = await (supabase.rpc as any)(
+				"rpc_convert_lead_to_opportunity_and_client",
+				{
+					p_lead_id: leadId,
+					p_actor: actor,
+					p_target_client_id: opts.targetClientId || null,
+					p_initial_opp_stage: initialStage,
+					p_opportunity_title: opts.title || null,
+					p_estimated_value: opts.value !== undefined ? opts.value : null,
+					p_expected_close_date: opts.expectedCloseDate || null,
+					p_new_client_name: opts.newClientData?.name || null,
+					p_new_client_contact: opts.newClientData?.contact || null,
+					p_new_client_email: opts.newClientData?.email || null,
+					p_new_client_notes: opts.newClientData?.notes || null,
+					p_opportunity_owner: opts.owner || null,
+					p_opportunity_description: opts.description || null,
+				},
+			);
+
+			if (error) {
+				console.error("Cloud conversion RPC error:", error);
+				throw new Error(
+					`Cloud conversion transaction failed: ${error.message}`,
+				);
+			}
+
+			if (data) {
+				const l = data.lead;
+				const c = data.client;
+				const o = data.opportunity;
+
+				return {
+					lead: {
+						id: l.id,
+						legacyId: l.legacy_id || undefined,
+						name: l.name,
+						contact: l.contact_person || "",
+						email: l.email || "",
+						service: l.service || "",
+						value: Number(l.estimated_value) || 0,
+						stage: l.stage as LeadStage,
+						owner: l.owner_name || "Unassigned",
+						followup: l.next_followup || "",
+						notes: l.notes || "",
+						convertedClientId: l.converted_to_client_id,
+						convertedOpportunityId: l.converted_to_opportunity_id,
+						convertedOpportunityNo: l.converted_opportunity_no,
+						convertedAt: l.converted_at,
+						status: l.status || "active",
 					},
-				);
-
-				if (!error && data) {
-					const l = data.lead;
-					const c = data.client;
-					const o = data.opportunity;
-
-					return {
-						lead: {
-							id: l.id,
-							legacyId: l.legacy_id || undefined,
-							name: l.name,
-							contact: l.contact_person || "",
-							email: l.email || "",
-							service: l.service || "",
-							value: Number(l.estimated_value) || 0,
-							stage: l.stage as LeadStage,
-							owner: l.owner_name || "Unassigned",
-							followup: l.next_followup || "",
-							notes: l.notes || "",
-							convertedClientId: l.converted_to_client_id,
-							convertedOpportunityId: l.converted_to_opportunity_id,
-							convertedOpportunityNo: l.converted_opportunity_no,
-							convertedAt: l.converted_at,
-							status: l.status || "active",
-						},
-						client: {
-							id: c.id,
-							legacyId: c.legacy_id || undefined,
-							name: c.name,
-							contact: c.contact_person || "",
-							email: c.email || "",
-							notes: c.notes || "",
-							phone: c.phone || "",
-							status: c.status || "active",
-							createdAt: c.created_at,
-						},
-						opportunity: {
-							id: o.id,
-							opportunityNo: o.opportunity_no,
-							clientId: o.client_id,
-							sourceLeadId: o.source_lead_id,
-							title: o.title,
-							service: o.service,
-							description: o.description || "",
-							value: Number(o.estimated_value) || 0,
-							currency: o.currency || "INR",
-							stage: o.stage,
-							owner: o.owner_name,
-							expectedCloseDate: o.expected_close_date || "",
-							status: o.status || "active",
-							createdAt: o.created_at,
-							updatedAt: o.updated_at,
-						},
-						alreadyConverted: Boolean(data.already_converted),
-					};
-				}
-			} catch (rpcErr) {
-				console.warn(
-					"RPC conversion failed or not yet deployed, using client fallback:",
-					rpcErr,
-				);
+					client: {
+						id: c.id,
+						legacyId: c.legacy_id || undefined,
+						name: c.name,
+						contact: c.contact_person || "",
+						email: c.email || "",
+						notes: c.notes || "",
+						phone: c.phone || "",
+						status: c.status || "active",
+						createdAt: c.created_at,
+					},
+					opportunity: {
+						id: o.id,
+						opportunityNo: o.opportunity_no,
+						clientId: o.client_id,
+						sourceLeadId: o.source_lead_id,
+						title: o.title,
+						service: o.service,
+						description: o.description || "",
+						value: Number(o.estimated_value) || 0,
+						currency: o.currency || "INR",
+						stage: o.stage,
+						owner: o.owner_name,
+						expectedCloseDate: o.expected_close_date || "",
+						status: o.status || "active",
+						createdAt: o.created_at,
+						updatedAt: o.updated_at,
+					},
+					alreadyConverted: Boolean(data.already_converted),
+				};
 			}
 		}
 
-		// Fallback / Local mode atomic transactional conversion
+		// Fallback / Offline local mode atomic transactional conversion
 		const lead = await this.getById(leadId);
 		if (!lead) throw new Error(`Lead ${leadId} not found`);
 
@@ -402,30 +419,69 @@ export const leadsRepository = {
 			}
 		}
 
+		// Secondary Idempotency: Check if an opportunity was already generated from this source lead
+		const existingLeadOpps = await opportunitiesRepository.list();
+		const matchedOppFromLead = existingLeadOpps.find(
+			(o) => o.sourceLeadId === lead.id,
+		);
+		if (matchedOppFromLead) {
+			const linkedClient = await clientsRepository.getById(
+				matchedOppFromLead.clientId,
+			);
+			if (linkedClient) {
+				const updatedLead = await this.update(leadId, {
+					convertedOpportunityId: matchedOppFromLead.id,
+					convertedOpportunityNo: matchedOppFromLead.opportunityNo,
+					convertedClientId: linkedClient.id,
+					convertedAt: new Date().toISOString(),
+				});
+				return {
+					lead: updatedLead,
+					client: linkedClient,
+					opportunity: matchedOppFromLead,
+					alreadyConverted: true,
+				};
+			}
+		}
+
 		// 1. Identify or Create Client Account
 		let client: Client | null = null;
 		if (opts.targetClientId) {
 			client = await clientsRepository.getById(opts.targetClientId);
 		}
 
+		const newClientName = opts.newClientData?.name?.trim() || lead.name;
+		const newClientContact =
+			opts.newClientData?.contact !== undefined
+				? opts.newClientData.contact.trim()
+				: lead.contact;
+		const newClientEmail =
+			opts.newClientData?.email !== undefined
+				? opts.newClientData.email.trim()
+				: lead.email;
+		const newClientNotes =
+			opts.newClientData?.notes !== undefined
+				? opts.newClientData.notes.trim()
+				: `Converted from lead opportunity. Original notes: ${lead.notes || "None"}`;
+
 		if (!client) {
 			const existingClients = await clientsRepository.list();
 			client =
 				existingClients.find(
 					(c) =>
-						(lead.email &&
-							lead.email.trim() &&
-							c.email?.toLowerCase() === lead.email.toLowerCase().trim()) ||
-						c.name.toLowerCase().trim() === lead.name.toLowerCase().trim(),
+						(newClientEmail &&
+							c.email?.toLowerCase().trim() ===
+								newClientEmail.toLowerCase().trim()) ||
+						c.name.toLowerCase().trim() === newClientName.toLowerCase().trim(),
 				) || null;
 		}
 
 		if (!client) {
 			client = await clientsRepository.create({
-				name: lead.name,
-				contact: lead.contact,
-				email: lead.email,
-				notes: `Converted from lead opportunity. Original notes: ${lead.notes || "None"}`,
+				name: newClientName,
+				contact: newClientContact,
+				email: newClientEmail,
+				notes: newClientNotes,
 			});
 		}
 
@@ -449,10 +505,10 @@ export const leadsRepository = {
 					sourceLeadId: lead.id,
 					title: oppTitle,
 					service: lead.service || "Consulting & Engineering",
-					description: lead.notes || "",
+					description: opts.description || lead.notes || "",
 					value: opts.value !== undefined ? opts.value : lead.value || 0,
 					stage: initialStage,
-					owner: lead.owner || "Abhishek",
+					owner: opts.owner || lead.owner || "Abhishek",
 					expectedCloseDate:
 						opts.expectedCloseDate ||
 						new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],

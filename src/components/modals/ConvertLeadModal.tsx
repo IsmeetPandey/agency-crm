@@ -71,6 +71,11 @@ export const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
 	const [newClientContact, setNewClientContact] = useState(lead.contact || "");
 	const [newClientEmail, setNewClientEmail] = useState(lead.email || "");
 	const [newClientNotes, setNewClientNotes] = useState(lead.notes || "");
+	const [allowDuplicateOverride, setAllowDuplicateOverride] = useState(false);
+	const [convertedResult, setConvertedResult] = useState<{
+		opportunity: Opportunity;
+		client: Client;
+	} | null>(null);
 
 	// Opportunity parameters
 	const [title, setTitle] = useState(
@@ -83,30 +88,58 @@ export const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
 		new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
 	);
 
-	// Duplicate warning when typing a new client that matches an existing one
-	const duplicateWarning = useMemo(() => {
+	// Duplicate match detection
+	const matchedDuplicateClient = useMemo(() => {
 		if (clientMode !== "new") return null;
 		const nameTrim = newClientName.trim().toLowerCase();
 		const emailTrim = newClientEmail.trim().toLowerCase();
 
-		const match = clients.find(
-			(c) =>
-				(emailTrim && c.email?.trim().toLowerCase() === emailTrim) ||
-				(nameTrim && c.name.trim().toLowerCase() === nameTrim),
+		return (
+			clients.find(
+				(c) =>
+					(emailTrim && c.email?.trim().toLowerCase() === emailTrim) ||
+					(nameTrim && c.name.trim().toLowerCase() === nameTrim),
+			) || null
 		);
-		return match ? match.name : null;
 	}, [clientMode, newClientName, newClientEmail, clients]);
 
-	const handleViewExisting = () => {
-		if (lead.convertedOpportunityId && onNavigateOpportunity) {
-			onNavigateOpportunity(lead.convertedOpportunityId);
+	const isDuplicateBlocked = Boolean(
+		matchedDuplicateClient &&
+			(matchedDuplicateClient.email?.trim().toLowerCase() ===
+				newClientEmail.trim().toLowerCase() ||
+				matchedDuplicateClient.name.trim().toLowerCase() ===
+					newClientName.trim().toLowerCase()) &&
+			!allowDuplicateOverride,
+	);
+
+	const [copiedSku, setCopiedSku] = useState(false);
+
+	const handleCopySku = (sku: string) => {
+		navigator.clipboard.writeText(sku);
+		setCopiedSku(true);
+		toast({
+			type: "success",
+			title: "Copied Reference",
+			message: `${sku} copied to clipboard.`,
+		});
+		setTimeout(() => setCopiedSku(false), 2000);
+	};
+
+	const handleViewConverted = (oppId?: string) => {
+		const targetId = oppId || lead.convertedOpportunityId;
+		if (targetId && onNavigateOpportunity) {
+			onNavigateOpportunity(targetId);
 			onClose();
 		}
 	};
 
+	const handleViewExisting = () => {
+		handleViewConverted(lead.convertedOpportunityId);
+	};
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (isSubmitting || isAlreadyConverted) return;
+		if (isSubmitting || isAlreadyConverted || isDuplicateBlocked) return;
 
 		setError(null);
 		setIsSubmitting(true);
@@ -123,7 +156,17 @@ export const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
 					title: title.trim(),
 					value: Number(value) || 0,
 					expectedCloseDate,
+					owner,
 					actor: owner,
+					newClientData:
+						clientMode === "new"
+							? {
+									name: newClientName.trim(),
+									contact: newClientContact.trim(),
+									email: newClientEmail.trim(),
+									notes: newClientNotes.trim(),
+								}
+							: undefined,
 				},
 			);
 
@@ -134,7 +177,10 @@ export const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
 			});
 
 			onSuccess(result.opportunity, result.client);
-			onClose();
+			setConvertedResult({
+				opportunity: result.opportunity,
+				client: result.client,
+			});
 		} catch (err: any) {
 			console.error("Conversion failed:", err);
 			setError(err.message || "Failed to convert lead into opportunity.");
@@ -225,7 +271,89 @@ export const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
 					)}
 				</div>
 
-				{!isAlreadyConverted && (
+				{/* Post-Conversion Success Card */}
+				{convertedResult && (
+					<div className="p-5 rounded-xl bg-teal-500/10 border border-teal-500/30 text-[var(--ink)] space-y-4">
+						<div className="flex items-center gap-3">
+							<div className="w-8 h-8 rounded-full bg-teal-500/20 text-teal-600 dark:text-teal-400 flex items-center justify-center font-bold text-lg">
+								✓
+							</div>
+							<div>
+								<h4 className="font-bold text-[15px] text-[var(--ink)]">
+									Opportunity Created Successfully
+								</h4>
+								<p className="text-[12px] text-[var(--ink-muted)]">
+									Permanent tracking SKU assigned and linked to client account.
+								</p>
+							</div>
+						</div>
+
+						<div className="p-3.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] flex items-center justify-between">
+							<div>
+								<span className="text-[11px] font-mono uppercase text-[var(--ink-muted)] block">
+									Permanent Reference SKU
+								</span>
+								<span className="text-[18px] font-bold font-mono text-[var(--accent-text)] tracking-wider">
+									{convertedResult.opportunity.opportunityNo}
+								</span>
+							</div>
+							<div className="flex items-center gap-2">
+								<button
+									type="button"
+									onClick={() =>
+										handleCopySku(convertedResult.opportunity.opportunityNo)
+									}
+									className="btn-secondary !h-[32px] !text-[12px] flex items-center gap-1.5"
+								>
+									{copiedSku ? "✓ Copied" : "📋 Copy SKU"}
+								</button>
+								<button
+									type="button"
+									onClick={() =>
+										handleViewConverted(convertedResult.opportunity.id)
+									}
+									className="btn-primary !h-[32px] !text-[12px] flex items-center gap-1"
+								>
+									<span>View Opportunity</span>
+									<span>→</span>
+								</button>
+							</div>
+						</div>
+
+						<div className="text-[12px] space-y-1 text-[var(--ink-muted)] pt-1">
+							<div>
+								Client:{" "}
+								<strong className="text-[var(--ink)]">
+									{convertedResult.client.name}
+								</strong>
+							</div>
+							<div>
+								Deal Stage:{" "}
+								<span className="inline-block px-2 py-0.5 text-[11px] font-medium rounded-full bg-[var(--surface-sunken)] border border-[var(--border)] text-[var(--ink)]">
+									{convertedResult.opportunity.stage}
+								</span>
+							</div>
+							<div>
+								Expected Value:{" "}
+								<strong className="text-[var(--ink)] font-mono">
+									{formatCurrency(convertedResult.opportunity.value)}
+								</strong>
+							</div>
+						</div>
+
+						<div className="flex justify-end pt-2">
+							<button
+								type="button"
+								onClick={onClose}
+								className="btn-secondary !h-[32px] !text-[12px]"
+							>
+								Done
+							</button>
+						</div>
+					</div>
+				)}
+
+				{!isAlreadyConverted && !convertedResult && (
 					<form onSubmit={handleSubmit} className="space-y-4">
 						{/* Step 1: Client Account Association */}
 						<div className="space-y-2">
@@ -332,11 +460,61 @@ export const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
 										</div>
 									</div>
 
-									{duplicateWarning && (
-										<div className="p-2 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[11px] border border-amber-500/20">
-											⚠️ A client named "<strong>{duplicateWarning}</strong>"
-											already exists. Switch to "Associate Existing Client" to
-											prevent duplicate records.
+									<div>
+										<label className="text-[11px] text-[var(--ink-muted)] mb-1 block">
+											Client Notes / Onboarding Context
+										</label>
+										<textarea
+											value={newClientNotes}
+											onChange={(e) => setNewClientNotes(e.target.value)}
+											className="studio-input min-h-[60px] resize-none"
+											placeholder="Specific client requirements, onboarding terms, etc."
+										/>
+									</div>
+
+									{matchedDuplicateClient && (
+										<div className="p-3 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[12px] border border-amber-500/20 space-y-2">
+											<div className="font-semibold flex items-center gap-1.5">
+												<span>
+													⚠️ Potential Duplicate Client Account Detected:
+												</span>
+												<span>"{matchedDuplicateClient.name}"</span>
+											</div>
+											<p className="text-[11px] text-[var(--ink-muted)]">
+												An existing client record matches this{" "}
+												{matchedDuplicateClient.email?.toLowerCase() ===
+												newClientEmail.trim().toLowerCase()
+													? "email"
+													: "name"}
+												. To prevent fragmented client history, associate with
+												the existing record.
+											</p>
+											<div className="flex items-center gap-2 pt-1">
+												<button
+													type="button"
+													onClick={() => {
+														setSelectedClientId(matchedDuplicateClient.id);
+														setClientMode("existing");
+														setTitle(
+															`${matchedDuplicateClient.name} / ${lead.service || "Commercial Engagement"}`,
+														);
+													}}
+													className="btn-primary !h-[28px] !text-[11px]"
+												>
+													Associate with "{matchedDuplicateClient.name}"
+												</button>
+												<label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+													<input
+														type="checkbox"
+														checked={allowDuplicateOverride}
+														onChange={(e) =>
+															setAllowDuplicateOverride(e.target.checked)
+														}
+														className="rounded border-[var(--border)]"
+													/>
+													<span>Allow duplicate client creation</span>
+												</label>
+											</div>
 										</div>
 									)}
 								</div>
@@ -431,28 +609,37 @@ export const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
 						</div>
 
 						{/* Actions */}
-						<div className="flex items-center justify-end gap-3 pt-4 border-t border-[var(--border)]">
-							<button
-								type="button"
-								onClick={onClose}
-								className="btn-secondary !h-[34px]"
-							>
-								Cancel
-							</button>
-							<button
-								type="submit"
-								disabled={isSubmitting}
-								className="btn-primary !h-[34px] flex items-center gap-2"
-							>
-								{isSubmitting ? (
-									<>
-										<span className="animate-spin text-[12px]">⟳</span>
-										<span>Converting...</span>
-									</>
-								) : (
-									<span>Convert to Opportunity →</span>
-								)}
-							</button>
+						<div className="flex items-center justify-between pt-4 border-t border-[var(--border)]">
+							{isDuplicateBlocked ? (
+								<span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+									⚠️ Resolve duplicate client match before converting
+								</span>
+							) : (
+								<span />
+							)}
+							<div className="flex items-center gap-3">
+								<button
+									type="button"
+									onClick={onClose}
+									className="btn-secondary !h-[34px]"
+								>
+									Cancel
+								</button>
+								<button
+									type="submit"
+									disabled={isSubmitting || isDuplicateBlocked}
+									className="btn-primary !h-[34px] flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+								>
+									{isSubmitting ? (
+										<>
+											<span className="animate-spin text-[12px]">⟳</span>
+											<span>Converting...</span>
+										</>
+									) : (
+										<span>Convert to Opportunity →</span>
+									)}
+								</button>
+							</div>
 						</div>
 					</form>
 				)}

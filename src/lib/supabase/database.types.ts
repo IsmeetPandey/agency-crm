@@ -909,6 +909,24 @@ export interface Database {
 				};
 				Returns: Json;
 			};
+			rpc_convert_lead_to_opportunity_and_client: {
+				Args: {
+					p_lead_id: string;
+					p_actor?: string;
+					p_target_client_id?: string | null;
+					p_initial_opp_stage?: string;
+					p_opportunity_title?: string | null;
+					p_estimated_value?: number | null;
+					p_expected_close_date?: string | null;
+					p_new_client_name?: string | null;
+					p_new_client_contact?: string | null;
+					p_new_client_email?: string | null;
+					p_new_client_notes?: string | null;
+					p_opportunity_owner?: string | null;
+					p_opportunity_description?: string | null;
+				};
+				Returns: Json;
+			};
 			rpc_accept_invitation: {
 				Args: {
 					p_token: string;
