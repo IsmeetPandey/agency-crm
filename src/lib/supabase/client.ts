@@ -1,8 +1,27 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./database.types";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const getEnvVar = (key: string): string | undefined => {
+	try {
+		if (
+			typeof import.meta !== "undefined" &&
+			import.meta.env &&
+			import.meta.env[key]
+		) {
+			return import.meta.env[key];
+		}
+	} catch {}
+	try {
+		if (typeof process !== "undefined" && process.env && process.env[key]) {
+			return process.env[key];
+		}
+	} catch {}
+	return undefined;
+};
+
+const supabaseUrl = getEnvVar("VITE_SUPABASE_URL") || getEnvVar("SUPABASE_URL");
+const supabaseAnonKey =
+	getEnvVar("VITE_SUPABASE_ANON_KEY") || getEnvVar("SUPABASE_ANON_KEY");
 
 export const isSupabaseConfigured = (): boolean => {
 	return (
@@ -16,7 +35,8 @@ export const isSupabaseConfigured = (): boolean => {
 };
 
 export const DEFAULT_ORG_ID =
-	import.meta.env.VITE_ORGANIZATION_ID ||
+	getEnvVar("VITE_ORGANIZATION_ID") ||
+	getEnvVar("ORGANIZATION_ID") ||
 	"11111111-1111-1111-1111-111111111111";
 
 // Create client if configured, otherwise provide a fallback mock-safe instance

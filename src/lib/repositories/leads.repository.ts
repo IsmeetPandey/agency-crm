@@ -193,7 +193,7 @@ export const leadsRepository = {
 		}
 
 		// Mark lead as Won and link client
-		await this.update(leadId, {
+		const updatedLead = await this.update(leadId, {
 			stage: "Won",
 			convertedClientId: client.id,
 			convertedAt: new Date().toISOString(),
@@ -206,7 +206,7 @@ export const leadsRepository = {
 			entityId: client.id,
 		});
 
-		return { lead, client };
+		return { lead: updatedLead, client };
 	},
 
 	async archive(id: string): Promise<void> {

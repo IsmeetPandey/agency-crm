@@ -174,7 +174,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
 										IST Duty Slot
 									</div>
 									<div className="text-[13px] font-bold text-slate-700">
-										{member.slot}
+										{(member as any).slot || member.slotRaw}
 									</div>
 								</div>
 							</div>
@@ -185,22 +185,26 @@ export const TeamView: React.FC<TeamViewProps> = ({
 									Verified Skill Capabilities
 								</div>
 								<div className="flex flex-wrap gap-1.5">
-									{member.skills.map((skill) => (
-										<span
-											key={skill}
-											className="font-mono text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200"
-										>
-											{skill}
-										</span>
-									))}
+									{(member.stack || (member as any).skills || []).map(
+										(skill: string) => (
+											<span
+												key={skill}
+												className="font-mono text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200"
+											>
+												{skill}
+											</span>
+										),
+									)}
 								</div>
 							</div>
 
 							{/* Projects assigned */}
 							<div className="pt-2 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
-								<span>Assigned Projects:</span>
+								<span>Assigned Specializations:</span>
 								<span className="font-mono font-semibold text-slate-800">
-									{member.projects.join(", ") || "Standby / Available"}
+									{((member as any).projects || member.departments || []).join(
+										", ",
+									) || "Standby / Available"}
 								</span>
 							</div>
 						</div>

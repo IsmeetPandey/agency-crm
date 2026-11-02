@@ -48,6 +48,7 @@ function AgencyOSApp() {
 	const [search, setSearch] = useState("");
 	const [cmdOpen, setCmdOpen] = useState(false);
 	const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 	const [istHour, setIstHour] = useState(getISTHour());
 
 	// Domain records state
@@ -185,6 +186,8 @@ function AgencyOSApp() {
 				onlineCount={team.length}
 				istHour={istHour}
 				departments={DEPARTMENTS}
+				mobileOpen={mobileMenuOpen}
+				onCloseMobile={() => setMobileMenuOpen(false)}
 			/>
 
 			{/* Main Workspace Area */}
@@ -195,6 +198,7 @@ function AgencyOSApp() {
 					setSearch={setSearch}
 					openCmd={() => setCmdOpen(true)}
 					openModal={(type) => setModal({ type })}
+					onMobileMenuToggle={() => setMobileMenuOpen((v) => !v)}
 				/>
 
 				<main className="flex-1 p-4 lg:p-7 overflow-x-hidden">

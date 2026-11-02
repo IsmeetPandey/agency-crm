@@ -233,7 +233,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 										Deadline Target
 									</div>
 									<div className="text-[14px] font-semibold text-slate-900">
-										{project.deadline || "TBD"}
+										{project.due || (project as any).deadline || "TBD"}
 									</div>
 								</div>
 								<div className="p-3 rounded-lg bg-slate-50 border border-slate-200/80">
@@ -412,7 +412,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 										className="w-2.5 h-2.5 rounded-full"
 										style={{ backgroundColor: dept.dot }}
 									/>
-									{dept.code} • {dept.name}
+									{dept.code} • {(dept as any).name || dept.label}
 								</div>
 
 								<div className="space-y-2">
@@ -552,10 +552,13 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 								>
 									<div>
 										<div className="text-[13px] font-bold text-slate-900">
-											{h.deliverable}
+											{h.title || (h as any).deliverable}
 										</div>
 										<div className="text-[11px] text-slate-500 font-mono">
-											{h.fromDept} → {h.toDept} {h.notes && `• ${h.notes}`}
+											{h.from || (h as any).fromDept} →{" "}
+											{h.to || (h as any).toDept}{" "}
+											{(h.description || (h as any).notes) &&
+												`• ${h.description || (h as any).notes}`}
 										</div>
 									</div>
 									<span
@@ -674,7 +677,9 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 										<div className="text-[13px] font-bold text-slate-900">
 											{sc.title}
 										</div>
-										<p className="text-[12px] text-slate-500">{sc.reason}</p>
+										<p className="text-[12px] text-slate-500">
+											{sc.description || sc.reason}
+										</p>
 										<div className="text-[11px] text-slate-400 font-mono">
 											Logged: {new Date(sc.createdAt).toLocaleDateString()}
 										</div>

@@ -73,19 +73,19 @@ export const HandoffsView: React.FC<HandoffsViewProps> = ({
 										{projectName}
 									</div>
 									<h3 className="text-[15px] font-bold text-slate-900 truncate">
-										{h.deliverable}
+										{h.title || (h as any).deliverable}
 									</h3>
 									<div className="text-[12px] text-slate-500 flex items-center gap-2 font-mono">
 										<span className="font-semibold text-slate-800">
-											{h.fromDept}
+											{h.from || (h as any).fromDept}
 										</span>
 										<span className="text-blue-600">→</span>
 										<span className="font-semibold text-slate-800">
-											{h.toDept}
+											{h.to || (h as any).toDept}
 										</span>
-										{h.notes && (
+										{(h.description || (h as any).notes) && (
 											<span className="font-sans text-slate-400">
-												• {h.notes}
+												• {h.description || (h as any).notes}
 											</span>
 										)}
 									</div>
@@ -95,7 +95,11 @@ export const HandoffsView: React.FC<HandoffsViewProps> = ({
 									<select
 										value={h.status}
 										onChange={(e) =>
-											handleUpdateStatus(h.id, e.target.value, h.deliverable)
+											handleUpdateStatus(
+												h.id,
+												e.target.value,
+												h.title || (h as any).deliverable || "Handoff",
+											)
 										}
 										className={`text-[12px] font-mono font-semibold rounded-md px-3 py-1.5 border outline-none ${
 											h.status === "Accepted"

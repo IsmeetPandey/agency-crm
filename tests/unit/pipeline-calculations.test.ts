@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "../test-utils";
 import { formatHour, getISTHour, isMemberOnline, TEAM } from "../../src/lib/constants/agency";
 import { PERMISSIONS } from "../../src/lib/permissions/permissions";
 import { teamRepository } from "../../src/lib/repositories/team.repository";

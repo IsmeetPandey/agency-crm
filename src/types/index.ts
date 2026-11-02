@@ -176,6 +176,7 @@ export interface ScopeChange {
 	title: string;
 	category: "Scope" | "Timeline" | "Budget" | "Stack" | "Other";
 	description: string;
+	reason?: string;
 	costDelta: number;
 	daysDelta: number;
 	mitigation?: string;

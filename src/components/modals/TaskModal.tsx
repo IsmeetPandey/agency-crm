@@ -119,8 +119,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 							</label>
 							<select name="dept" className="studio-input font-medium">
 								{departments.map((d) => (
-									<option key={d.code} value={d.name}>
-										{d.name}
+									<option key={d.code} value={d.code}>
+										{d.label || (d as any).name || d.code}
 									</option>
 								))}
 							</select>

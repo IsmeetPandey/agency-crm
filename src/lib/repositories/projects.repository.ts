@@ -74,7 +74,7 @@ export const projectsRepository = {
 					phase: newProject.phase,
 					stack_needed: newProject.stackNeeded,
 					budget: newProject.budget,
-					due_date: newProject.due || null,
+					due_date: newProject.due || (newProject as any).deadline || null,
 					owner_name: newProject.owner,
 					scope: newProject.scope,
 					progress: newProject.progress,

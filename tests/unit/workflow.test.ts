@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "../test-utils";
 import { activityRepository } from "../../src/lib/repositories/activity.repository";
 import { clientsRepository } from "../../src/lib/repositories/clients.repository";
 import { leadsRepository } from "../../src/lib/repositories/leads.repository";

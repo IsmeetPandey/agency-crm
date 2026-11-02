@@ -145,25 +145,49 @@ export const ClientModal: React.FC<ClientModalProps> = ({
 						/>
 					</div>
 
-					<div className="flex justify-end gap-2.5 pt-3 border-t border-[#EDEDED]">
-						<button
-							type="button"
-							onClick={onClose}
-							className="btn-secondary !h-[34px]"
-						>
-							Cancel
-						</button>
-						<button
-							type="submit"
-							disabled={isSubmitting}
-							className="btn-primary !h-[34px]"
-						>
-							{isSubmitting
-								? "Saving..."
-								: isEditing
-									? "Update Client"
-									: "Add Client"}
-						</button>
+					<div className="flex items-center justify-between gap-2.5 pt-3 border-t border-[#EDEDED]">
+						{isEditing && (
+							<button
+								type="button"
+								disabled={isSubmitting}
+								onClick={async () => {
+									if (confirm(`Archive client "${initialClient.name}"?`)) {
+										setIsSubmitting(true);
+										try {
+											await clientsRepository.archive(initialClient.id);
+											onSuccess();
+											onClose();
+										} catch (err: any) {
+											setError(err.message || "Failed to archive client");
+											setIsSubmitting(false);
+										}
+									}
+								}}
+								className="text-[12px] text-rose-600 hover:text-rose-700 font-semibold px-2 py-1 mr-auto transition"
+							>
+								Archive
+							</button>
+						)}
+						<div className="flex items-center gap-2.5 ml-auto">
+							<button
+								type="button"
+								onClick={onClose}
+								className="btn-secondary !h-[34px]"
+							>
+								Cancel
+							</button>
+							<button
+								type="submit"
+								disabled={isSubmitting}
+								className="btn-primary !h-[34px]"
+							>
+								{isSubmitting
+									? "Saving..."
+									: isEditing
+										? "Update Client"
+										: "Add Client"}
+							</button>
+						</div>
 					</div>
 				</form>
 			</div>

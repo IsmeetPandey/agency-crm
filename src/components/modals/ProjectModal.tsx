@@ -52,6 +52,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 				clientId,
 				phase: String(fd.get("phase") || "Discovery"),
 				budget: Number(fd.get("budget") || 0),
+				due: String(fd.get("deadline") || "2026-12-31"),
 				deadline: String(fd.get("deadline") || "2026-12-31"),
 				stackNeeded: techQuery,
 				assignedTeam:

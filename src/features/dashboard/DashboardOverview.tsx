@@ -351,10 +351,11 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 										>
 											<div className="min-w-0 pr-2">
 												<div className="text-[12px] font-semibold text-slate-900 truncate">
-													{h.deliverable}
+													{h.title || (h as any).deliverable}
 												</div>
 												<div className="text-[10px] text-slate-500 font-mono">
-													{h.fromDept} → {h.toDept}
+													{h.from || (h as any).fromDept} →{" "}
+													{h.to || (h as any).toDept}
 												</div>
 											</div>
 											<span className="badge-status badge-cobalt shrink-0 text-[10px]">
@@ -418,7 +419,9 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 												</span>
 											</span>
 											<span>•</span>
-											<span>Deadline: {proj.deadline}</span>
+											<span>
+												Deadline: {proj.due || (proj as any).deadline || "TBD"}
+											</span>
 										</div>
 									</div>
 
@@ -595,7 +598,9 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 								<span>{act.actor}</span>
 								<span>•</span>
 								<span>
-									{new Date(act.timestamp).toLocaleTimeString([], {
+									{new Date(
+										act.at || (act as any).timestamp || Date.now(),
+									).toLocaleTimeString([], {
 										hour: "2-digit",
 										minute: "2-digit",
 									})}
