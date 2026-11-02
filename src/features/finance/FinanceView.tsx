@@ -233,7 +233,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 	return (
 		<div className="space-y-6">
 			{/* Primary Section Switcher Tabs */}
-			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-[var(--border)]">
+			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-[var(--border)] no-print">
 				<div className="flex items-center gap-2">
 					<button
 						type="button"
@@ -627,7 +627,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 			{activeTab === "statements" && (
 				<div className="space-y-6">
 					{/* Top Sub-Bar: Statement Switcher + Action Buttons */}
-					<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-[var(--border)] bg-white dark:bg-slate-900 shadow-xs">
+					<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-[var(--border)] bg-white dark:bg-slate-900 shadow-xs no-print">
 						{/* Subtabs: Balance Sheet vs Profit & Loss */}
 						<div className="flex items-center gap-1.5 p-1 rounded-lg bg-slate-100 dark:bg-slate-800">
 							<button

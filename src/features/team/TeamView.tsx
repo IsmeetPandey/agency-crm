@@ -69,12 +69,12 @@ export const TeamView: React.FC<TeamViewProps> = ({
 				<div className="flex items-center justify-between">
 					<div>
 						<h3 className="text-[14px] font-bold text-[var(--ink)] tracking-tight">
-							24h Specialist Coverage & Hourly Shift Distribution (IST)
+							24h Specialist Coverage & Hourly Shift Distribution (IST • UTC+5:30)
 						</h3>
 						<p className="text-[11px] text-[var(--ink-muted)] font-mono">
-							Inspection time:{" "}
+							Active inspection time:{" "}
 							<span className="font-bold text-[#49B3FC]">
-								{formatHour(Math.floor(displayHour))} IST
+								{formatHour(Math.floor(displayHour))} IST (UTC+5:30)
 							</span>
 						</p>
 					</div>
@@ -162,18 +162,21 @@ export const TeamView: React.FC<TeamViewProps> = ({
 							{/* Allocation & Time Slot */}
 							<div className="grid grid-cols-2 gap-3 p-3 rounded-lg bg-[var(--surface-sunken)] border border-[var(--border)] font-mono text-[11px]">
 								<div>
-									<div className="text-[var(--ink-muted)] uppercase text-[9px] font-bold">
-										Planned Capacity
+									<div className="text-[var(--ink-muted)] uppercase text-[9px] font-bold flex items-center justify-between">
+										<span>Planned Capacity</span>
+										<span className="text-[#49B3FC] font-semibold">
+											{Math.round((member.focus / Math.max(member.avail, 1)) * 100)}% Load
+										</span>
 									</div>
-									<div className="text-[13px] font-bold text-[var(--ink)]">
+									<div className="text-[13px] font-bold text-[var(--ink)] mt-0.5">
 										{member.focus}h / {member.avail}h per day
 									</div>
 								</div>
 								<div>
 									<div className="text-[var(--ink-muted)] uppercase text-[9px] font-bold">
-										IST Duty Slot
+										IST Duty Slot (UTC+5:30)
 									</div>
-									<div className="text-[13px] font-bold text-[var(--ink-secondary)]">
+									<div className="text-[13px] font-bold text-[var(--ink-secondary)] mt-0.5">
 										{(member as any).slot || member.slotRaw}
 									</div>
 								</div>

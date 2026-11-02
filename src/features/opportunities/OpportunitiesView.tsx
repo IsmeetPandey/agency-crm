@@ -624,7 +624,7 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 								key={stage}
 								onDragOver={(e) => e.preventDefault()}
 								onDrop={() => handleDrop(stage)}
-								className="flex flex-col bg-slate-50/70 rounded-xl border border-slate-200/80 p-3 min-h-[500px]"
+								className="flex flex-col bg-slate-50/70 dark:bg-slate-900/40 rounded-xl border border-slate-200/80 dark:border-slate-800 p-3 min-h-[560px]"
 							>
 								{/* Column Header */}
 								<div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-slate-200">
@@ -650,8 +650,9 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 								{/* Cards */}
 								<div className="space-y-2 flex-1 overflow-y-auto">
 									{stageOpps.length === 0 ? (
-										<div className="h-24 border border-dashed border-slate-300 rounded-lg flex items-center justify-center text-[10px] text-slate-400 font-medium">
-											Drop deals here
+										<div className="min-h-[120px] h-full border border-dashed border-slate-300 dark:border-slate-800 rounded-lg flex flex-col items-center justify-center gap-1 text-[11px] text-slate-400 font-medium transition hover:border-blue-400/50">
+											<span>No deals in {stage}</span>
+											<span className="text-[10px] text-slate-400/80 font-mono">Drag here to update</span>
 										</div>
 									) : (
 										stageOpps.map((opp) => {

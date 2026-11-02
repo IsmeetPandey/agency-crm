@@ -1,5 +1,6 @@
 import type React from "react";
 import { useState } from "react";
+import { X } from "lucide-react";
 import { handoffsRepository } from "../../lib/repositories/handoffs.repository";
 import type { Department, Project } from "../../types";
 
@@ -67,9 +68,10 @@ export const HandoffModal: React.FC<HandoffModalProps> = ({
 					<button
 						type="button"
 						onClick={onClose}
-						className="text-[#767676] hover:text-[#111111] text-[18px] transition-colors"
+						className="text-[#767676] hover:text-[#111111] p-1 rounded-lg transition-colors"
+						aria-label="Close dialog"
 					>
-						×
+						<X className="w-4 h-4" />
 					</button>
 				</div>
 

@@ -32,6 +32,18 @@ export const ContactsView: React.FC<ContactsViewProps> = ({
 		return m;
 	}, [clients]);
 
+	const sortedClients = useMemo(() => {
+		return [...clients].sort((a, b) => a.name.localeCompare(b.name));
+	}, [clients]);
+
+	const contactsCountByClient = useMemo(() => {
+		const map = new Map<string, number>();
+		for (const con of contacts) {
+			map.set(con.clientId, (map.get(con.clientId) || 0) + 1);
+		}
+		return map;
+	}, [contacts]);
+
 	const filteredContacts = useMemo(() => {
 		return contacts.filter((c) => {
 			if (selectedClientId !== "all" && c.clientId !== selectedClientId) {
@@ -184,12 +196,12 @@ export const ContactsView: React.FC<ContactsViewProps> = ({
 					<select
 						value={selectedClientId}
 						onChange={(e) => setSelectedClientId(e.target.value)}
-						className="px-2.5 py-1.5 text-[12px] bg-[var(--surface-sunken)] border border-[var(--border)] rounded-lg focus:outline-none text-[var(--ink)]"
+						className="px-2.5 py-1.5 text-[12px] bg-[var(--surface-sunken)] border border-[var(--border)] rounded-lg focus:outline-none text-[var(--ink)] cursor-pointer"
 					>
-						<option value="all">All Client Accounts</option>
-						{clients.map((c) => (
+						<option value="all">All Client Accounts ({contacts.length})</option>
+						{sortedClients.map((c) => (
 							<option key={c.id} value={c.id}>
-								{c.name}
+								{c.name} ({contactsCountByClient.get(c.id) || 0})
 							</option>
 						))}
 					</select>

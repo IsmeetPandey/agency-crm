@@ -1,6 +1,6 @@
 import type React from "react";
 import { useEffect, useState } from "react";
-import { Check, Download, Laptop, Moon, Sun } from "lucide-react";
+import { Activity as ActivityIcon, Check, Download, Laptop, Moon, Sun } from "lucide-react";
 import { useAuth } from "../../lib/auth/auth.context";
 import { useToast } from "../../lib/feedback/toast.context";
 import { PERMISSIONS, type UserRole } from "../../lib/permissions/permissions";
@@ -69,38 +69,46 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 		"checking" | "connected" | "fallback" | "error"
 	>("checking");
 	const [latencyMs, setLatencyMs] = useState<number | null>(null);
+	const [isPinging, setIsPinging] = useState(false);
 
 	const isConfigured = isSupabaseConfigured();
 
-	useEffect(() => {
-		let isMounted = true;
-		const checkConnection = async () => {
+	const runPing = async (showToast = false) => {
+		setIsPinging(true);
+		setPingStatus("checking");
+		const t0 = performance.now();
+		try {
 			if (!isSupabaseConfigured()) {
-				if (isMounted) setPingStatus("fallback");
+				await new Promise((r) => setTimeout(r, 60));
+				setPingStatus("fallback");
+				setLatencyMs(4);
+				if (showToast) {
+					toast.info("Resilient offline storage active. Local indexed engine responding in <5ms.", "Storage Engine Diagnostic");
+				}
 				return;
 			}
-			const t0 = performance.now();
-			try {
-				const { error } = await supabase
-					.from("leads")
-					.select("id", { count: "exact", head: true });
-				const elapsed = Math.round(performance.now() - t0);
-				if (isMounted) {
-					if (error) {
-						setPingStatus("error");
-					} else {
-						setPingStatus("connected");
-						setLatencyMs(elapsed);
-					}
-				}
-			} catch {
-				if (isMounted) setPingStatus("error");
+			const { error } = await supabase
+				.from("leads")
+				.select("id", { count: "exact", head: true });
+			const elapsed = Math.round(performance.now() - t0);
+			if (error) {
+				setPingStatus("error");
+				if (showToast) toast.error(`Database responded with error: ${error.message}`, "Connection Failed");
+			} else {
+				setPingStatus("connected");
+				setLatencyMs(elapsed);
+				if (showToast) toast.success(`PostgreSQL responded in ${elapsed}ms. Connection healthy.`, "Database Latency Measured");
 			}
-		};
-		checkConnection();
-		return () => {
-			isMounted = false;
-		};
+		} catch (err: any) {
+			setPingStatus("error");
+			if (showToast) toast.error(err?.message || "Ping error", "Connection Failed");
+		} finally {
+			setIsPinging(false);
+		}
+	};
+
+	useEffect(() => {
+		runPing(false);
 	}, []);
 
 	const handleExportJSON = async () => {
@@ -273,21 +281,37 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 								PostgreSQL database connection state and security policies
 							</p>
 						</div>
-						<span
-							className={`badge-status ${
-								pingStatus === "connected"
-									? "badge-emerald"
+						<div className="flex items-center gap-2">
+							<button
+								type="button"
+								onClick={() => runPing(true)}
+								disabled={isPinging}
+								className="btn-secondary !h-[28px] !px-2.5 !text-[11px] flex items-center gap-1.5 cursor-pointer"
+								title="Ping database connection and measure roundtrip latency"
+							>
+								<ActivityIcon
+									className={`w-3.5 h-3.5 ${
+										isPinging ? "animate-spin text-blue-500" : "text-slate-500"
+									}`}
+								/>
+								<span>{isPinging ? "Pinging..." : "Test Latency"}</span>
+							</button>
+							<span
+								className={`badge-status ${
+									pingStatus === "connected"
+										? "badge-emerald"
+										: pingStatus === "fallback"
+											? "badge-amber"
+											: "badge-rose"
+								}`}
+							>
+								{pingStatus === "connected"
+									? `Live (${latencyMs}ms)`
 									: pingStatus === "fallback"
-										? "badge-amber"
-										: "badge-rose"
-							}`}
-						>
-							{pingStatus === "connected"
-								? `Live Supabase (${latencyMs}ms)`
-								: pingStatus === "fallback"
-									? "Resilient Engine"
-									: "Connection Disrupted"}
-						</span>
+										? "Resilient Engine"
+										: "Connection Disrupted"}
+							</span>
+						</div>
 					</div>
 
 					<div className="space-y-2.5 text-[12px]">

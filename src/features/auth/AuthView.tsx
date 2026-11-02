@@ -2,6 +2,7 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import { AlertTriangle, Check, Zap } from "lucide-react";
 import { useAuth } from "../../lib/auth/auth.context";
+import { BrandMark } from "../../components/ui/BrandMark";
 
 export const AuthView: React.FC = () => {
 	const {
@@ -135,14 +136,12 @@ export const AuthView: React.FC = () => {
 						</span>
 					</div>
 
-					<div className="flex items-center justify-center gap-3 mb-2">
-						<div className="w-10 h-10 rounded-xl bg-[#49B3FC] text-slate-950 flex items-center justify-center font-bold text-lg shadow-[0_0_20px_rgba(73,179,252,0.4)]">
-							K
-						</div>
-						<h1 className="text-2xl font-bold tracking-tight text-white">
-							KREATIWIT{" "}
-							<span className="text-slate-400 font-light">AgencyOS</span>
-						</h1>
+					<div className="flex justify-center mb-3">
+						<BrandMark
+							size="lg"
+							showWordmark={true}
+							subtitle="Studio Command Operating System"
+						/>
 					</div>
 					<p className="text-[13px] text-slate-400 max-w-sm mx-auto">
 						Studio command CRM for agency pipeline, delivery, approvals, and

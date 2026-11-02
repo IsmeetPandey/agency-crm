@@ -517,19 +517,20 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 									unit="k"
 								/>
 								<Tooltip
-									formatter={(val: any) => [`₹${val}k`, "Value"]}
-									contentStyle={{
-										backgroundColor: "var(--surface)",
-										borderRadius: "8px",
-										border: "1px solid var(--border)",
-										boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-										color: "var(--ink)",
-										fontSize: "12px",
-									}}
-									itemStyle={{ color: "var(--ink)", fontWeight: 600 }}
-									labelStyle={{
-										color: "var(--ink-muted)",
-										marginBottom: "4px",
+									content={({ active, payload, label }) => {
+										if (active && payload && payload.length) {
+											return (
+												<div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-2.5 shadow-xl text-[12px]">
+													<div className="font-semibold text-slate-500 dark:text-slate-400 mb-0.5">
+														{label}
+													</div>
+													<div className="font-mono font-bold text-slate-900 dark:text-white">
+														₹{payload[0].value}k Pipeline
+													</div>
+												</div>
+											);
+										}
+										return null;
 									}}
 								/>
 								<Area

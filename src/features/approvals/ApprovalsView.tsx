@@ -1,5 +1,7 @@
 import type React from "react";
-import { Check } from "lucide-react";
+import { useState } from "react";
+import { Check, XCircle } from "lucide-react";
+import { ConfirmModal } from "../../components/modals/ConfirmModal";
 import { useAuth } from "../../lib/auth/auth.context";
 import { useToast } from "../../lib/feedback/toast.context";
 import { workflowRepository } from "../../lib/repositories/workflow.repository";
@@ -20,6 +22,10 @@ export const ApprovalsView: React.FC<ApprovalsViewProps> = ({
 }) => {
 	const { user } = useAuth();
 	const { showToast } = useToast();
+	const [rejectTarget, setRejectTarget] = useState<{
+		id: string;
+		title: string;
+	} | null>(null);
 
 	const handleDecision = async (
 		id: string,
@@ -110,11 +116,12 @@ export const ApprovalsView: React.FC<ApprovalsViewProps> = ({
 											<button
 												type="button"
 												onClick={() =>
-													handleDecision(app.id, "Rejected", app.title)
+													setRejectTarget({ id: app.id, title: app.title })
 												}
-												className="btn-secondary !h-[32px] !text-[12px] !text-rose-600 hover:!bg-rose-50"
+												className="btn-secondary !h-[32px] !text-[12px] !text-rose-600 hover:!bg-rose-50 dark:hover:!bg-rose-950/30 flex items-center gap-1.5 cursor-pointer"
 											>
-												Reject
+												<XCircle className="w-3.5 h-3.5" />
+												<span>Reject...</span>
 											</button>
 										</>
 									) : (
@@ -136,6 +143,22 @@ export const ApprovalsView: React.FC<ApprovalsViewProps> = ({
 					})
 				)}
 			</div>
+
+			{/* Rejection Safety Confirmation Modal */}
+			<ConfirmModal
+				isOpen={Boolean(rejectTarget)}
+				title="Decline Approval Request?"
+				message={`Are you sure you want to decline "${rejectTarget?.title}"? The project owner and delivery team will be notified of this executive decision.`}
+				confirmButtonLabel="Confirm Rejection"
+				variant="danger"
+				onConfirm={() => {
+					if (rejectTarget) {
+						handleDecision(rejectTarget.id, "Rejected", rejectTarget.title);
+						setRejectTarget(null);
+					}
+				}}
+				onClose={() => setRejectTarget(null)}
+			/>
 		</div>
 	);
 };

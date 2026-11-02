@@ -1,8 +1,9 @@
 import type React from "react";
-import { useState } from "react";
-import { ChevronDown, Menu, Search, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronDown, Menu, Plus, Search, X } from "lucide-react";
 import { useAuth } from "../../lib/auth/auth.context";
 import { isSupabaseConfigured } from "../../lib/supabase/client";
+import { BrandMark } from "../ui/BrandMark";
 import { ThemeToggle } from "../ui/ThemeToggle";
 
 interface TopbarProps {
@@ -22,7 +23,22 @@ export const Topbar: React.FC<TopbarProps> = ({
 }) => {
 	const { user, role, signOut } = useAuth();
 	const [showSyncInfo, setShowSyncInfo] = useState(false);
+	const [showQuickMenu, setShowQuickMenu] = useState(false);
+	const quickMenuRef = useRef<HTMLDivElement>(null);
 	const isConnected = isSupabaseConfigured();
+
+	useEffect(() => {
+		const handleClickOutside = (e: MouseEvent) => {
+			if (
+				quickMenuRef.current &&
+				!quickMenuRef.current.contains(e.target as Node)
+			) {
+				setShowQuickMenu(false);
+			}
+		};
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => document.removeEventListener("mousedown", handleClickOutside);
+	}, []);
 
 	return (
 		<header className="sticky top-0 z-30 studio-topbar flex items-center justify-between px-3 sm:px-4 lg:px-6 h-[54px] select-none gap-2">
@@ -36,6 +52,10 @@ export const Topbar: React.FC<TopbarProps> = ({
 				>
 					<Menu className="w-4 h-4" />
 				</button>
+
+				{/* Mobile Brand Mark */}
+				<BrandMark size="sm" showWordmark={false} className="lg:hidden shrink-0" />
+
 				<div className="flex items-center gap-1.5 sm:gap-2 text-[13px] min-w-0">
 					<span className="font-semibold text-[var(--ink-muted)] hidden md:inline font-mono">
 						STUDIO
@@ -164,7 +184,66 @@ export const Topbar: React.FC<TopbarProps> = ({
 					)}
 				</div>
 
-				{/* Quick Actions (Responsive & Cohesive) */}
+				{/* Quick Actions (Responsive Dropdown on Mobile + Direct Pills on Desktop) */}
+				<div className="relative" ref={quickMenuRef}>
+					<button
+						type="button"
+						onClick={() => setShowQuickMenu(!showQuickMenu)}
+						className="inline-flex sm:hidden btn-primary !h-[28px] !w-[28px] !p-0 items-center justify-center !bg-[#1A253C] hover:!bg-[#263554] !text-white rounded-lg shadow-xs cursor-pointer"
+						aria-label="Quick Create Menu"
+					>
+						<Plus className="w-4 h-4" />
+					</button>
+
+					{showQuickMenu && (
+						<div className="absolute right-0 top-9 w-44 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-xl p-1.5 z-50 text-[12px] space-y-0.5 animate-in fade-in">
+							<div className="px-2 py-1 text-[10px] font-mono uppercase text-[var(--ink-muted)] font-bold">
+								Quick Create
+							</div>
+							<button
+								type="button"
+								onClick={() => {
+									openModal("opportunity");
+									setShowQuickMenu(false);
+								}}
+								className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[var(--surface-sunken)] text-[var(--ink)] font-medium transition"
+							>
+								+ Commercial Deal
+							</button>
+							<button
+								type="button"
+								onClick={() => {
+									openModal("lead");
+									setShowQuickMenu(false);
+								}}
+								className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[var(--surface-sunken)] text-[var(--ink)] font-medium transition"
+							>
+								+ Pipeline Lead
+							</button>
+							<button
+								type="button"
+								onClick={() => {
+									openModal("project");
+									setShowQuickMenu(false);
+								}}
+								className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[var(--surface-sunken)] text-[var(--ink)] font-medium transition"
+							>
+								+ Delivery Project
+							</button>
+							<button
+								type="button"
+								onClick={() => {
+									openModal("finance");
+									setShowQuickMenu(false);
+								}}
+								className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[var(--surface-sunken)] text-[var(--ink)] font-medium transition"
+							>
+								+ Sales Invoice
+							</button>
+						</div>
+					)}
+				</div>
+
 				<button
 					type="button"
 					onClick={() => openModal("lead")}

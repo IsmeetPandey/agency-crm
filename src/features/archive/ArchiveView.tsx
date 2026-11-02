@@ -1,6 +1,7 @@
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { Building2, FolderKanban, Target, Zap } from "lucide-react";
+import { ConfirmModal } from "../../components/modals/ConfirmModal";
 import { OpportunityChip } from "../../components/ui/OpportunityChip";
 import { useToast } from "../../lib/feedback/toast.context";
 import { clientsRepository } from "../../lib/repositories/clients.repository";
@@ -30,6 +31,11 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 	const [archivedProjects, setArchivedProjects] = useState<Project[]>([]);
 	const [localSearch, setLocalSearch] = useState("");
 	const [loading, setLoading] = useState(true);
+	const [purgeTarget, setPurgeTarget] = useState<{
+		type: "lead" | "opportunity" | "client" | "project";
+		id: string;
+		name: string;
+	} | null>(null);
 
 	const searchQuery = (externalSearch || localSearch).toLowerCase().trim();
 
@@ -126,30 +132,12 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 		}
 	};
 
-	const handleDeleteLeadPermanently = async (lead: Lead) => {
-		if (
-			!window.confirm(
-				`WARNING: Permanently purge lead "${lead.name}"? This operation cannot be undone.`,
-			)
-		) {
-			return;
-		}
-		try {
-			await leadsRepository.deletePermanently(lead.id);
-			toast({
-				title: "Lead Purged",
-				description: `"${lead.name}" was permanently removed.`,
-				type: "info",
-			});
-			await loadAllArchived();
-			onRefresh();
-		} catch (err: any) {
-			toast({
-				title: "Purge Failed",
-				description: err?.message || "Could not permanently delete lead.",
-				type: "error",
-			});
-		}
+	const handleDeleteLeadPermanently = (lead: Lead) => {
+		setPurgeTarget({
+			type: "lead",
+			id: lead.id,
+			name: lead.name,
+		});
 	};
 
 	// Actions for Opportunities
@@ -172,31 +160,12 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 		}
 	};
 
-	const handleDeleteOpportunityPermanently = async (opp: Opportunity) => {
-		if (
-			!window.confirm(
-				`WARNING: Permanently purge opportunity ${opp.opportunityNo} - "${opp.title}"? This cannot be undone.`,
-			)
-		) {
-			return;
-		}
-		try {
-			await opportunitiesRepository.deletePermanently(opp.id);
-			toast({
-				title: "Opportunity Purged",
-				description: `${opp.opportunityNo} was permanently removed.`,
-				type: "info",
-			});
-			await loadAllArchived();
-			onRefresh();
-		} catch (err: any) {
-			toast({
-				title: "Purge Failed",
-				description:
-					err?.message || "Could not permanently delete opportunity.",
-				type: "error",
-			});
-		}
+	const handleDeleteOpportunityPermanently = (opp: Opportunity) => {
+		setPurgeTarget({
+			type: "opportunity",
+			id: opp.id,
+			name: `${opp.opportunityNo} • ${opp.title}`,
+		});
 	};
 
 	// Actions for Clients
@@ -219,30 +188,12 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 		}
 	};
 
-	const handleDeleteClientPermanently = async (client: Client) => {
-		if (
-			!window.confirm(
-				`WARNING: Permanently purge client account "${client.name}"? This cannot be undone.`,
-			)
-		) {
-			return;
-		}
-		try {
-			await clientsRepository.deletePermanently(client.id);
-			toast({
-				title: "Client Purged",
-				description: `"${client.name}" was permanently removed.`,
-				type: "info",
-			});
-			await loadAllArchived();
-			onRefresh();
-		} catch (err: any) {
-			toast({
-				title: "Purge Failed",
-				description: err?.message || "Could not permanently delete client.",
-				type: "error",
-			});
-		}
+	const handleDeleteClientPermanently = (client: Client) => {
+		setPurgeTarget({
+			type: "client",
+			id: client.id,
+			name: client.name,
+		});
 	};
 
 	// Actions for Projects
@@ -265,19 +216,30 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 		}
 	};
 
-	const handleDeleteProjectPermanently = async (project: Project) => {
-		if (
-			!window.confirm(
-				`WARNING: Permanently purge project "${project.name}"? This cannot be undone.`,
-			)
-		) {
-			return;
-		}
+	const handleDeleteProjectPermanently = (project: Project) => {
+		setPurgeTarget({
+			type: "project",
+			id: project.id,
+			name: project.name,
+		});
+	};
+
+	const executePurge = async () => {
+		if (!purgeTarget) return;
 		try {
-			await projectsRepository.deletePermanently(project.id);
+			if (purgeTarget.type === "lead") {
+				await leadsRepository.deletePermanently(purgeTarget.id);
+			} else if (purgeTarget.type === "opportunity") {
+				await opportunitiesRepository.deletePermanently(purgeTarget.id);
+			} else if (purgeTarget.type === "client") {
+				await clientsRepository.deletePermanently(purgeTarget.id);
+			} else if (purgeTarget.type === "project") {
+				await projectsRepository.deletePermanently(purgeTarget.id);
+			}
+
 			toast({
-				title: "Project Purged",
-				description: `"${project.name}" was permanently removed.`,
+				title: "Record Purged Permanently",
+				description: `"${purgeTarget.name}" has been permanently purged from the database.`,
 				type: "info",
 			});
 			await loadAllArchived();
@@ -285,7 +247,8 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 		} catch (err: any) {
 			toast({
 				title: "Purge Failed",
-				description: err?.message || "Could not permanently delete project.",
+				description:
+					err?.message || "Could not permanently delete record from database.",
 				type: "error",
 			});
 		}
@@ -743,6 +706,18 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 						))}
 				</>
 			)}
+
+			{/* High-Assurance Confirmation Modal for Permanent Purge */}
+			<ConfirmModal
+				isOpen={Boolean(purgeTarget)}
+				title="Permanently Purge Record?"
+				message={`You are about to irreversibly delete ${purgeTarget?.name || "this item"}. This record and all its historical linkages will be permanently erased from PostgreSQL.`}
+				confirmTextRequired="PURGE"
+				confirmButtonLabel="Permanently Erase Record"
+				variant="danger"
+				onConfirm={executePurge}
+				onClose={() => setPurgeTarget(null)}
+			/>
 		</div>
 	);
 };

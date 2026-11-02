@@ -85,7 +85,33 @@ export const HandoffsView: React.FC<HandoffsViewProps> = ({
 										</span>
 										{(h.description || (h as any).notes) && (
 											<span className="font-sans text-slate-400">
-												• {h.description || (h as any).notes}
+												•{" "}
+												{(() => {
+													const desc = h.description || (h as any).notes || "";
+													const urlMatch = desc.match(/(https?:\/\/[^\s]+)/);
+													if (urlMatch) {
+														const url = urlMatch[0];
+														const before = desc.slice(0, urlMatch.index);
+														const after = desc.slice(
+															(urlMatch.index || 0) + url.length,
+														);
+														return (
+															<>
+																{before}
+																<a
+																	href={url}
+																	target="_blank"
+																	rel="noopener noreferrer"
+																	className="text-blue-600 dark:text-blue-400 underline font-medium hover:text-blue-800"
+																>
+																	{url}
+																</a>
+																{after}
+															</>
+														);
+													}
+													return desc;
+												})()}
 											</span>
 										)}
 									</div>

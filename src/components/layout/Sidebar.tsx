@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { formatHour } from "../../lib/constants/agency";
 import type { Department } from "../../types";
+import { BrandMark } from "../ui/BrandMark";
 import { ThemeToggle } from "../ui/ThemeToggle";
 
 interface SidebarProps {
@@ -217,21 +218,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
 			<div>
 				{/* Top Branding Section */}
 				<div className="flex items-center justify-between px-2.5 py-3 mb-2 border-b border-[var(--nav-border)]">
-					<div className="flex items-center gap-2.5 min-w-0">
-						<div className="w-9 h-9 rounded-xl bg-[#2563EB] text-white flex items-center justify-center font-bold text-[15px] shrink-0 shadow-sm">
-							K
-						</div>
-						{(!collapsed || isMobile) && (
-							<div className="min-w-0">
-								<div className="text-[14px] font-extrabold tracking-tight text-[#1A253C] dark:text-slate-100 leading-none">
-									KREATIWIT
-								</div>
-								<div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider">
-									AgencyOS Studio
-								</div>
-							</div>
-						)}
-					</div>
+					<BrandMark
+						size="md"
+						showWordmark={!collapsed || isMobile}
+						subtitle="AgencyOS Studio"
+					/>
 
 					{isMobile ? (
 						<button
