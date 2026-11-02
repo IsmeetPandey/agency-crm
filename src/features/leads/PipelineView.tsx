@@ -1,5 +1,6 @@
 import type React from "react";
 import { useMemo, useState } from "react";
+import { Pencil } from "lucide-react";
 import { OpportunityChip } from "../../components/ui/OpportunityChip";
 import { STAGE_META, STAGES } from "../../lib/constants/agency";
 import { useToast } from "../../lib/feedback/toast.context";
@@ -277,11 +278,11 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 												<button
 													type="button"
 													onClick={() => onOpenModal("lead", { lead })}
-													className="text-[11px] p-1 rounded text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-sunken)] transition"
+													className="p-1 rounded text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-sunken)] transition"
 													title="Edit Lead"
 													aria-label="Edit Lead"
 												>
-													✎
+													<Pencil className="w-3.5 h-3.5" />
 												</button>
 												<select
 													value={lead.stage}

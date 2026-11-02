@@ -1,5 +1,6 @@
 import type React from "react";
 import { useMemo, useState } from "react";
+import { Columns, List, Pencil, Search, Trash2, Zap } from "lucide-react";
 import { OpportunityChip } from "../../components/ui/OpportunityChip";
 import { useToast } from "../../lib/feedback/toast.context";
 import { opportunitiesRepository } from "../../lib/repositories/opportunities.repository";
@@ -270,24 +271,26 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 						<button
 							type="button"
 							onClick={() => setViewMode("table")}
-							className={`px-3 py-1 rounded transition cursor-pointer ${
+							className={`px-3 py-1 rounded transition cursor-pointer flex items-center gap-1.5 ${
 								viewMode === "table"
 									? "bg-white text-slate-900 shadow-xs font-semibold"
 									: "hover:text-slate-900"
 							}`}
 						>
-							☰ List
+							<List className="w-3.5 h-3.5" />
+							<span>List</span>
 						</button>
 						<button
 							type="button"
 							onClick={() => setViewMode("kanban")}
-							className={`px-3 py-1 rounded transition cursor-pointer ${
+							className={`px-3 py-1 rounded transition cursor-pointer flex items-center gap-1.5 ${
 								viewMode === "kanban"
 									? "bg-white text-slate-900 shadow-xs font-semibold"
 									: "hover:text-slate-900"
 							}`}
 						>
-							☷ Pipeline
+							<Columns className="w-3.5 h-3.5" />
+							<span>Pipeline</span>
 						</button>
 					</div>
 
@@ -374,9 +377,7 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 							onChange={(e) => setLocalSearch(e.target.value)}
 							className="w-full h-8 pl-8 pr-3 text-[12px] bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500"
 						/>
-						<span className="absolute left-2.5 top-2 text-[12px] text-slate-400">
-							🔍
-						</span>
+						<Search className="absolute left-2.5 top-2 w-3.5 h-3.5 text-slate-400" />
 					</div>
 
 					{/* Stage Filter */}
@@ -454,7 +455,7 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 				<div className="erp-table-container">
 					{filteredOpportunities.length === 0 ? (
 						<div className="py-16 text-center space-y-2">
-							<div className="text-[28px]">⚡</div>
+							<Zap className="w-8 h-8 text-amber-500 fill-amber-500/20 mx-auto" />
 							<div className="text-[14px] font-bold text-slate-800">
 								No commercial opportunities found
 							</div>
@@ -580,7 +581,7 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 															title="Edit Opportunity"
 															aria-label="Edit Opportunity"
 														>
-															✎
+															<Pencil className="w-3.5 h-3.5" />
 														</button>
 														<button
 															type="button"
@@ -589,7 +590,7 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 															title="Archive Opportunity"
 															aria-label="Archive Opportunity"
 														>
-															🗑
+															<Trash2 className="w-3.5 h-3.5" />
 														</button>
 														<button
 															type="button"
@@ -703,7 +704,7 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 															className="text-[10px] p-1 rounded text-slate-400 hover:text-slate-800 transition cursor-pointer"
 															title="Edit"
 														>
-															✎
+															<Pencil className="w-3 h-3" />
 														</button>
 													</div>
 												</div>

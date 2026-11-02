@@ -1,5 +1,6 @@
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
+import { Building2, User } from "lucide-react";
 import { OpportunityChip } from "../../components/ui/OpportunityChip";
 import { useToast } from "../../lib/feedback/toast.context";
 import { notesRepository } from "../../lib/repositories/notes.repository";
@@ -271,8 +272,9 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
 							<div className="text-[10px] text-[var(--ink-muted)] font-mono uppercase">
 								Opportunity Owner
 							</div>
-							<div className="font-medium text-[var(--ink)] mt-0.5">
-								👤 {opportunity.owner}
+							<div className="font-medium text-[var(--ink)] mt-0.5 flex items-center gap-1.5">
+								<User className="w-3.5 h-3.5 text-slate-400" />
+								<span>{opportunity.owner}</span>
 							</div>
 						</div>
 						<div>
@@ -420,7 +422,7 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
 						</div>
 					) : (
 						<div className="space-y-2 py-3 text-center">
-							<div className="text-2xl">🏛</div>
+							<Building2 className="w-8 h-8 text-slate-400 mx-auto" />
 							<div className="text-[13px] font-semibold text-[var(--ink)]">
 								Direct Commercial Engagement
 							</div>
@@ -502,8 +504,8 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
 								</div>
 
 								<div className="flex items-center justify-between pt-2 border-t border-[var(--border)]">
-									<span className="text-[11px] text-[var(--ink-muted)]">
-										Lead: 👤 {p.owner}
+									<span className="text-[11px] text-[var(--ink-muted)] flex items-center gap-1">
+										Lead: <User className="w-3 h-3 text-slate-400" /> {p.owner}
 									</span>
 									<button
 										type="button"
@@ -636,8 +638,8 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
 								className="p-3 rounded-lg bg-[var(--surface-sunken)] border border-[var(--border)] space-y-1 text-[12px]"
 							>
 								<div className="flex items-center justify-between text-[var(--ink-muted)] text-[11px] font-mono">
-									<span className="font-semibold text-[var(--ink)]">
-										👤 {n.author}
+									<span className="font-semibold text-[var(--ink)] flex items-center gap-1">
+										<User className="w-3 h-3 text-slate-400" /> {n.author}
 									</span>
 									<span>{n.createdAt.split("T")[0]}</span>
 								</div>

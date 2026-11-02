@@ -1,5 +1,6 @@
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
+import { Building2, FolderKanban, Target, Zap } from "lucide-react";
 import { OpportunityChip } from "../../components/ui/OpportunityChip";
 import { useToast } from "../../lib/feedback/toast.context";
 import { clientsRepository } from "../../lib/repositories/clients.repository";
@@ -414,7 +415,7 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 					{activeTab === "leads" &&
 						(filteredLeads.length === 0 ? (
 							<div className="text-center py-16 bg-white border border-[#EDEDED] rounded-xl">
-								<div className="text-3xl mb-2">⚑</div>
+								<Target className="w-10 h-10 text-slate-300 mx-auto mb-2 stroke-[1.5]" />
 								<h3 className="text-[14px] font-bold text-[#222222]">
 									No archived leads
 								</h3>
@@ -494,7 +495,7 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 					{activeTab === "opportunities" &&
 						(filteredOpportunities.length === 0 ? (
 							<div className="text-center py-16 bg-white border border-[#EDEDED] rounded-xl">
-								<div className="text-3xl mb-2">⚡</div>
+								<Zap className="w-10 h-10 text-slate-300 mx-auto mb-2 stroke-[1.5]" />
 								<h3 className="text-[14px] font-bold text-[#222222]">
 									No archived opportunities
 								</h3>
@@ -582,7 +583,7 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 					{activeTab === "clients" &&
 						(filteredClients.length === 0 ? (
 							<div className="text-center py-16 bg-white border border-[#EDEDED] rounded-xl">
-								<div className="text-3xl mb-2">◈</div>
+								<Building2 className="w-10 h-10 text-slate-300 mx-auto mb-2 stroke-[1.5]" />
 								<h3 className="text-[14px] font-bold text-[#222222]">
 									No archived clients
 								</h3>
@@ -655,7 +656,7 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 					{activeTab === "projects" &&
 						(filteredProjects.length === 0 ? (
 							<div className="text-center py-16 bg-white border border-[#EDEDED] rounded-xl">
-								<div className="text-3xl mb-2">◼</div>
+								<FolderKanban className="w-10 h-10 text-slate-300 mx-auto mb-2 stroke-[1.5]" />
 								<h3 className="text-[14px] font-bold text-[#222222]">
 									No archived projects
 								</h3>

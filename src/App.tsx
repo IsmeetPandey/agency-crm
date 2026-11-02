@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { AlertTriangle, ShieldAlert } from "lucide-react";
 import { ErrorBoundary } from "./components/feedback/ErrorBoundary";
 import { CommandPalette } from "./components/layout/CommandPalette";
 import { Sidebar } from "./components/layout/Sidebar";
@@ -225,7 +226,7 @@ function AgencyOSApp() {
 			<div className="flex h-screen w-full items-center justify-center studio-canvas p-4 bg-[#0F1117] font-sans">
 				<div className="w-full max-w-[480px] bg-[#181C26]/95 border border-amber-500/30 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-4">
 					<div className="flex items-center gap-2 text-amber-400 text-[14px] font-bold">
-						<span>🛡</span>
+						<ShieldAlert className="w-4 h-4 shrink-0" />
 						<span>Organization Membership Required</span>
 					</div>
 					<p className="text-[13px] text-slate-300 leading-relaxed">
@@ -267,7 +268,7 @@ function AgencyOSApp() {
 			<div className="flex h-screen w-full items-center justify-center studio-canvas p-4 bg-[#0F1117] font-sans">
 				<div className="w-full max-w-[480px] bg-[#181C26]/95 border border-rose-500/30 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-4">
 					<div className="flex items-center gap-2 text-rose-400 text-[14px] font-bold">
-						<span>⚠</span>
+						<AlertTriangle className="w-4 h-4 shrink-0" />
 						<span>Authorization Connection Disrupted</span>
 					</div>
 					<p className="text-[13px] text-slate-300 leading-relaxed">

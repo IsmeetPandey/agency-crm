@@ -1,5 +1,6 @@
 import type React from "react";
 import { useState } from "react";
+import { ChevronDown, Menu, Search, X } from "lucide-react";
 import { useAuth } from "../../lib/auth/auth.context";
 import { isSupabaseConfigured } from "../../lib/supabase/client";
 import { ThemeToggle } from "../ui/ThemeToggle";
@@ -33,7 +34,7 @@ export const Topbar: React.FC<TopbarProps> = ({
 					className="lg:hidden p-1.5 rounded-lg text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-sunken)] transition shrink-0"
 					aria-label="Open mobile navigation"
 				>
-					☰
+					<Menu className="w-4 h-4" />
 				</button>
 				<div className="flex items-center gap-1.5 sm:gap-2 text-[13px] min-w-0">
 					<span className="font-semibold text-[var(--ink-muted)] hidden md:inline font-mono">
@@ -57,9 +58,7 @@ export const Topbar: React.FC<TopbarProps> = ({
 					className="w-full flex items-center justify-between px-3 py-1.5 rounded-md bg-[var(--surface-sunken)] hover:bg-[var(--surface-raised)] border border-[var(--border)] text-[12px] text-[var(--ink-muted)] transition group"
 				>
 					<span className="flex items-center gap-2">
-						<span className="text-[var(--ink-muted)] group-hover:text-[var(--accent)] transition">
-							🔍
-						</span>
+						<Search className="w-3.5 h-3.5 text-[var(--ink-muted)] group-hover:text-[var(--accent)] transition shrink-0" />
 						<span>Search opportunities, projects, team...</span>
 					</span>
 					<kbd className="font-mono text-[10px] bg-[var(--surface)] border border-[var(--border)] px-1.5 py-0.5 rounded text-[var(--ink-muted)] shadow-xs">
@@ -75,10 +74,10 @@ export const Topbar: React.FC<TopbarProps> = ({
 					<span className="text-[11px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 font-mono">
 						CRM
 					</span>
-					<div className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-[var(--border)] bg-[var(--surface-sunken)] text-[11px] text-[var(--ink-strong)] font-medium">
+					<div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-[var(--border)] bg-[var(--surface-sunken)] text-[11px] text-[var(--ink-strong)] font-medium">
 						<span className="text-slate-400">Branch:</span>
 						<span>Main Studio</span>
-						<span className="text-[9px] text-slate-400">▼</span>
+						<ChevronDown className="w-3 h-3 text-slate-400 shrink-0" />
 					</div>
 				</div>
 
@@ -116,9 +115,10 @@ export const Topbar: React.FC<TopbarProps> = ({
 								<button
 									type="button"
 									onClick={() => setShowSyncInfo(false)}
-									className="text-[var(--ink-muted)] text-[14px] hover:text-[var(--ink)] leading-none"
+									className="text-[var(--ink-muted)] hover:text-[var(--ink)] leading-none p-1 rounded hover:bg-[var(--surface-sunken)] transition cursor-pointer"
+									aria-label="Close sync info"
 								>
-									×
+									<X className="w-4 h-4" />
 								</button>
 							</div>
 

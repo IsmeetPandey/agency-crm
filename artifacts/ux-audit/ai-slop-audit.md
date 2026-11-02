@@ -47,3 +47,16 @@
 - `prefers-reduced-motion` media query implemented to disable motion for users with vestibular sensitivities.
 - All SVGs equipped with `role="img"` and descriptive `<title>` or `aria-label`.
 - Touch target sizes minimum 36px on tablet and mobile viewports.
+
+---
+
+## 5. Typography & Iconography Anti-Slop Overhaul (SUPER5 Standard)
+
+| AI-Slop Element | Previous State | Awwwards / Vercel-Grade Replacement | Status |
+|---|---|---|---|
+| **Generic Fonts** | `Inter Tight` (condensed, sterile) + `IBM Plex Mono` | **Plus Jakarta Sans** (Display/Headings with `-0.026em` tracking), **Inter** (Body/UI), and **JetBrains Mono** (`tabular-nums` for currencies, timestamps, and SKUs) | **COMPLETED** |
+| **Raw Unicode Glyphs / Emojis** | 108 raw characters (`⚑`, `⚡`, `◈`, `👤`, `◼`, `☑`, `↳`, `📑`, `👥`, `✓`, `▦`, `♻`, `⚙`, `❖`, `🔍`, `📊`, `⏳`, `📄`, `✉`, `📞`, `✎`) scattered across 18 components | **Lucide React** precision vector SVG icons (`LayoutDashboard`, `Target`, `Zap`, `Building2`, `Users`, `FolderKanban`, `CheckSquare`, `ArrowRightLeft`, `FileText`, `Settings`, `Search`, `ChevronDown`, `Check`, `Pencil`, `Trash2`, `Clock`, `Receipt`, `Scale`, etc.) | **COMPLETED** |
+| **Icon Stroke Inconsistency** | Mismatched font emojis with varying platform emojis | Unified stroke weight (`1.75px` - `2px`), consistent optical sizing (`14px` - `20px`), semantic color mapping | **COMPLETED** |
+| **Remaining Unicode Glyphs Count** | 108 occurrences across codebase | **0 occurrences remaining** (100% verified by AST/regex scanner) | **VERIFIED** |
+
+

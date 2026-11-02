@@ -1,5 +1,6 @@
 import type React from "react";
 import { useMemo, useState } from "react";
+import { Check, Trash2, User } from "lucide-react";
 import { useToast } from "../../lib/feedback/toast.context";
 import { tasksRepository } from "../../lib/repositories/tasks.repository";
 import type {
@@ -369,8 +370,9 @@ export const TasksView: React.FC<TasksViewProps> = ({
 													)}
 
 													<div className="flex items-center justify-between text-[11px] text-[var(--ink-muted)] mt-3 pt-2 border-t border-[var(--border-subtle)]">
-														<span className="font-medium text-[var(--ink-secondary)]">
-															👤 {task.owner}
+														<span className="font-medium text-[var(--ink-secondary)] flex items-center gap-1">
+															<User className="w-3 h-3 text-slate-400" />
+															<span>{task.owner}</span>
 														</span>
 														<span className="font-mono text-[10px]">
 															{task.due ? task.due : "No due date"}
@@ -405,13 +407,18 @@ export const TasksView: React.FC<TasksViewProps> = ({
 																					: "Completed",
 																		)
 																	}
-																	className="px-2 py-0.5 text-[10px] font-semibold rounded bg-[#49B3FC]/15 hover:bg-[#49B3FC]/25 text-[#49B3FC]"
+																	className="px-2 py-0.5 text-[10px] font-semibold rounded bg-[#49B3FC]/15 hover:bg-[#49B3FC]/25 text-[#49B3FC] flex items-center gap-1"
 																>
-																	{colStatus === "Todo"
-																		? "Start →"
-																		: colStatus === "In progress"
-																			? "Block / Review →"
-																			: "Done ✓"}
+																	{colStatus === "Todo" ? (
+																		"Start →"
+																	) : colStatus === "In progress" ? (
+																		"Block / Review →"
+																	) : (
+																		<>
+																			<Check className="w-3 h-3" />
+																			<span>Done</span>
+																		</>
+																	)}
 																</button>
 															)}
 														</div>
@@ -419,10 +426,10 @@ export const TasksView: React.FC<TasksViewProps> = ({
 														<button
 															type="button"
 															onClick={() => handleDeleteTask(task)}
-															className="text-[10px] text-rose-500 hover:text-rose-700 px-1"
+															className="text-[10px] text-rose-500 hover:text-rose-700 p-1 rounded hover:bg-rose-50"
 															title="Delete task"
 														>
-															×
+															<Trash2 className="w-3 h-3" />
 														</button>
 													</div>
 												</div>
@@ -522,9 +529,10 @@ export const TasksView: React.FC<TasksViewProps> = ({
 															onClick={() =>
 																handleStatusChange(task, "Completed")
 															}
-															className="text-[11px] font-medium text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40 px-2 py-1 rounded"
+															className="text-[11px] font-medium text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40 px-2 py-1 rounded inline-flex items-center gap-1"
 														>
-															Done ✓
+															<Check className="w-3 h-3" />
+															<span>Done</span>
 														</button>
 													)}
 													<button

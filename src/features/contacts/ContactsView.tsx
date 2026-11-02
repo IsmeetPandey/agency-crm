@@ -1,5 +1,6 @@
 import type React from "react";
 import { useMemo, useState } from "react";
+import { User } from "lucide-react";
 import { useToast } from "../../lib/feedback/toast.context";
 import { contactsRepository } from "../../lib/repositories/contacts.repository";
 import type { Client, Contact } from "../../types";
@@ -198,7 +199,7 @@ export const ContactsView: React.FC<ContactsViewProps> = ({
 			{/* Contacts Roster Table */}
 			{filteredContacts.length === 0 ? (
 				<div className="text-center py-16 bg-[var(--surface)] border border-[var(--border)] rounded-xl">
-					<div className="text-3xl mb-2">👤</div>
+					<User className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2 stroke-[1.5]" />
 					<h3 className="text-[15px] font-bold text-[var(--ink)]">
 						No contacts found
 					</h3>

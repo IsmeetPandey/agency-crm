@@ -1,5 +1,26 @@
 import type React from "react";
 import { useEffect, useState } from "react";
+import {
+	Archive,
+	ArrowRightLeft,
+	Building2,
+	CheckCircle2,
+	CheckSquare,
+	ChevronDown,
+	ChevronLeft,
+	ChevronRight,
+	FileText,
+	FolderKanban,
+	Grid,
+	LayoutDashboard,
+	type LucideIcon,
+	Settings,
+	Target,
+	UserCheck,
+	Users,
+	X,
+	Zap,
+} from "lucide-react";
 import { formatHour } from "../../lib/constants/agency";
 import type { Department } from "../../types";
 import { ThemeToggle } from "../ui/ThemeToggle";
@@ -28,14 +49,14 @@ interface SidebarProps {
 interface NavItem {
 	id: string;
 	label: string;
-	icon: string;
+	icon: LucideIcon;
 	badge?: number | null;
 }
 
 interface NavGroup {
 	id: string;
 	label: string;
-	icon: string;
+	icon: LucideIcon;
 	children: NavItem[];
 }
 
@@ -95,29 +116,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
 		{
 			id: "sales",
 			label: "Sales & Deals",
-			icon: "⚑",
+			icon: Target,
 			children: [
 				{
 					id: "pipeline",
 					label: "Sales Pipeline",
-					icon: "⚑",
+					icon: Target,
 					badge: leadsCount,
 				},
 				{
 					id: "opportunities",
 					label: "Commercial Deals",
-					icon: "⚡",
+					icon: Zap,
 					badge: opportunitiesCount || null,
 				},
 				{
 					id: "clients",
 					label: "Client Accounts",
-					icon: "◈",
+					icon: Building2,
 				},
 				{
 					id: "contacts",
 					label: "Key Contacts",
-					icon: "👤",
+					icon: Users,
 					badge: contactsCount || null,
 				},
 			],
@@ -125,24 +146,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
 		{
 			id: "delivery",
 			label: "Delivery & Projects",
-			icon: "◼",
+			icon: FolderKanban,
 			children: [
 				{
 					id: "projects",
 					label: "Projects & Cockpit",
-					icon: "◼",
+					icon: FolderKanban,
 					badge: projectsCount,
 				},
 				{
 					id: "tasks",
 					label: "Tasks Masterboard",
-					icon: "☑",
+					icon: CheckSquare,
 					badge: tasksCount || null,
 				},
 				{
 					id: "handoffs",
 					label: "Handoff Transit",
-					icon: "↳",
+					icon: ArrowRightLeft,
 					badge: pendingHandoffsCount || null,
 				},
 			],
@@ -150,12 +171,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
 		{
 			id: "finance",
 			label: "Finance & Accounting",
-			icon: "📑",
+			icon: FileText,
 			children: [
 				{
 					id: "finance",
 					label: "Sales Invoices & Reports",
-					icon: "📑",
+					icon: FileText,
 					badge: financeCount || null,
 				},
 			],
@@ -163,30 +184,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
 		{
 			id: "governance",
 			label: "Governance & Team",
-			icon: "👥",
+			icon: UserCheck,
 			children: [
-				{ id: "team", label: "Team & Capacity", icon: "👥" },
+				{ id: "team", label: "Team & Capacity", icon: Users },
 				{
 					id: "approvals",
 					label: "Approval Center",
-					icon: "✓",
+					icon: CheckCircle2,
 					badge: pendingApprovalsCount || null,
 				},
-				{ id: "raci", label: "RACI Governance", icon: "▦" },
+				{ id: "raci", label: "RACI Governance", icon: Grid },
 			],
 		},
 		{
 			id: "system",
 			label: "System & Settings",
-			icon: "⚙",
+			icon: Settings,
 			children: [
 				{
 					id: "archive",
 					label: "Recycle & Archive",
-					icon: "♻",
+					icon: Archive,
 					badge: archiveCount || null,
 				},
-				{ id: "settings", label: "Settings & Storage", icon: "⚙" },
+				{ id: "settings", label: "Settings & Storage", icon: Settings },
 			],
 		},
 	];
@@ -219,17 +240,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
 							className="text-slate-500 hover:text-slate-900 dark:hover:text-white p-1 text-[20px] leading-none cursor-pointer"
 							aria-label="Close menu"
 						>
-							×
+							<X className="w-5 h-5" />
 						</button>
 					) : (
 						<button
 							type="button"
 							onClick={() => setCollapsed(!collapsed)}
-							className="text-slate-500 hover:text-[#1A253C] dark:hover:text-white p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-[11px] font-mono transition cursor-pointer"
+							className="text-slate-500 hover:text-[#1A253C] dark:hover:text-white p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition cursor-pointer"
 							title="Toggle sidebar (⌘B)"
 							aria-label="Toggle sidebar"
 						>
-							{collapsed ? "»" : "«"}
+							{collapsed ? (
+								<ChevronRight className="w-4 h-4" />
+							) : (
+								<ChevronLeft className="w-4 h-4" />
+							)}
 						</button>
 					)}
 				</div>
@@ -249,7 +274,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 						}`}
 					>
 						<div className="flex items-center gap-2.5 min-w-0">
-							<span className="text-[14px] shrink-0">❖</span>
+							<LayoutDashboard className="w-4 h-4 shrink-0" strokeWidth={1.8} />
 							{(!collapsed || isMobile) && (
 								<span className="truncate text-[13px] font-medium">
 									Dashboard
@@ -262,6 +287,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 					{navGroups.map((group) => {
 						const isExpanded = Boolean(expandedGroups[group.id]);
 						const isGroupActive = group.children.some((c) => c.id === view);
+						const GroupIcon = group.icon;
 
 						return (
 							<div key={group.id} className="space-y-0.5 pt-1">
@@ -277,18 +303,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
 										}`}
 									>
 										<div className="flex items-center gap-2 min-w-0">
-											<span className="text-[13px] opacity-80 shrink-0">
-												{group.icon}
-											</span>
+											<GroupIcon className="w-3.5 h-3.5 shrink-0 opacity-80" strokeWidth={1.8} />
 											<span className="truncate">{group.label}</span>
 										</div>
-										<span
-											className={`text-[10px] text-slate-500 transition-transform duration-200 ${
+										<ChevronDown
+											className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
 												isExpanded ? "rotate-180" : ""
 											}`}
-										>
-											▼
-										</span>
+										/>
 									</button>
 								) : null}
 
@@ -297,6 +319,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 									<div className="space-y-0.5 pl-2 mt-0.5 border-l border-slate-300/60 dark:border-slate-700/60 ml-3">
 										{group.children.map((item) => {
 											const active = view === item.id;
+											const ItemIcon = item.icon;
+
 											return (
 												<button
 													key={item.id}
@@ -311,9 +335,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 													}`}
 												>
 													<div className="flex items-center gap-2 min-w-0">
-														<span className="text-[12px] opacity-75 shrink-0">
-															{item.icon}
-														</span>
+														<ItemIcon className="w-3.5 h-3.5 shrink-0 opacity-80" strokeWidth={1.8} />
 														<span className="truncate text-[12.5px]">
 															{item.label}
 														</span>
@@ -340,6 +362,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 									<div className="space-y-1">
 										{group.children.map((item) => {
 											const active = view === item.id;
+											const ItemIcon = item.icon;
+
 											return (
 												<button
 													key={item.id}
@@ -353,7 +377,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 															: "text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10"
 													}`}
 												>
-													<span className="text-[14px]">{item.icon}</span>
+													<ItemIcon className="w-4 h-4" strokeWidth={1.8} />
 												</button>
 											);
 										})}

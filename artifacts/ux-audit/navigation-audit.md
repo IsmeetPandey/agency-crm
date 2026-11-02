@@ -50,3 +50,4 @@ flowchart TD
 | **Direct Return** | Fast 1-click return to home dashboard | Top `❖ Dashboard` link is always visible above accordion groups | **PASS** |
 | **Keyboard Command Palette** | Instant cross-module navigation | Pressing `⌘K` opens searchable command palette with shortcuts | **PASS** |
 | **Mobile Drawer Ergonomics** | Smooth slide-over on small screens | Hamburger button triggers backdrop overlay drawer; clicking any link closes drawer automatically | **PASS** |
+

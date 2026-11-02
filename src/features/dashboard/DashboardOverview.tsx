@@ -8,6 +8,7 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
+import { Zap } from "lucide-react";
 import { PastelKpiCard } from "../../components/ui/PastelKpiCard";
 import {
 	formatHour,
@@ -318,7 +319,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 				<div className="studio-card p-5 space-y-4">
 					<div className="flex items-center justify-between pb-3 border-b border-slate-100">
 						<h3 className="text-[14px] font-bold text-slate-900 tracking-tight flex items-center gap-2">
-							<span>⚡</span> Priority Action Inbox
+							<Zap className="w-4 h-4 text-amber-500 fill-amber-500/20" /> Priority Action Inbox
 						</h3>
 						<span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-semibold border border-blue-200">
 							{pendingApprovals.length + pendingHandoffs.length} Pending

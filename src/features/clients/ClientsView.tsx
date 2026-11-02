@@ -1,4 +1,5 @@
 import type React from "react";
+import { Building2, Mail, Pencil, Phone } from "lucide-react";
 import { OpportunityChip } from "../../components/ui/OpportunityChip";
 import { formatCompactCurrency } from "../../lib/utils/format";
 import type { Client, Opportunity, Project } from "../../types";
@@ -98,10 +99,10 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 										title="Edit Client"
 										aria-label="Edit Client"
 									>
-										✎
+										<Pencil className="w-3.5 h-3.5" />
 									</button>
-									<span className="w-7 h-7 rounded-md bg-[var(--surface-sunken)] border border-[var(--border-subtle)] text-[var(--ink-secondary)] flex items-center justify-center text-[12px] font-bold">
-										◈
+									<span className="w-7 h-7 rounded-md bg-[var(--surface-sunken)] border border-[var(--border-subtle)] text-[var(--ink-secondary)] flex items-center justify-center">
+										<Building2 className="w-3.5 h-3.5" />
 									</span>
 								</div>
 							</div>
@@ -109,13 +110,15 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 							{/* Email & Phone */}
 							<div className="space-y-1 font-mono text-[11px] bg-[var(--surface-sunken)] p-2.5 rounded-lg border border-[var(--border)]">
 								{client.email && (
-									<div className="text-[#49B3FC] font-medium truncate">
-										✉ {client.email}
+									<div className="text-[#49B3FC] font-medium truncate flex items-center gap-1.5">
+										<Mail className="w-3 h-3 shrink-0" />
+										<span>{client.email}</span>
 									</div>
 								)}
 								{client.phone && (
-									<div className="text-[var(--ink-secondary)] font-medium">
-										📞 {client.phone}
+									<div className="text-[var(--ink-secondary)] font-medium flex items-center gap-1.5">
+										<Phone className="w-3 h-3 shrink-0" />
+										<span>{client.phone}</span>
 									</div>
 								)}
 								{!client.email && !client.phone && (

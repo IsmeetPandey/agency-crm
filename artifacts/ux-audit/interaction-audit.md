@@ -34,3 +34,4 @@
 ### 1.5 SKU Copy Chip Micro-interaction
 - **Default**: Pill with copy icon and opportunity sequence number (`KW-OPP-XXXXXX`).
 - **On Click**: Copies sequence to clipboard, shows green checkmark and "Copied!" feedback, reverts in 1500ms.
+

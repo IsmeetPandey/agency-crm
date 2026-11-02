@@ -1,5 +1,6 @@
 import type React from "react";
 import { useState } from "react";
+import { AlertCircle, Check, Copy } from "lucide-react";
 
 interface OpportunityChipProps {
 	opportunityNo: string;
@@ -97,16 +98,11 @@ export const OpportunityChip: React.FC<OpportunityChipProps> = ({
 				aria-label="Copy Opportunity Reference"
 			>
 				{copyStatus === "success" ? (
-					<span className="text-[var(--success)] text-[10px] font-bold">✓</span>
+					<Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
 				) : copyStatus === "error" ? (
-					<span
-						className="text-[var(--danger)] text-[10px] font-bold"
-						title="Copy failed"
-					>
-						!
-					</span>
+					<AlertCircle className="w-3 h-3 text-rose-600 stroke-[2.5]" />
 				) : (
-					<span className="text-[10px] opacity-70 hover:opacity-100">📋</span>
+					<Copy className="w-3 h-3 text-slate-400 hover:text-blue-600 transition" />
 				)}
 			</button>
 		</span>

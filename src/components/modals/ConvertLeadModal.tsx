@@ -1,5 +1,6 @@
 import type React from "react";
 import { useMemo, useState } from "react";
+import { AlertTriangle, Check, Copy, X } from "lucide-react";
 import { useToast } from "../../lib/feedback/toast.context";
 import { leadsRepository } from "../../lib/repositories/leads.repository";
 import { formatCurrency } from "../../lib/utils/format";
@@ -206,9 +207,10 @@ export const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
 					<button
 						type="button"
 						onClick={onClose}
-						className="text-[var(--ink-muted)] hover:text-[var(--ink)] text-[20px] transition"
+						className="text-[var(--ink-muted)] hover:text-[var(--ink)] p-1 rounded-lg transition"
+						aria-label="Close"
 					>
-						×
+						<X className="w-5 h-5" />
 					</button>
 				</div>
 
@@ -216,7 +218,7 @@ export const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
 				{isAlreadyConverted && (
 					<div className="p-4 rounded-lg bg-[var(--surface-sunken)] border border-[var(--border)] space-y-3">
 						<div className="flex items-center gap-2 text-[#0D9488] font-bold text-[13px]">
-							<span>✓</span>
+							<Check className="w-4 h-4 shrink-0" />
 							<span>
 								This lead has already been converted into an opportunity.
 							</span>
@@ -275,8 +277,8 @@ export const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
 				{convertedResult && (
 					<div className="p-5 rounded-xl bg-teal-500/10 border border-teal-500/30 text-[var(--ink)] space-y-4">
 						<div className="flex items-center gap-3">
-							<div className="w-8 h-8 rounded-full bg-teal-500/20 text-teal-600 dark:text-teal-400 flex items-center justify-center font-bold text-lg">
-								✓
+							<div className="w-8 h-8 rounded-full bg-teal-500/20 text-teal-600 dark:text-teal-400 flex items-center justify-center font-bold">
+								<Check className="w-4 h-4" />
 							</div>
 							<div>
 								<h4 className="font-bold text-[15px] text-[var(--ink)]">
@@ -305,7 +307,17 @@ export const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
 									}
 									className="btn-secondary !h-[32px] !text-[12px] flex items-center gap-1.5"
 								>
-									{copiedSku ? "✓ Copied" : "📋 Copy SKU"}
+									{copiedSku ? (
+										<>
+											<Check className="w-3.5 h-3.5" />
+											<span>Copied</span>
+										</>
+									) : (
+										<>
+											<Copy className="w-3.5 h-3.5" />
+											<span>Copy SKU</span>
+										</>
+									)}
 								</button>
 								<button
 									type="button"
@@ -475,9 +487,8 @@ export const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
 									{matchedDuplicateClient && (
 										<div className="p-3 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[12px] border border-amber-500/20 space-y-2">
 											<div className="font-semibold flex items-center gap-1.5">
-												<span>
-													⚠️ Potential Duplicate Client Account Detected:
-												</span>
+												<AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
+												<span>Potential Duplicate Client Account Detected:</span>
 												<span>"{matchedDuplicateClient.name}"</span>
 											</div>
 											<p className="text-[11px] text-[var(--ink-muted)]">
@@ -611,8 +622,9 @@ export const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
 						{/* Actions */}
 						<div className="flex items-center justify-between pt-4 border-t border-[var(--border)]">
 							{isDuplicateBlocked ? (
-								<span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
-									⚠️ Resolve duplicate client match before converting
+								<span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1.5">
+									<AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+									<span>Resolve duplicate client match before converting</span>
 								</span>
 							) : (
 								<span />

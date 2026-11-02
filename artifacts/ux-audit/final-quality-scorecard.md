@@ -45,3 +45,4 @@
 - **Journey D (Project & Tasks)**: Kanban board drag-and-drop, deliverable status transitions (`Todo` → `In progress` → `Blocked` → `Completed`), and IST team allocation verified.
 - **Journey E (Finance & Accounting)**: 3 top KPI summary cards (`Total Sales`, `Paid`, `Unpaid`), date filtering, and dual-column accounting Balance Sheet (`Liabilities` vs `Assets`) & P&L statements with print stylesheet.
 - **Journey F (Responsive Mobile)**: Drawer menu, 1-column responsive layout, and touch interactions verified on mobile viewports.
+

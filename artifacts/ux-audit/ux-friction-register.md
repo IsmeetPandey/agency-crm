@@ -15,3 +15,4 @@
 | **FR-05** | Lead to Opportunity Conversion | Custom client fields needed guarantee of persistence under all paths | High | Form state resetting if parent modal re-rendered | Verified and locked atomic client conversion repository with transactional guarantees | **RESOLVED** |
 | **FR-06** | Financial Statement Print / Export | Browser print lacked dedicated print stylesheet margins | Low | Default media print styles without margins | Add `@media print` rules in `theme.css` to hide sidebar/topbar and expand ledger | **RESOLVED** |
 | **FR-07** | Mobile Navigation Drawer | Menu overlay needed smooth sliding transition and backdrop dismissal | Medium | Abrupt show/hide without transition | Added smooth translate transition and backdrop touch dismiss | **RESOLVED** |
+

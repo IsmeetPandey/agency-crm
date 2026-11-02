@@ -1,5 +1,6 @@
 import type React from "react";
 import { useEffect, useState } from "react";
+import { Check, Download, Laptop, Moon, Sun } from "lucide-react";
 import { useAuth } from "../../lib/auth/auth.context";
 import { useToast } from "../../lib/feedback/toast.context";
 import { PERMISSIONS, type UserRole } from "../../lib/permissions/permissions";
@@ -187,12 +188,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 						}`}
 					>
 						<div className="flex items-center justify-between">
-							<span className="text-[13px] font-bold text-[var(--ink)]">
-								☀️ Light Theme
+							<span className="text-[13px] font-bold text-[var(--ink)] flex items-center gap-2">
+								<Sun className="w-4 h-4 text-amber-500" />
+								<span>Light Theme</span>
 							</span>
 							{theme === "light" && (
-								<span className="text-[var(--accent)] font-bold text-[12px]">
-									✓ Active
+								<span className="text-[var(--accent)] font-bold text-[12px] flex items-center gap-1">
+									<Check className="w-3.5 h-3.5" />
+									<span>Active</span>
 								</span>
 							)}
 						</div>
@@ -212,12 +215,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 						}`}
 					>
 						<div className="flex items-center justify-between">
-							<span className="text-[13px] font-bold text-[var(--ink)]">
-								🌙 Dark Obsidian
+							<span className="text-[13px] font-bold text-[var(--ink)] flex items-center gap-2">
+								<Moon className="w-4 h-4 text-indigo-400" />
+								<span>Dark Obsidian</span>
 							</span>
 							{theme === "dark" && (
-								<span className="text-[var(--accent)] font-bold text-[12px]">
-									✓ Active
+								<span className="text-[var(--accent)] font-bold text-[12px] flex items-center gap-1">
+									<Check className="w-3.5 h-3.5" />
+									<span>Active</span>
 								</span>
 							)}
 						</div>
@@ -237,12 +242,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 						}`}
 					>
 						<div className="flex items-center justify-between">
-							<span className="text-[13px] font-bold text-[var(--ink)]">
-								💻 Device Preference
+							<span className="text-[13px] font-bold text-[var(--ink)] flex items-center gap-2">
+								<Laptop className="w-4 h-4 text-slate-500" />
+								<span>Device Preference</span>
 							</span>
 							{theme === "system" && (
-								<span className="text-[var(--accent)] font-bold text-[12px]">
-									✓ Active
+								<span className="text-[var(--accent)] font-bold text-[12px] flex items-center gap-1">
+									<Check className="w-3.5 h-3.5" />
+									<span>Active</span>
 								</span>
 							)}
 						</div>
@@ -470,11 +477,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 						type="button"
 						onClick={handleExportJSON}
 						disabled={isExporting}
-						className="btn-primary !h-[34px] !text-[12px] cursor-pointer disabled:opacity-50"
+						className="btn-primary !h-[34px] !text-[12px] cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
 					>
-						{isExporting
-							? "Generating Backup..."
-							: "📥 Export Complete Agency Backup (.json)"}
+						<Download className="w-3.5 h-3.5" />
+						<span>
+							{isExporting
+								? "Generating Backup..."
+								: "Export Complete Agency Backup (.json)"}
+						</span>
 					</button>
 
 					<button

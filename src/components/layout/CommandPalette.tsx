@@ -1,5 +1,17 @@
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import {
+	Building2,
+	CheckSquare,
+	FileText,
+	FolderKanban,
+	type LucideIcon,
+	Search,
+	Target,
+	User,
+	Users,
+	Zap,
+} from "lucide-react";
 import type {
 	Client,
 	Contact,
@@ -31,7 +43,7 @@ interface PaletteAction {
 	title: string;
 	subtitle?: string;
 	badge?: string;
-	icon: string;
+	icon: LucideIcon;
 	section: string;
 	perform: () => void;
 }
@@ -73,7 +85,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 			title: "Create Commercial Deal",
 			subtitle: "Record opportunity with sequential KW-OPP- number",
 			badge: "+Deal",
-			icon: "⚡",
+			icon: Zap,
 			section: "Quick Actions",
 			perform: () => {
 				onOpenModal("opportunity");
@@ -85,7 +97,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 			title: "Create Pipeline Lead",
 			subtitle: "Log new inbound prospect with stage and owner",
 			badge: "+Lead",
-			icon: "⚑",
+			icon: Target,
 			section: "Quick Actions",
 			perform: () => {
 				onOpenModal("lead");
@@ -97,7 +109,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 			title: "New Project with Auto-Team",
 			subtitle: "Allocate resources and setup gates",
 			badge: "+Project",
-			icon: "◼",
+			icon: FolderKanban,
 			section: "Quick Actions",
 			perform: () => {
 				onOpenModal("project");
@@ -109,7 +121,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 			title: "Add Client Company",
 			subtitle: "Register brand account and contact",
 			badge: "+Client",
-			icon: "⚑",
+			icon: Building2,
 			section: "Quick Actions",
 			perform: () => {
 				onOpenModal("client");
@@ -121,7 +133,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 			title: "Add Client Contact",
 			subtitle: "Register stakeholder or decision-maker",
 			badge: "+Contact",
-			icon: "👤",
+			icon: User,
 			section: "Quick Actions",
 			perform: () => {
 				onOpenModal("contact");
@@ -133,7 +145,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 			title: "Create Invoice / Proposal",
 			subtitle: "Record commercial milestone or quote",
 			badge: "+Finance",
-			icon: "📑",
+			icon: FileText,
 			section: "Quick Actions",
 			perform: () => {
 				onOpenModal("finance");
@@ -145,7 +157,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 			title: "Create Deliverable Task",
 			subtitle: "Assign work item to department owner",
 			badge: "+Task",
-			icon: "✓",
+			icon: CheckSquare,
 			section: "Quick Actions",
 			perform: () => {
 				onOpenModal("task");
@@ -169,7 +181,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 				title: `${o.opportunityNo} • ${o.title}`,
 				subtitle: `Stage: ${o.stage} • Value: ₹${(o.value / 1000).toFixed(0)}k • Owner: ${o.owner}`,
 				badge: o.stage,
-				icon: "⚡",
+				icon: Zap,
 				section: "Commercial Deals",
 				perform: () => {
 					onNavigate("opportunity", o.id);
@@ -192,7 +204,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 				title: p.name,
 				subtitle: `${p.phase} • ${p.progress}% completed`,
 				badge: "Project",
-				icon: "◼",
+				icon: FolderKanban,
 				section: "Projects",
 				perform: () => {
 					onNavigate("project", p.id);
@@ -216,7 +228,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 				title: l.name,
 				subtitle: `${l.service} • Owner: ${l.owner}`,
 				badge: `₹${(l.value / 1000).toFixed(0)}k • ${l.stage}`,
-				icon: "❖",
+				icon: Target,
 				section: "Opportunities",
 				perform: () => {
 					onNavigate("pipeline");
@@ -239,7 +251,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 				title: c.name,
 				subtitle: `Contact: ${c.contact}`,
 				badge: "Client",
-				icon: "⚑",
+				icon: Building2,
 				section: "Clients",
 				perform: () => {
 					onNavigate("clients");
@@ -261,7 +273,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 				title: t.name,
 				subtitle: `Dept: ${t.dept} • Assignee: ${t.owner}`,
 				badge: t.status,
-				icon: "✓",
+				icon: CheckSquare,
 				section: "Tasks",
 				perform: () => {
 					onNavigate("project", t.projectId);
@@ -284,7 +296,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 				title: m.name,
 				subtitle: m.roleTitle,
 				badge: "Team",
-				icon: "👤",
+				icon: Users,
 				section: "Team Directory",
 				perform: () => {
 					onNavigate("team");
@@ -308,7 +320,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 				title: c.name,
 				subtitle: `${c.role} ${c.isPrimary ? "• Primary" : ""}`,
 				badge: "Contact",
-				icon: "👤",
+				icon: User,
 				section: "Stakeholders",
 				perform: () => {
 					onNavigate("contacts");
@@ -327,7 +339,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 				title: f.title,
 				subtitle: `${f.type.toUpperCase()} • ₹${f.amount.toLocaleString()}`,
 				badge: f.status,
-				icon: "📑",
+				icon: FileText,
 				section: "Finance & Billing",
 				perform: () => {
 					onNavigate("finance");
@@ -366,7 +378,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 			<div className="studio-modal w-full max-w-xl overflow-hidden shadow-2xl border border-[var(--border)] bg-[var(--surface)] rounded-xl">
 				{/* Search header */}
 				<div className="flex items-center px-4 py-3.5 border-b border-[var(--border)]">
-					<span className="text-[var(--ink-muted)] mr-3 text-[14px]">🔍</span>
+					<Search className="w-4 h-4 text-[var(--ink-muted)] mr-3 shrink-0" />
 					<input
 						ref={inputRef}
 						type="text"
@@ -400,6 +412,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 						const isSelected = idx === selectedIndex;
 						const showSectionHeader =
 							idx === 0 || items[idx - 1].section !== item.section;
+						const IconComponent = item.icon;
 
 						return (
 							<div key={item.id}>
@@ -419,9 +432,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 									}`}
 								>
 									<span className="flex items-center gap-2.5 min-w-0">
-										<span className="text-[12px] opacity-75 shrink-0">
-											{item.icon}
-										</span>
+										<IconComponent className="w-4 h-4 opacity-75 shrink-0" />
 										<span className="truncate">
 											<span className="font-semibold">{item.title}</span>
 											{item.subtitle && (

@@ -75,3 +75,4 @@
 | **Interactions** | Buttons that click with zero visual response | Tactile hover, `:active:scale-[0.98]`, immediate spinner/check feedback, toast alerts |
 | **Data Tables** | Centered misaligned numbers, hover-only icons | Left-aligned text, right-aligned currency, visible action buttons, sticky headers |
 | **Navigation** | Disorienting collapsing sidebars, broken active paths | Persistent accordion groups, clear breadcrumbs, explicit route indicators |
+

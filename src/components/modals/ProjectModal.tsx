@@ -1,5 +1,6 @@
 import type React from "react";
 import { useState } from "react";
+import { Check, Plus, X } from "lucide-react";
 import { PHASES } from "../../lib/constants/agency";
 import { projectsRepository } from "../../lib/repositories/projects.repository";
 import { suggestTeamForProject } from "../../lib/utils/team-match";
@@ -121,10 +122,10 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 					<button
 						type="button"
 						onClick={onClose}
-						className="text-[#808080] hover:text-[#111111] text-[18px]"
+						className="text-[#808080] hover:text-[#111111] p-1 rounded-lg transition"
 						aria-label="Close"
 					>
-						×
+						<X className="w-4 h-4" />
 					</button>
 				</div>
 
@@ -270,7 +271,11 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 											</div>
 										</div>
 										<span className="text-[11px] font-bold">
-											{isAssigned ? "✓" : "+"}
+											{isAssigned ? (
+												<Check className="w-3.5 h-3.5 text-blue-600" />
+											) : (
+												<Plus className="w-3.5 h-3.5 text-slate-400" />
+											)}
 										</span>
 									</div>
 								);

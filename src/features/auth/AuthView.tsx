@@ -1,5 +1,6 @@
 import type React from "react";
 import { useEffect, useState } from "react";
+import { AlertTriangle, Check, Zap } from "lucide-react";
 import { useAuth } from "../../lib/auth/auth.context";
 
 export const AuthView: React.FC = () => {
@@ -153,7 +154,7 @@ export const AuthView: React.FC = () => {
 				{!isCloudConfigured ? (
 					<div className="bg-[#181C26]/90 border border-amber-500/30 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl space-y-4">
 						<div className="flex items-center gap-2 text-amber-400 text-[14px] font-bold">
-							<span>⚠</span>
+							<AlertTriangle className="w-4 h-4 shrink-0" />
 							<span>Supabase Configuration Required</span>
 						</div>
 						<p className="text-[13px] text-slate-300 leading-relaxed">
@@ -191,7 +192,7 @@ export const AuthView: React.FC = () => {
 								onClick={continueInOfflineMode}
 								className="w-full py-2.5 px-4 rounded-lg bg-white/10 hover:bg-white/15 text-white text-[13px] font-medium transition flex items-center justify-center gap-2 cursor-pointer border border-white/20"
 							>
-								<span>⚡</span>
+								<Zap className="w-4 h-4 text-amber-400" />
 								<span>Launch Studio in Offline Resilient Engine Mode</span>
 							</button>
 						</div>
@@ -265,14 +266,14 @@ export const AuthView: React.FC = () => {
 
 						{error && (
 							<div className="mb-4 p-3 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[12px] flex items-start gap-2">
-								<span className="font-bold text-rose-400 mt-0.5">⚠</span>
+								<AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
 								<span className="flex-1 leading-snug">{error}</span>
 							</div>
 						)}
 
 						{message && (
 							<div className="mb-4 p-3 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[12px] flex items-start gap-2">
-								<span className="font-bold text-emerald-400 mt-0.5">✓</span>
+								<Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
 								<span className="flex-1 leading-snug">{message}</span>
 							</div>
 						)}

@@ -1,5 +1,17 @@
 import type React from "react";
 import { useMemo, useState } from "react";
+import {
+	BarChart3,
+	CheckCircle2,
+	ChevronDown,
+	Clock,
+	FileDown,
+	FileText,
+	Filter,
+	Receipt,
+	Scale,
+	Search,
+} from "lucide-react";
 import { OpportunityChip } from "../../components/ui/OpportunityChip";
 import { useToast } from "../../lib/feedback/toast.context";
 import { financeRepository } from "../../lib/repositories/finance.repository";
@@ -226,24 +238,26 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 					<button
 						type="button"
 						onClick={() => setActiveTab("invoices")}
-						className={`px-4 py-2 rounded-xl text-[13px] font-semibold transition-all ${
+						className={`px-4 py-2 rounded-xl text-[13px] font-semibold transition-all flex items-center gap-2 ${
 							activeTab === "invoices"
 								? "bg-[#1A253C] text-white shadow-sm"
 								: "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
 						}`}
 					>
-						📑 Sales Invoices & Billing
+						<FileText className="w-4 h-4" />
+						<span>Sales Invoices & Billing</span>
 					</button>
 					<button
 						type="button"
 						onClick={() => setActiveTab("statements")}
-						className={`px-4 py-2 rounded-xl text-[13px] font-semibold transition-all ${
+						className={`px-4 py-2 rounded-xl text-[13px] font-semibold transition-all flex items-center gap-2 ${
 							activeTab === "statements"
 								? "bg-[#1A253C] text-white shadow-sm"
 								: "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
 						}`}
 					>
-						⚖️ Financial Statements (Balance Sheet)
+						<Scale className="w-4 h-4" />
+						<span>Financial Statements (Balance Sheet)</span>
 					</button>
 				</div>
 
@@ -287,8 +301,8 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 									total billed invoices
 								</div>
 							</div>
-							<div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 flex items-center justify-center text-lg">
-								📊
+							<div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 flex items-center justify-center">
+								<BarChart3 className="w-5 h-5" />
 							</div>
 						</div>
 
@@ -305,8 +319,8 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 									Collected agency revenue
 								</div>
 							</div>
-							<div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-lg">
-								✓
+							<div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
+								<CheckCircle2 className="w-5 h-5" />
 							</div>
 						</div>
 
@@ -323,8 +337,8 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 									Pending payment collection
 								</div>
 							</div>
-							<div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 flex items-center justify-center text-lg">
-								⏳
+							<div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 flex items-center justify-center">
+								<Clock className="w-5 h-5" />
 							</div>
 						</div>
 					</div>
@@ -347,9 +361,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 									<option value="month">This Month</option>
 									<option value="all">All Time</option>
 								</select>
-								<span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]">
-									▼
-								</span>
+								<ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5" />
 							</div>
 
 							{/* Search Pill */}
@@ -361,9 +373,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 									placeholder="Search invoice number, client, project..."
 									className="w-full h-[36px] pl-9 pr-3 text-[12.5px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
 								/>
-								<span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[13px]">
-									🔍
-								</span>
+								<Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5" />
 							</div>
 
 							{/* Type Filter */}
@@ -415,7 +425,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 								className="h-[36px] px-3.5 text-[12.5px] font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 flex items-center gap-1.5 transition cursor-pointer"
 							>
 								<span>Bulk Actions</span>
-								<span className="text-[10px]">▼</span>
+								<ChevronDown className="w-3.5 h-3.5" />
 							</button>
 						</div>
 					</div>
@@ -423,7 +433,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 					{/* ERP Table Container (Signature Light Blue Header #EBF2FB) */}
 					{filteredItems.length === 0 ? (
 						<div className="text-center py-16 bg-white dark:bg-slate-900 border border-[var(--border)] rounded-xl">
-							<div className="text-3xl mb-2">📑</div>
+							<Receipt className="w-10 h-10 text-slate-300 mx-auto mb-2 stroke-[1.5]" />
 							<h3 className="text-[15px] font-bold text-slate-900 dark:text-white">
 								No invoice records found
 							</h3>
@@ -565,7 +575,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 															title="Download PDF Invoice"
 															className="p-1.5 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:bg-slate-800 transition"
 														>
-															📄
+															<FileDown className="w-4 h-4" />
 														</button>
 
 														{item.status !== "Paid" &&
@@ -657,7 +667,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 								}
 								className="h-[36px] px-3.5 rounded-lg text-[12.5px] font-semibold bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1.5 shadow-xs transition"
 							>
-								<span>🔍</span>
+								<Filter className="w-3.5 h-3.5" />
 								<span>Show Filters</span>
 							</button>
 							<button
@@ -665,7 +675,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 								onClick={handleDownloadStatementPDF}
 								className="h-[36px] px-3.5 rounded-lg text-[12.5px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 shadow-xs transition"
 							>
-								<span>📄</span>
+								<FileDown className="w-3.5 h-3.5" />
 								<span>Download PDF</span>
 							</button>
 						</div>

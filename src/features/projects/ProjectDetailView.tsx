@@ -1,5 +1,6 @@
 import type React from "react";
 import { useEffect, useState } from "react";
+import { Check } from "lucide-react";
 import { OpportunityChip } from "../../components/ui/OpportunityChip";
 import { useAuth } from "../../lib/auth/auth.context";
 import { useToast } from "../../lib/feedback/toast.context";
@@ -491,7 +492,11 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 												: "bg-slate-100 text-slate-500 border border-slate-200"
 										}`}
 									>
-										{g.status === "Approved" ? "✓" : g.stepNumber}
+										{g.status === "Approved" ? (
+											<Check className="w-3.5 h-3.5" />
+										) : (
+											g.stepNumber
+										)}
 									</span>
 									<div>
 										<div className="text-[13px] font-bold text-slate-900">

@@ -1,4 +1,5 @@
 import type React from "react";
+import { Check } from "lucide-react";
 import { useAuth } from "../../lib/auth/auth.context";
 import { useToast } from "../../lib/feedback/toast.context";
 import { workflowRepository } from "../../lib/repositories/workflow.repository";
@@ -101,9 +102,10 @@ export const ApprovalsView: React.FC<ApprovalsViewProps> = ({
 												onClick={() =>
 													handleDecision(app.id, "Approved", app.title)
 												}
-												className="btn-primary !h-[32px] !text-[12px] !bg-emerald-600 hover:!bg-emerald-700"
+												className="btn-primary !h-[32px] !text-[12px] !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-1.5"
 											>
-												Approve ✓
+												<Check className="w-3.5 h-3.5" />
+												<span>Approve</span>
 											</button>
 											<button
 												type="button"
