@@ -34,7 +34,6 @@ import { TeamView } from "./features/team/TeamView";
 import { AuthProvider, useAuth } from "./lib/auth/auth.context";
 import { DEPARTMENTS, getISTHour } from "./lib/constants/agency";
 import { ToastProvider } from "./lib/feedback/toast.context";
-import { ThemeProvider } from "./lib/theme/theme.context";
 import { activityRepository } from "./lib/repositories/activity.repository";
 import { clientsRepository } from "./lib/repositories/clients.repository";
 import { contactsRepository } from "./lib/repositories/contacts.repository";
@@ -46,6 +45,7 @@ import { projectsRepository } from "./lib/repositories/projects.repository";
 import { tasksRepository } from "./lib/repositories/tasks.repository";
 import { teamRepository } from "./lib/repositories/team.repository";
 import { workflowRepository } from "./lib/repositories/workflow.repository";
+import { ThemeProvider } from "./lib/theme/theme.context";
 import type {
 	Activity,
 	ApprovalRequest,

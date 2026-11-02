@@ -28,10 +28,10 @@ export const TeamView: React.FC<TeamViewProps> = ({
 			{/* Header */}
 			<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
 				<div>
-					<h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
+					<h2 className="text-[18px] font-bold text-[var(--ink)] tracking-tight">
 						Team Roster & Capacity Intelligence
 					</h2>
-					<p className="text-[12px] text-slate-500">
+					<p className="text-[12px] text-[var(--ink-muted)]">
 						8 Core Specialists • Daily focus allocation • 24h IST shift
 						distribution • Workload health
 					</p>
@@ -39,23 +39,23 @@ export const TeamView: React.FC<TeamViewProps> = ({
 			</div>
 
 			{/* Executive Leadership */}
-			<div className="studio-card p-5 bg-white space-y-3">
-				<h3 className="text-[13px] font-mono font-bold uppercase tracking-wider text-slate-400">
+			<div className="studio-card p-5 space-y-3">
+				<h3 className="text-[13px] font-mono font-bold uppercase tracking-wider text-[var(--ink-muted)]">
 					Agency Executive Leadership
 				</h3>
 				<div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
 					{LEADERSHIP.map((lead) => (
 						<div
 							key={lead.role}
-							className="p-3.5 rounded-lg border border-slate-200 bg-slate-50/60 space-y-1"
+							className="p-3.5 rounded-lg border border-[var(--border)] bg-[var(--surface-sunken)] space-y-1"
 						>
-							<div className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+							<div className="text-[10px] font-mono font-bold uppercase tracking-wider text-[var(--ink-muted)]">
 								{lead.role}
 							</div>
-							<div className="text-[14px] font-bold text-slate-900">
+							<div className="text-[14px] font-bold text-[var(--ink)]">
 								{lead.name}
 							</div>
-							<div className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1.5">
+							<div className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
 								<span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
 								{lead.status}
 							</div>
@@ -65,15 +65,15 @@ export const TeamView: React.FC<TeamViewProps> = ({
 			</div>
 
 			{/* 24h Schedule Timeline */}
-			<div className="studio-card p-5 space-y-3 bg-white">
+			<div className="studio-card p-5 space-y-3">
 				<div className="flex items-center justify-between">
 					<div>
-						<h3 className="text-[14px] font-bold text-slate-900 tracking-tight">
+						<h3 className="text-[14px] font-bold text-[var(--ink)] tracking-tight">
 							24h Specialist Coverage & Hourly Shift Distribution (IST)
 						</h3>
-						<p className="text-[11px] text-slate-500 font-mono">
+						<p className="text-[11px] text-[var(--ink-muted)] font-mono">
 							Inspection time:{" "}
-							<span className="font-bold text-blue-600">
+							<span className="font-bold text-[#49B3FC]">
 								{formatHour(Math.floor(displayHour))} IST
 							</span>
 						</p>
@@ -82,7 +82,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
 						<button
 							type="button"
 							onClick={() => setSelectedHour(null)}
-							className="text-[11px] text-blue-600 font-semibold hover:underline"
+							className="text-[11px] text-[#49B3FC] font-semibold hover:underline"
 						>
 							Reset to Current Time ({formatHour(Math.floor(istHour))})
 						</button>
@@ -101,17 +101,17 @@ export const TeamView: React.FC<TeamViewProps> = ({
 								onClick={() => setSelectedHour(slot.hour)}
 								className={`p-2 rounded-lg text-center border transition ${
 									isSelected
-										? "bg-blue-600 text-white border-blue-600 shadow-sm"
+										? "bg-[#49B3FC] text-white border-[#49B3FC] shadow-sm"
 										: isCurrent
-											? "bg-emerald-50 border-emerald-300 text-slate-900 font-bold"
-											: "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700"
+											? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-[var(--ink)] font-bold"
+											: "bg-[var(--surface-sunken)] border border-[var(--border)] hover:bg-[var(--surface-raised)] text-[var(--ink-secondary)]"
 								}`}
 							>
 								<div className="text-[10px] font-mono truncate">
 									{slot.label}
 								</div>
 								<div
-									className={`text-[12px] font-mono font-bold ${isSelected ? "text-white" : "text-blue-600"}`}
+									className={`text-[12px] font-mono font-bold ${isSelected ? "text-white" : "text-[#49B3FC]"}`}
 								>
 									{slot.count} on
 								</div>
@@ -127,17 +127,17 @@ export const TeamView: React.FC<TeamViewProps> = ({
 					const isOnline = isMemberOnline(member, displayHour);
 
 					return (
-						<div key={member.id} className="studio-card p-5 space-y-4 bg-white">
+						<div key={member.id} className="studio-card p-5 space-y-4">
 							<div className="flex items-start justify-between">
 								<div className="flex items-center gap-3">
-									<div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-[13px] font-mono">
+									<div className="w-10 h-10 rounded-full bg-[var(--ink)] text-[var(--canvas)] flex items-center justify-center font-bold text-[13px] font-mono">
 										{member.initials}
 									</div>
 									<div>
-										<h4 className="text-[15px] font-bold text-slate-900">
+										<h4 className="text-[15px] font-bold text-[var(--ink)]">
 											{member.name}
 										</h4>
-										<div className="text-[12px] text-slate-500 font-medium">
+										<div className="text-[12px] text-[var(--ink-muted)] font-medium">
 											{member.roleTitle}
 										</div>
 									</div>
@@ -160,20 +160,20 @@ export const TeamView: React.FC<TeamViewProps> = ({
 							</div>
 
 							{/* Allocation & Time Slot */}
-							<div className="grid grid-cols-2 gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100 font-mono text-[11px]">
+							<div className="grid grid-cols-2 gap-3 p-3 rounded-lg bg-[var(--surface-sunken)] border border-[var(--border)] font-mono text-[11px]">
 								<div>
-									<div className="text-slate-400 uppercase text-[9px] font-bold">
+									<div className="text-[var(--ink-muted)] uppercase text-[9px] font-bold">
 										Planned Capacity
 									</div>
-									<div className="text-[13px] font-bold text-slate-900">
+									<div className="text-[13px] font-bold text-[var(--ink)]">
 										{member.focus}h / {member.avail}h per day
 									</div>
 								</div>
 								<div>
-									<div className="text-slate-400 uppercase text-[9px] font-bold">
+									<div className="text-[var(--ink-muted)] uppercase text-[9px] font-bold">
 										IST Duty Slot
 									</div>
-									<div className="text-[13px] font-bold text-slate-700">
+									<div className="text-[13px] font-bold text-[var(--ink-secondary)]">
 										{(member as any).slot || member.slotRaw}
 									</div>
 								</div>
@@ -181,7 +181,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
 
 							{/* Skills */}
 							<div className="space-y-1.5">
-								<div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold">
+								<div className="text-[10px] font-mono uppercase tracking-wider text-[var(--ink-muted)] font-bold">
 									Verified Skill Capabilities
 								</div>
 								<div className="flex flex-wrap gap-1.5">
@@ -189,7 +189,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
 										(skill: string) => (
 											<span
 												key={skill}
-												className="font-mono text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200"
+												className="font-mono text-[10px] px-2 py-0.5 rounded bg-[var(--surface-raised)] text-[var(--ink-secondary)] border border-[var(--border-subtle)]"
 											>
 												{skill}
 											</span>
@@ -199,9 +199,9 @@ export const TeamView: React.FC<TeamViewProps> = ({
 							</div>
 
 							{/* Projects assigned */}
-							<div className="pt-2 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
+							<div className="pt-2 border-t border-[var(--border-subtle)] text-[11px] text-[var(--ink-muted)] flex items-center justify-between">
 								<span>Assigned Specializations:</span>
-								<span className="font-mono font-semibold text-slate-800">
+								<span className="font-mono font-semibold text-[var(--ink)]">
 									{((member as any).projects || member.departments || []).join(
 										", ",
 									) || "Standby / Available"}

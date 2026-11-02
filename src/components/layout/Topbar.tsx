@@ -24,25 +24,25 @@ export const Topbar: React.FC<TopbarProps> = ({
 	const isConnected = isSupabaseConfigured();
 
 	return (
-		<header className="sticky top-0 z-30 studio-topbar flex items-center justify-between px-4 lg:px-6 h-[54px] select-none">
+		<header className="sticky top-0 z-30 studio-topbar flex items-center justify-between px-3 sm:px-4 lg:px-6 h-[54px] select-none gap-2">
 			{/* Breadcrumb & mobile toggle */}
-			<div className="flex items-center gap-3 min-w-0">
+			<div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 sm:flex-initial">
 				<button
 					type="button"
 					onClick={onMobileMenuToggle}
-					className="lg:hidden p-1.5 rounded-lg text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-sunken)] transition"
+					className="lg:hidden p-1.5 rounded-lg text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-sunken)] transition shrink-0"
 					aria-label="Open mobile navigation"
 				>
 					☰
 				</button>
-				<div className="flex items-center gap-2 text-[13px]">
-					<span className="font-semibold text-[var(--ink-muted)] hidden sm:inline font-mono">
+				<div className="flex items-center gap-1.5 sm:gap-2 text-[13px] min-w-0">
+					<span className="font-semibold text-[var(--ink-muted)] hidden md:inline font-mono">
 						STUDIO
 					</span>
-					<span className="text-[var(--border)] hidden sm:inline">/</span>
-					<div className="flex items-center gap-2">
-						<span className="w-2 h-2 rounded-full bg-[var(--accent)] shadow-[0_0_8px_var(--accent-glow)]" />
-						<h1 className="text-[14px] font-bold text-[var(--ink-strong)] tracking-tight truncate">
+					<span className="text-[var(--border)] hidden md:inline">/</span>
+					<div className="flex items-center gap-1.5 min-w-0">
+						<span className="w-2 h-2 rounded-full bg-[var(--accent)] shadow-[0_0_8px_var(--accent-glow)] shrink-0" />
+						<h1 className="text-[13px] sm:text-[14px] font-bold text-[var(--ink-strong)] tracking-tight truncate max-w-[130px] sm:max-w-none">
 							{viewTitle}
 						</h1>
 					</div>
@@ -69,7 +69,7 @@ export const Topbar: React.FC<TopbarProps> = ({
 			</div>
 
 			{/* Right Actions & Profile */}
-			<div className="flex items-center gap-2 sm:gap-2.5">
+			<div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
 				{/* Theme Selector Toggle */}
 				<ThemeToggle showLabel />
 
@@ -78,7 +78,10 @@ export const Topbar: React.FC<TopbarProps> = ({
 					<button
 						type="button"
 						onClick={() => setShowSyncInfo((v) => !v)}
-						className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium border transition cursor-pointer bg-[var(--surface)] border-[var(--border)] hover:border-[var(--border-strong)] shadow-xs"
+						className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-md text-[11px] font-medium border transition cursor-pointer bg-[var(--surface)] border-[var(--border)] hover:border-[var(--border-strong)] shadow-xs"
+						title={
+							isConnected ? "Database: Supabase Live" : "Database: Local Engine"
+						}
 					>
 						<span
 							className={`w-2 h-2 rounded-full ${
@@ -149,11 +152,11 @@ export const Topbar: React.FC<TopbarProps> = ({
 					)}
 				</div>
 
-				{/* Quick Actions */}
+				{/* Quick Actions (Responsive) */}
 				<button
 					type="button"
 					onClick={() => openModal("lead")}
-					className="btn-primary !h-[28px] !text-[12px] !px-2.5"
+					className="hidden sm:inline-flex btn-primary !h-[28px] !text-[12px] !px-2.5"
 				>
 					+ Lead
 				</button>
@@ -167,18 +170,18 @@ export const Topbar: React.FC<TopbarProps> = ({
 				<button
 					type="button"
 					onClick={() => openModal("project")}
-					className="hidden sm:inline-flex btn-secondary !h-[28px] !text-[12px] !px-2.5"
+					className="hidden lg:inline-flex btn-secondary !h-[28px] !text-[12px] !px-2.5"
 				>
 					+ Project
 				</button>
 
 				{/* User Avatar, Role & Signout */}
-				<div className="flex items-center gap-2 pl-2 border-l border-[var(--border)]">
-					<span className="text-[10px] font-mono font-semibold uppercase px-1.5 py-0.5 rounded bg-[var(--surface-sunken)] text-[var(--ink-muted)] border border-[var(--border)]">
+				<div className="flex items-center gap-1.5 sm:gap-2 pl-1.5 sm:pl-2 border-l border-[var(--border)]">
+					<span className="hidden sm:inline-block text-[10px] font-mono font-semibold uppercase px-1.5 py-0.5 rounded bg-[var(--surface-sunken)] text-[var(--ink-muted)] border border-[var(--border)]">
 						{role}
 					</span>
 					<div
-						className="w-7 h-7 rounded-full bg-[var(--surface-raised)] text-[var(--accent)] border border-[var(--border)] flex items-center justify-center font-bold text-[11px] font-mono shadow-xs"
+						className="w-7 h-7 rounded-full bg-[var(--surface-raised)] text-[var(--accent)] border border-[var(--border)] flex items-center justify-center font-bold text-[11px] font-mono shadow-xs shrink-0"
 						title={user?.email || user?.name || "User"}
 					>
 						{user?.name?.slice(0, 2).toUpperCase() || "ME"}
@@ -186,7 +189,7 @@ export const Topbar: React.FC<TopbarProps> = ({
 					<button
 						type="button"
 						onClick={() => signOut()}
-						className="text-[11px] font-mono text-[var(--ink-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger-bg)] px-1.5 py-1 rounded transition"
+						className="text-[11px] font-mono text-[var(--ink-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger-bg)] px-1 sm:px-1.5 py-1 rounded transition"
 						title="Sign Out of Studio"
 					>
 						Exit

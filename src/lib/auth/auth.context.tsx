@@ -246,6 +246,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	// Initial session evaluation on mount
 	useEffect(() => {
 		if (!isCloudConfigured) {
+			if (
+				typeof window !== "undefined" &&
+				localStorage.getItem("kreatiwit_offline_session") === "true"
+			) {
+				continueInOfflineMode();
+				return;
+			}
 			setAuthState("unconfigured");
 			return;
 		}
@@ -488,6 +495,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	};
 
 	const signOut = async () => {
+		try {
+			if (typeof window !== "undefined") {
+				localStorage.removeItem("kreatiwit_offline_session");
+			}
+		} catch (_) {}
 		if (isCloudConfigured) {
 			try {
 				await supabase.auth.signOut();
@@ -504,6 +516,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	};
 
 	const continueInOfflineMode = () => {
+		try {
+			if (typeof window !== "undefined") {
+				localStorage.setItem("kreatiwit_offline_session", "true");
+			}
+		} catch (_) {}
 		setUser({
 			id: "offline-guest-specialist",
 			email: "executive@kreatiwit.io",

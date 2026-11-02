@@ -135,31 +135,31 @@ export const TasksView: React.FC<TasksViewProps> = ({
 	return (
 		<div className="space-y-6">
 			{/* Top Header */}
-			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#EBEBEB]">
+			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
 				<div>
 					<div className="flex items-center gap-2">
-						<h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#111111]">
+						<h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--ink)]">
 							Tasks Masterboard
 						</h1>
-						<span className="text-[12px] font-mono px-2 py-0.5 rounded-full bg-[#EDEDED] text-[#444444] font-semibold">
+						<span className="text-[12px] font-mono px-2 py-0.5 rounded-full bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[var(--ink-secondary)] font-semibold">
 							{tasks.length} Deliverables
 						</span>
 					</div>
-					<p className="text-[13px] text-[#666666] mt-1">
+					<p className="text-[13px] text-[var(--ink-muted)] mt-1">
 						Cross-department workload, milestone tasks, and status tracking
 						across all active accounts.
 					</p>
 				</div>
 
 				<div className="flex items-center gap-2.5">
-					<div className="flex items-center rounded-lg border border-[#DEDEDE] bg-white p-0.5">
+					<div className="flex items-center rounded-lg border border-[var(--border)] bg-[var(--surface)] p-0.5">
 						<button
 							type="button"
 							onClick={() => setViewMode("board")}
 							className={`px-3 py-1.5 text-[12px] font-medium rounded-md transition ${
 								viewMode === "board"
-									? "bg-[#222222] text-white"
-									: "text-[#666666] hover:text-[#111111]"
+									? "bg-[var(--ink)] text-[var(--canvas)]"
+									: "text-[var(--ink-muted)] hover:text-[var(--ink)]"
 							}`}
 						>
 							Board
@@ -169,8 +169,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
 							onClick={() => setViewMode("table")}
 							className={`px-3 py-1.5 text-[12px] font-medium rounded-md transition ${
 								viewMode === "table"
-									? "bg-[#222222] text-white"
-									: "text-[#666666] hover:text-[#111111]"
+									? "bg-[var(--ink)] text-[var(--canvas)]"
+									: "text-[var(--ink-muted)] hover:text-[var(--ink)]"
 							}`}
 						>
 							Table
@@ -180,7 +180,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
 					<button
 						type="button"
 						onClick={() => onOpenModal("task")}
-						className="px-4 py-2 rounded-lg bg-[#222222] hover:bg-[#111111] text-white text-[13px] font-medium transition flex items-center gap-2 shadow-xs cursor-pointer"
+						className="px-4 py-2 rounded-lg btn-primary text-[13px] font-medium transition flex items-center gap-2 shadow-xs cursor-pointer"
 					>
 						<span>+</span>
 						<span>Add Task</span>
@@ -190,66 +190,66 @@ export const TasksView: React.FC<TasksViewProps> = ({
 
 			{/* KPI Metric Summary Strip */}
 			<div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-				<div className="p-3.5 rounded-xl bg-white border border-[#EDEDED] shadow-xs">
-					<div className="text-[11px] font-mono uppercase tracking-wider text-[#777777]">
+				<div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs">
+					<div className="text-[11px] font-mono uppercase tracking-wider text-[var(--ink-muted)]">
 						Backlog & Todo
 					</div>
-					<div className="text-xl font-bold font-mono text-[#111111] mt-1">
+					<div className="text-xl font-bold font-mono text-[var(--ink)] mt-1">
 						{tasks.filter((t) => t.status === "Todo").length}
 					</div>
-					<div className="text-[11px] text-[#777777] mt-0.5">
+					<div className="text-[11px] text-[var(--ink-muted)] mt-0.5">
 						Queued deliverables
 					</div>
 				</div>
 
-				<div className="p-3.5 rounded-xl bg-white border border-[#EDEDED] shadow-xs">
-					<div className="text-[11px] font-mono uppercase tracking-wider text-[#777777]">
+				<div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs">
+					<div className="text-[11px] font-mono uppercase tracking-wider text-[var(--ink-muted)]">
 						In Progress
 					</div>
 					<div className="text-xl font-bold font-mono text-[#49B3FC] mt-1">
 						{inProgressCount}
 					</div>
-					<div className="text-[11px] text-[#777777] mt-0.5">
+					<div className="text-[11px] text-[var(--ink-muted)] mt-0.5">
 						Active engineering / design
 					</div>
 				</div>
 
-				<div className="p-3.5 rounded-xl bg-white border border-[#EDEDED] shadow-xs">
-					<div className="text-[11px] font-mono uppercase tracking-wider text-[#777777]">
+				<div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs">
+					<div className="text-[11px] font-mono uppercase tracking-wider text-[var(--ink-muted)]">
 						Review & Done
 					</div>
-					<div className="text-xl font-bold font-mono text-emerald-600 mt-1">
+					<div className="text-xl font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-1">
 						{doneCount}
 					</div>
-					<div className="text-[11px] text-[#777777] mt-0.5">
+					<div className="text-[11px] text-[var(--ink-muted)] mt-0.5">
 						Verified & completed
 					</div>
 				</div>
 
-				<div className="p-3.5 rounded-xl bg-white border border-[#EDEDED] shadow-xs">
-					<div className="text-[11px] font-mono uppercase tracking-wider text-[#777777]">
+				<div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs">
+					<div className="text-[11px] font-mono uppercase tracking-wider text-[var(--ink-muted)]">
 						Overdue Alerts
 					</div>
 					<div
-						className={`text-xl font-bold font-mono mt-1 ${overdueCount > 0 ? "text-rose-600" : "text-[#777777]"}`}
+						className={`text-xl font-bold font-mono mt-1 ${overdueCount > 0 ? "text-rose-600 dark:text-rose-400" : "text-[var(--ink-muted)]"}`}
 					>
 						{overdueCount}
 					</div>
-					<div className="text-[11px] text-[#777777] mt-0.5">
+					<div className="text-[11px] text-[var(--ink-muted)] mt-0.5">
 						Past target deadline
 					</div>
 				</div>
 			</div>
 
 			{/* Filter & Search Bar */}
-			<div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 bg-white border border-[#EDEDED] rounded-xl shadow-xs">
+			<div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-xs">
 				<div className="flex-1 max-w-sm">
 					<input
 						type="text"
 						value={localSearch}
 						onChange={(e) => setLocalSearch(e.target.value)}
 						placeholder="Search tasks, assignees, or projects..."
-						className="w-full px-3 py-1.5 text-[13px] bg-[#F7F7F7] border border-[#E0E0E0] rounded-lg focus:outline-none focus:border-[#49B3FC]"
+						className="w-full px-3 py-1.5 text-[13px] bg-[var(--surface-sunken)] border border-[var(--border)] rounded-lg focus:outline-none focus:border-[#49B3FC] text-[var(--ink)] placeholder:text-[var(--ink-muted)]"
 					/>
 				</div>
 
@@ -257,7 +257,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
 					<select
 						value={projectFilter}
 						onChange={(e) => setProjectFilter(e.target.value)}
-						className="px-2.5 py-1.5 text-[12px] bg-[#F7F7F7] border border-[#E0E0E0] rounded-lg focus:outline-none text-[#222222]"
+						className="px-2.5 py-1.5 text-[12px] bg-[var(--surface-sunken)] border border-[var(--border)] rounded-lg focus:outline-none text-[var(--ink)]"
 					>
 						<option value="all">All Projects</option>
 						{projects.map((p) => (
@@ -270,7 +270,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
 					<select
 						value={deptFilter}
 						onChange={(e) => setDeptFilter(e.target.value)}
-						className="px-2.5 py-1.5 text-[12px] bg-[#F7F7F7] border border-[#E0E0E0] rounded-lg focus:outline-none text-[#222222]"
+						className="px-2.5 py-1.5 text-[12px] bg-[var(--surface-sunken)] border border-[var(--border)] rounded-lg focus:outline-none text-[var(--ink)]"
 					>
 						<option value="all">All Departments</option>
 						{departments.map((d) => (
@@ -283,7 +283,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
 					<select
 						value={priorityFilter}
 						onChange={(e) => setPriorityFilter(e.target.value)}
-						className="px-2.5 py-1.5 text-[12px] bg-[#F7F7F7] border border-[#E0E0E0] rounded-lg focus:outline-none text-[#222222]"
+						className="px-2.5 py-1.5 text-[12px] bg-[var(--surface-sunken)] border border-[var(--border)] rounded-lg focus:outline-none text-[var(--ink)]"
 					>
 						<option value="all">All Priorities</option>
 						<option value="High">High Priority</option>
@@ -303,14 +303,14 @@ export const TasksView: React.FC<TasksViewProps> = ({
 						return (
 							<div
 								key={colStatus}
-								className="flex flex-col bg-[#F6F7F9] border border-[#E6E8EB] rounded-xl p-3 min-h-[420px]"
+								className="flex flex-col bg-[var(--surface-sunken)] border border-[var(--border)] rounded-xl p-3 min-h-[420px]"
 							>
 								<div className="flex items-center justify-between mb-3 px-1">
 									<div className="flex items-center gap-2">
-										<span className="text-[12px] font-bold text-[#222222] uppercase tracking-wider font-mono">
+										<span className="text-[12px] font-bold text-[var(--ink)] uppercase tracking-wider font-mono">
 											{colStatus}
 										</span>
-										<span className="w-5 h-5 rounded-full bg-white text-[#555555] border border-[#DDDDDD] flex items-center justify-center text-[10px] font-mono font-semibold">
+										<span className="w-5 h-5 rounded-full bg-[var(--surface)] text-[var(--ink-secondary)] border border-[var(--border)] flex items-center justify-center text-[10px] font-mono font-semibold">
 											{colTasks.length}
 										</span>
 									</div>
@@ -318,7 +318,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
 
 								<div className="space-y-2.5 flex-1 overflow-y-auto">
 									{colTasks.length === 0 ? (
-										<div className="h-28 flex items-center justify-center text-[11px] text-[#999999] border border-dashed border-[#E0E0E0] rounded-lg">
+										<div className="h-28 flex items-center justify-center text-[11px] text-[var(--ink-muted)] border border-dashed border-[var(--border)] rounded-lg">
 											No tasks in {colStatus}
 										</div>
 									) : (
@@ -332,29 +332,29 @@ export const TasksView: React.FC<TasksViewProps> = ({
 											return (
 												<div
 													key={task.id}
-													className={`p-3 rounded-lg bg-white border transition shadow-xs hover:shadow-md ${
+													className={`p-3 rounded-lg bg-[var(--surface)] border transition shadow-xs hover:shadow-md ${
 														isOverdue
-															? "border-rose-300 ring-1 ring-rose-200"
-															: "border-[#E0E0E0]"
+															? "border-rose-400 dark:border-rose-700 ring-1 ring-rose-400/30"
+															: "border-[var(--border)]"
 													}`}
 												>
 													<div className="flex items-start justify-between gap-1 mb-1.5">
-														<span className="text-[10px] font-mono font-semibold uppercase px-1.5 py-0.5 rounded bg-[#F0F2F5] text-[#555555]">
+														<span className="text-[10px] font-mono font-semibold uppercase px-1.5 py-0.5 rounded bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[var(--ink-secondary)]">
 															{task.dept}
 														</span>
 														{isOverdue && (
-															<span className="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-rose-100 text-rose-700">
+															<span className="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300">
 																OVERDUE
 															</span>
 														)}
 														{!isOverdue && task.priority === "High" && (
-															<span className="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">
+															<span className="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
 																HIGH
 															</span>
 														)}
 													</div>
 
-													<h4 className="text-[13px] font-semibold text-[#111111] leading-snug">
+													<h4 className="text-[13px] font-semibold text-[var(--ink)] leading-snug">
 														{task.name}
 													</h4>
 
@@ -362,14 +362,14 @@ export const TasksView: React.FC<TasksViewProps> = ({
 														<button
 															type="button"
 															onClick={() => onOpenProject?.(project.id)}
-															className="text-[11px] text-[#777777] hover:text-[#49B3FC] font-mono truncate block mt-1 text-left"
+															className="text-[11px] text-[var(--ink-muted)] hover:text-[#49B3FC] font-mono truncate block mt-1 text-left"
 														>
 															↳ {project.name}
 														</button>
 													)}
 
-													<div className="flex items-center justify-between text-[11px] text-[#666666] mt-3 pt-2 border-t border-[#F0F0F0]">
-														<span className="font-medium text-[#333333]">
+													<div className="flex items-center justify-between text-[11px] text-[var(--ink-muted)] mt-3 pt-2 border-t border-[var(--border-subtle)]">
+														<span className="font-medium text-[var(--ink-secondary)]">
 															👤 {task.owner}
 														</span>
 														<span className="font-mono text-[10px]">
@@ -378,7 +378,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
 													</div>
 
 													{/* Workflow transition actions */}
-													<div className="flex items-center justify-between gap-1 mt-2.5 pt-1.5 border-t border-[#F5F5F5]">
+													<div className="flex items-center justify-between gap-1 mt-2.5 pt-1.5 border-t border-[var(--border-subtle)]">
 														<div className="flex items-center gap-1">
 															{colStatus !== "Todo" && (
 																<button
@@ -386,7 +386,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
 																	onClick={() =>
 																		handleStatusChange(task, "Todo")
 																	}
-																	className="px-1.5 py-0.5 text-[10px] rounded hover:bg-[#EEEEEE] text-[#777777]"
+																	className="px-1.5 py-0.5 text-[10px] rounded hover:bg-[var(--surface-sunken)] text-[var(--ink-muted)]"
 																	title="Move to Todo"
 																>
 																	← Todo
@@ -405,7 +405,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
 																					: "Completed",
 																		)
 																	}
-																	className="px-2 py-0.5 text-[10px] font-semibold rounded bg-[#EBF6FE] hover:bg-[#D5EEFD] text-[#0070BA]"
+																	className="px-2 py-0.5 text-[10px] font-semibold rounded bg-[#49B3FC]/15 hover:bg-[#49B3FC]/25 text-[#49B3FC]"
 																>
 																	{colStatus === "Todo"
 																		? "Start →"
@@ -435,10 +435,10 @@ export const TasksView: React.FC<TasksViewProps> = ({
 					})}
 				</div>
 			) : (
-				<div className="overflow-x-auto bg-white border border-[#EDEDED] rounded-xl shadow-xs">
+				<div className="overflow-x-auto bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-xs">
 					<table className="w-full text-left border-collapse text-[13px]">
 						<thead>
-							<tr className="border-b border-[#EDEDED] bg-[#FAFAFA] text-[11px] font-mono uppercase tracking-wider text-[#777777]">
+							<tr className="border-b border-[var(--border)] bg-[var(--surface-sunken)] text-[11px] font-mono uppercase tracking-wider text-[var(--ink-muted)]">
 								<th className="py-3 px-4">Task Name</th>
 								<th className="py-3 px-4">Project</th>
 								<th className="py-3 px-4">Dept</th>
@@ -449,7 +449,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
 								<th className="py-3 px-4 text-right">Actions</th>
 							</tr>
 						</thead>
-						<tbody className="divide-y divide-[#F0F0F0]">
+						<tbody className="divide-y divide-[var(--border-subtle)]">
 							{filteredTasks.map((task) => {
 								const project = projectMap.get(task.projectId);
 								const isOverdue =
@@ -458,8 +458,11 @@ export const TasksView: React.FC<TasksViewProps> = ({
 									task.due < todayStr;
 
 								return (
-									<tr key={task.id} className="hover:bg-[#F9F9F9] transition">
-										<td className="py-3 px-4 font-semibold text-[#111111]">
+									<tr
+										key={task.id}
+										className="hover:bg-[var(--surface-sunken)] transition"
+									>
+										<td className="py-3 px-4 font-semibold text-[var(--ink)]">
 											{task.name}
 										</td>
 										<td className="py-3 px-4">
@@ -472,23 +475,23 @@ export const TasksView: React.FC<TasksViewProps> = ({
 													{project.name}
 												</button>
 											) : (
-												<span className="text-[#999999]">—</span>
+												<span className="text-[var(--ink-muted)]">—</span>
 											)}
 										</td>
-										<td className="py-3 px-4 font-mono text-[11px] uppercase">
+										<td className="py-3 px-4 font-mono text-[11px] uppercase text-[var(--ink-secondary)]">
 											{task.dept}
 										</td>
-										<td className="py-3 px-4 text-[#444444] font-medium">
+										<td className="py-3 px-4 text-[var(--ink-secondary)] font-medium">
 											{task.owner}
 										</td>
 										<td className="py-3 px-4">
 											<span
 												className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold ${
 													task.priority === "High"
-														? "bg-rose-100 text-rose-800"
+														? "bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300"
 														: task.priority === "Medium"
-															? "bg-amber-100 text-amber-800"
-															: "bg-slate-100 text-slate-700"
+															? "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
+															: "bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[var(--ink-secondary)]"
 												}`}
 											>
 												{task.priority || "Medium"}
@@ -498,15 +501,15 @@ export const TasksView: React.FC<TasksViewProps> = ({
 											<span
 												className={
 													isOverdue
-														? "text-rose-600 font-bold"
-														: "text-[#666666]"
+														? "text-rose-600 dark:text-rose-400 font-bold"
+														: "text-[var(--ink-muted)]"
 												}
 											>
 												{task.due || "—"} {isOverdue && "(OVERDUE)"}
 											</span>
 										</td>
 										<td className="py-3 px-4">
-											<span className="px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[#EDEDED] text-[#333333]">
+											<span className="px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[var(--ink-secondary)]">
 												{task.status}
 											</span>
 										</td>
@@ -518,7 +521,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
 														onClick={() =>
 															handleStatusChange(task, "Completed")
 														}
-														className="text-[11px] font-medium text-emerald-700 hover:bg-emerald-50 px-2 py-1 rounded"
+														className="text-[11px] font-medium text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40 px-2 py-1 rounded"
 													>
 														Done ✓
 													</button>
@@ -526,7 +529,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
 												<button
 													type="button"
 													onClick={() => handleDeleteTask(task)}
-													className="text-[11px] font-medium text-rose-600 hover:bg-rose-50 px-2 py-1 rounded"
+													className="text-[11px] font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40 px-2 py-1 rounded"
 												>
 													Delete
 												</button>

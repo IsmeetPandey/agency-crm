@@ -157,18 +157,18 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
 	const getStageBadgeColor = (stage: OpportunityStage) => {
 		switch (stage) {
 			case "Won":
-				return "bg-emerald-100 text-emerald-800 border-emerald-300";
+				return "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800";
 			case "Negotiation":
 			case "Proposal":
-				return "bg-sky-100 text-sky-800 border-sky-300";
+				return "bg-sky-100 text-sky-800 border-sky-300 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800";
 			case "Qualified":
-				return "bg-indigo-100 text-indigo-800 border-indigo-300";
+				return "bg-indigo-100 text-indigo-800 border-indigo-300 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800";
 			case "Lost":
-				return "bg-rose-100 text-rose-800 border-rose-300";
+				return "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800";
 			case "Hold":
-				return "bg-slate-100 text-slate-700 border-slate-300";
+				return "bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700";
 			default:
-				return "bg-amber-100 text-amber-800 border-amber-300";
+				return "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800";
 		}
 	};
 

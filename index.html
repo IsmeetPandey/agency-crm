@@ -9,7 +9,7 @@
   <meta property="og:description" content="Studio Command CRM for agency pipeline, commercial opportunities, delivery, and team capacity.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter+Tight:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
   <script>
     (function() {
       try {
@@ -18,15 +18,20 @@
         var theme = isDark ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', theme);
         document.documentElement.style.colorScheme = theme;
+        if (isDark) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
       } catch (e) {}
     })();
   </script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
-      background-color: var(--canvas, #F8F9F8);
-      color: var(--ink, #161A19);
-      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--canvas, #F8F8F8);
+      color: var(--ink, #222222);
+      font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     #root { min-height: 100vh; }
   </style>

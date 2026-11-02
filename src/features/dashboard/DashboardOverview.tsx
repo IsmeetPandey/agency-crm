@@ -158,32 +158,32 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 					</p>
 				</div>
 
-				<div className="flex items-center gap-2">
+				<div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
 					<button
 						type="button"
 						onClick={() => onOpenModal("opportunity")}
-						className="btn-primary !h-[34px] !text-[12px] !px-3"
+						className="btn-primary !h-[34px] !text-[12px] !px-3 justify-center text-center whitespace-nowrap"
 					>
-						+ Commercial Deal
+						+ Deal
 					</button>
 					<button
 						type="button"
 						onClick={() => onOpenModal("lead")}
-						className="btn-secondary !h-[34px] !text-[12px] !px-3 !bg-white/10 !text-white !border-white/20 hover:!bg-white/20"
+						className="btn-secondary !h-[34px] !text-[12px] !px-3 !bg-white/10 !text-white !border-white/20 hover:!bg-white/20 justify-center text-center"
 					>
 						+ Lead
 					</button>
 					<button
 						type="button"
 						onClick={() => onOpenModal("project")}
-						className="btn-secondary !h-[34px] !text-[12px] !px-3 !bg-white/10 !text-white !border-white/20 hover:!bg-white/20"
+						className="btn-secondary !h-[34px] !text-[12px] !px-3 !bg-white/10 !text-white !border-white/20 hover:!bg-white/20 justify-center text-center"
 					>
 						+ Project
 					</button>
 					<button
 						type="button"
 						onClick={() => onOpenModal("task")}
-						className="btn-secondary !h-[34px] !text-[12px] !px-3 !bg-white/10 !text-white !border-white/20 hover:!bg-white/20"
+						className="btn-secondary !h-[34px] !text-[12px] !px-3 !bg-white/10 !text-white !border-white/20 hover:!bg-white/20 justify-center text-center"
 					>
 						+ Deliverable
 					</button>

@@ -97,17 +97,17 @@ export const ContactsView: React.FC<ContactsViewProps> = ({
 	return (
 		<div className="space-y-6">
 			{/* Header with Title and Action */}
-			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#EBEBEB]">
+			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
 				<div>
 					<div className="flex items-center gap-2">
-						<h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#111111]">
+						<h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--ink)]">
 							Key Client Contacts
 						</h1>
-						<span className="text-[12px] font-mono px-2 py-0.5 rounded-full bg-[#EDEDED] text-[#444444] font-semibold">
+						<span className="text-[12px] font-mono px-2 py-0.5 rounded-full bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[var(--ink-secondary)] font-semibold">
 							{contacts.length} Records
 						</span>
 					</div>
-					<p className="text-[13px] text-[#666666] mt-1">
+					<p className="text-[13px] text-[var(--ink-muted)] mt-1">
 						Roster of company stakeholders, decision-makers, and technical
 						liaisons across accounts.
 					</p>
@@ -117,7 +117,7 @@ export const ContactsView: React.FC<ContactsViewProps> = ({
 					<button
 						type="button"
 						onClick={() => onOpenModal("contact")}
-						className="px-4 py-2 rounded-lg bg-[#222222] hover:bg-[#111111] text-white text-[13px] font-medium transition flex items-center gap-2 shadow-xs cursor-pointer"
+						className="px-4 py-2 rounded-lg btn-primary text-[13px] font-medium transition flex items-center gap-2 shadow-xs cursor-pointer"
 					>
 						<span>+</span>
 						<span>Add Contact</span>
@@ -127,63 +127,63 @@ export const ContactsView: React.FC<ContactsViewProps> = ({
 
 			{/* Operational Metric Tiles */}
 			<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-				<div className="p-3.5 rounded-xl bg-white border border-[#EDEDED] shadow-xs">
-					<div className="text-[11px] font-mono uppercase tracking-wider text-[#777777]">
+				<div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs">
+					<div className="text-[11px] font-mono uppercase tracking-wider text-[var(--ink-muted)]">
 						Total Stakeholders
 					</div>
-					<div className="text-xl font-bold font-mono text-[#111111] mt-1">
+					<div className="text-xl font-bold font-mono text-[var(--ink)] mt-1">
 						{contacts.length}
 					</div>
-					<div className="text-[11px] text-[#777777] mt-0.5">
+					<div className="text-[11px] text-[var(--ink-muted)] mt-0.5">
 						Active in CRM database
 					</div>
 				</div>
 
-				<div className="p-3.5 rounded-xl bg-white border border-[#EDEDED] shadow-xs">
-					<div className="text-[11px] font-mono uppercase tracking-wider text-[#777777]">
+				<div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs">
+					<div className="text-[11px] font-mono uppercase tracking-wider text-[var(--ink-muted)]">
 						Designated Primary
 					</div>
-					<div className="text-xl font-bold font-mono text-emerald-600 mt-1">
+					<div className="text-xl font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-1">
 						{primaryCount}
 					</div>
-					<div className="text-[11px] text-[#777777] mt-0.5">
+					<div className="text-[11px] text-[var(--ink-muted)] mt-0.5">
 						Lead account signatories
 					</div>
 				</div>
 
-				<div className="p-3.5 rounded-xl bg-white border border-[#EDEDED] shadow-xs">
-					<div className="text-[11px] font-mono uppercase tracking-wider text-[#777777]">
+				<div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs">
+					<div className="text-[11px] font-mono uppercase tracking-wider text-[var(--ink-muted)]">
 						Accounts Represented
 					</div>
 					<div className="text-xl font-bold font-mono text-[#49B3FC] mt-1">
 						{coveredClientIds} / {clients.length}
 					</div>
-					<div className="text-[11px] text-[#777777] mt-0.5">
+					<div className="text-[11px] text-[var(--ink-muted)] mt-0.5">
 						Client accounts with key contacts
 					</div>
 				</div>
 			</div>
 
 			{/* Filter & Search Bar */}
-			<div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 bg-white border border-[#EDEDED] rounded-xl shadow-xs">
+			<div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-xs">
 				<div className="flex-1 max-w-md">
 					<input
 						type="text"
 						value={localSearch}
 						onChange={(e) => setLocalSearch(e.target.value)}
 						placeholder="Search by contact name, role, email, or client..."
-						className="w-full px-3 py-1.5 text-[13px] bg-[#F7F7F7] border border-[#E0E0E0] rounded-lg focus:outline-none focus:border-[#49B3FC]"
+						className="w-full px-3 py-1.5 text-[13px] bg-[var(--surface-sunken)] border border-[var(--border)] rounded-lg focus:outline-none focus:border-[#49B3FC] text-[var(--ink)] placeholder:text-[var(--ink-muted)]"
 					/>
 				</div>
 
 				<div className="flex items-center gap-2">
-					<span className="text-[12px] font-medium text-[#777777] whitespace-nowrap">
+					<span className="text-[12px] font-medium text-[var(--ink-muted)] whitespace-nowrap">
 						Filter Account:
 					</span>
 					<select
 						value={selectedClientId}
 						onChange={(e) => setSelectedClientId(e.target.value)}
-						className="px-2.5 py-1.5 text-[12px] bg-[#F7F7F7] border border-[#E0E0E0] rounded-lg focus:outline-none text-[#222222]"
+						className="px-2.5 py-1.5 text-[12px] bg-[var(--surface-sunken)] border border-[var(--border)] rounded-lg focus:outline-none text-[var(--ink)]"
 					>
 						<option value="all">All Client Accounts</option>
 						{clients.map((c) => (
@@ -197,12 +197,12 @@ export const ContactsView: React.FC<ContactsViewProps> = ({
 
 			{/* Contacts Roster Table */}
 			{filteredContacts.length === 0 ? (
-				<div className="text-center py-16 bg-white border border-[#EDEDED] rounded-xl">
+				<div className="text-center py-16 bg-[var(--surface)] border border-[var(--border)] rounded-xl">
 					<div className="text-3xl mb-2">👤</div>
-					<h3 className="text-[15px] font-bold text-[#222222]">
+					<h3 className="text-[15px] font-bold text-[var(--ink)]">
 						No contacts found
 					</h3>
-					<p className="text-[13px] text-[#777777] max-w-sm mx-auto mt-1">
+					<p className="text-[13px] text-[var(--ink-muted)] max-w-sm mx-auto mt-1">
 						{searchQuery || selectedClientId !== "all"
 							? "No contacts matched your search filter."
 							: "No contacts recorded yet. Add primary stakeholders and coordinators."}
@@ -210,16 +210,16 @@ export const ContactsView: React.FC<ContactsViewProps> = ({
 					<button
 						type="button"
 						onClick={() => onOpenModal("contact")}
-						className="mt-4 px-4 py-2 rounded-lg bg-[#222222] hover:bg-[#111111] text-white text-[13px] font-medium"
+						className="mt-4 px-4 py-2 rounded-lg btn-primary text-[13px] font-medium"
 					>
 						+ Add First Contact
 					</button>
 				</div>
 			) : (
-				<div className="overflow-x-auto bg-white border border-[#EDEDED] rounded-xl shadow-xs">
+				<div className="overflow-x-auto bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-xs">
 					<table className="w-full text-left border-collapse text-[13px]">
 						<thead>
-							<tr className="border-b border-[#EDEDED] bg-[#FAFAFA] text-[11px] font-mono uppercase tracking-wider text-[#777777]">
+							<tr className="border-b border-[var(--border)] bg-[var(--surface-sunken)] text-[11px] font-mono uppercase tracking-wider text-[var(--ink-muted)]">
 								<th className="py-3 px-4">Contact Person</th>
 								<th className="py-3 px-4">Company Account</th>
 								<th className="py-3 px-4">Role / Title</th>
@@ -229,30 +229,30 @@ export const ContactsView: React.FC<ContactsViewProps> = ({
 								<th className="py-3 px-4 text-right">Actions</th>
 							</tr>
 						</thead>
-						<tbody className="divide-y divide-[#F0F0F0]">
+						<tbody className="divide-y divide-[var(--border-subtle)]">
 							{filteredContacts.map((contact) => {
 								const client = clientMap.get(contact.clientId);
 								return (
 									<tr
 										key={contact.id}
-										className="hover:bg-[#F9F9F9] transition"
+										className="hover:bg-[var(--surface-sunken)] transition"
 									>
 										<td className="py-3 px-4">
-											<div className="font-semibold text-[#111111] flex items-center gap-2">
+											<div className="font-semibold text-[var(--ink)] flex items-center gap-2">
 												{contact.name}
 												{contact.isPrimary && (
-													<span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+													<span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800">
 														PRIMARY
 													</span>
 												)}
 											</div>
 										</td>
 										<td className="py-3 px-4">
-											<span className="font-medium text-[#222222]">
+											<span className="font-medium text-[var(--ink)]">
 												{client?.name || "Unassigned"}
 											</span>
 										</td>
-										<td className="py-3 px-4 text-[#555555]">
+										<td className="py-3 px-4 text-[var(--ink-secondary)]">
 											{contact.role || "—"}
 										</td>
 										<td className="py-3 px-4 font-mono text-[12px]">
@@ -264,22 +264,22 @@ export const ContactsView: React.FC<ContactsViewProps> = ({
 													{contact.email}
 												</a>
 											) : (
-												<span className="text-[#999999]">—</span>
+												<span className="text-[var(--ink-muted)]">—</span>
 											)}
 										</td>
-										<td className="py-3 px-4 font-mono text-[12px] text-[#555555]">
+										<td className="py-3 px-4 font-mono text-[12px] text-[var(--ink-secondary)]">
 											{contact.phone ? (
 												<a
 													href={`tel:${contact.phone}`}
-													className="hover:text-[#111111]"
+													className="hover:text-[var(--ink)]"
 												>
 													{contact.phone}
 												</a>
 											) : (
-												<span className="text-[#999999]">—</span>
+												<span className="text-[var(--ink-muted)]">—</span>
 											)}
 										</td>
-										<td className="py-3 px-4 max-w-[200px] truncate text-[12px] text-[#666666]">
+										<td className="py-3 px-4 max-w-[200px] truncate text-[12px] text-[var(--ink-muted)]">
 											{contact.notes || "—"}
 										</td>
 										<td className="py-3 px-4 text-right whitespace-nowrap">
@@ -288,7 +288,7 @@ export const ContactsView: React.FC<ContactsViewProps> = ({
 													<button
 														type="button"
 														onClick={() => handleSetPrimary(contact)}
-														className="px-2 py-1 rounded text-[11px] font-medium text-slate-600 hover:bg-[#EEEEEE]"
+														className="px-2 py-1 rounded text-[11px] font-medium text-[var(--ink-secondary)] hover:bg-[var(--surface-sunken)]"
 														title="Set as Primary Contact"
 													>
 														Set Primary
@@ -297,14 +297,14 @@ export const ContactsView: React.FC<ContactsViewProps> = ({
 												<button
 													type="button"
 													onClick={() => onOpenModal("contact", { contact })}
-													className="px-2 py-1 rounded text-[11px] font-medium text-[#49B3FC] hover:bg-[#EBF6FE]"
+													className="px-2 py-1 rounded text-[11px] font-medium text-[#49B3FC] hover:bg-[#49B3FC]/10"
 												>
 													Edit
 												</button>
 												<button
 													type="button"
 													onClick={() => handleDelete(contact)}
-													className="px-2 py-1 rounded text-[11px] font-medium text-rose-600 hover:bg-rose-50"
+													className="px-2 py-1 rounded text-[11px] font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40"
 												>
 													Delete
 												</button>

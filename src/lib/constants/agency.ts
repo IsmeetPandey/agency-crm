@@ -510,10 +510,15 @@ export function isMemberOnline(
 }
 
 export function formatHour(h: number): string {
-	if (h === 0) return "12 AM";
-	if (h === 12) return "12 PM";
-	if (h < 12) return `${h} AM`;
-	return `${h - 12} PM`;
+	const whole = Math.floor(h);
+	const min = Math.round((h - whole) * 60);
+	const isPM = whole >= 12;
+	const displayHour = whole === 0 ? 12 : whole > 12 ? whole - 12 : whole;
+	if (min > 0) {
+		const minStr = min < 10 ? `0${min}` : `${min}`;
+		return `${displayHour}:${minStr} ${isPM ? "PM" : "AM"}`;
+	}
+	return `${displayHour} ${isPM ? "PM" : "AM"}`;
 }
 
 export const GATES_TEMPLATE = [

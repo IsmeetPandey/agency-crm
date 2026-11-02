@@ -151,16 +151,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
 						onClick={(e) => e.stopPropagation()}
 					>
 						<div>
-							<div className="flex items-center justify-between px-2 py-2 mb-2 border-b border-white/[0.08]">
+							<div className="flex items-center justify-between px-2 py-2 mb-2 border-b border-[var(--border)]">
 								<div className="flex items-center gap-2.5">
-									<div className="w-8 h-8 rounded-lg bg-[#49B3FC] text-slate-950 flex items-center justify-center font-bold text-[14px]">
+									<div className="w-8 h-8 rounded-lg bg-[var(--accent)] text-[var(--accent-contrast)] flex items-center justify-center font-bold text-[14px]">
 										K
 									</div>
 									<div>
-										<div className="text-[14px] font-bold tracking-tight text-white leading-none">
+										<div className="text-[14px] font-bold tracking-tight text-[var(--ink-strong)] leading-none">
 											KREATIWIT
 										</div>
-										<div className="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-wider">
+										<div className="text-[10px] font-medium text-[var(--ink-muted)] mt-1 uppercase tracking-wider">
 											AgencyOS Studio
 										</div>
 									</div>
@@ -168,7 +168,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 								<button
 									type="button"
 									onClick={onCloseMobile}
-									className="text-slate-400 hover:text-white p-1 text-[18px] leading-none"
+									className="text-[var(--ink-muted)] hover:text-[var(--ink-strong)] p-1 text-[18px] leading-none cursor-pointer"
 									aria-label="Close menu"
 								>
 									×
@@ -186,6 +186,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 													<button
 														key={item.id}
 														type="button"
+														data-nav={item.id}
 														onClick={() => {
 															setView(item.id);
 															onCloseMobile?.();
@@ -194,7 +195,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 													>
 														<div className="flex items-center gap-2.5 min-w-0">
 															<span
-																className={`text-[13px] font-mono shrink-0 ${active ? "text-[#49B3FC]" : "opacity-75"}`}
+																className={`text-[13px] font-mono shrink-0 ${active ? "text-[var(--accent-text)]" : "opacity-75"}`}
 															>
 																{item.icon}
 															</span>
@@ -207,8 +208,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 																<span
 																	className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono font-semibold ${
 																		active
-																			? "bg-[#49B3FC] text-slate-950"
-																			: "bg-white/[0.1] text-slate-300"
+																			? "bg-[var(--accent)] text-[var(--accent-contrast)]"
+																			: "bg-[var(--surface-raised)] text-[var(--ink-muted)] border border-[var(--border)]"
 																	}`}
 																>
 																	{item.badge}
@@ -223,20 +224,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
 							</nav>
 						</div>
 
-						<div className="pt-3 border-t border-white/[0.08]">
-							<div className="p-2.5 rounded-lg bg-white/[0.04] border border-white/[0.06] text-[11px]">
-								<div className="flex items-center justify-between text-slate-300 mb-1">
+						<div className="pt-3 border-t border-[var(--border)]">
+							<div className="p-2.5 rounded-lg bg-[var(--surface-sunken)] border border-[var(--border)] text-[11px]">
+								<div className="flex items-center justify-between text-[var(--ink)] mb-1">
 									<span className="flex items-center gap-1.5 font-medium">
 										<span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
 										IST Operation
 									</span>
-									<span className="font-mono text-emerald-400 font-semibold">
+									<span className="font-mono text-emerald-500 font-semibold">
 										{formatHour(istHour)}
 									</span>
 								</div>
-								<div className="text-[10px] text-slate-400 flex items-center justify-between">
+								<div className="text-[10px] text-[var(--ink-muted)] flex items-center justify-between">
 									<span>Scheduled On-Duty:</span>
-									<span className="font-mono text-white font-medium">
+									<span className="font-mono text-[var(--ink-strong)] font-medium">
 										{onlineCount} Specialists
 									</span>
 								</div>
@@ -255,17 +256,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
 					{/* Top Area: Logo & Collapse Trigger */}
 					<div>
 						{/* Brand Header */}
-						<div className="flex items-center justify-between px-2 py-2 mb-2 border-b border-white/[0.08]">
+						<div className="flex items-center justify-between px-2 py-2 mb-2 border-b border-[var(--border)]">
 							<div className="flex items-center gap-2.5 min-w-0">
-								<div className="w-8 h-8 rounded-lg bg-[#49B3FC] text-slate-950 flex items-center justify-center font-bold text-[14px] shrink-0 shadow-[0_0_12px_rgba(73,179,252,0.35)]">
+								<div className="w-8 h-8 rounded-lg bg-[var(--accent)] text-[var(--accent-contrast)] flex items-center justify-center font-bold text-[14px] shrink-0 shadow-sm">
 									K
 								</div>
 								{!collapsed && (
 									<div className="min-w-0">
-										<div className="text-[14px] font-bold tracking-tight text-white leading-none">
+										<div className="text-[14px] font-bold tracking-tight text-[var(--ink-strong)] leading-none">
 											KREATIWIT
 										</div>
-										<div className="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-wider">
+										<div className="text-[10px] font-medium text-[var(--ink-muted)] mt-1 uppercase tracking-wider">
 											AgencyOS Studio
 										</div>
 									</div>
@@ -275,7 +276,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 							<button
 								type="button"
 								onClick={() => setCollapsed(!collapsed)}
-								className="text-slate-400 hover:text-white p-1 rounded-md hover:bg-white/[0.06] text-[11px] font-mono transition"
+								className="text-[var(--ink-muted)] hover:text-[var(--ink-strong)] p-1 rounded-md hover:bg-[var(--surface-sunken)] text-[11px] font-mono transition cursor-pointer"
 								title="Toggle sidebar (⌘B)"
 								aria-label="Toggle sidebar"
 							>
@@ -297,6 +298,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 												<button
 													key={item.id}
 													type="button"
+													data-nav={item.id}
 													onClick={() => setView(item.id)}
 													className={`w-full nav-link ${active ? "active" : ""} ${
 														collapsed
@@ -307,7 +309,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 												>
 													<div className="flex items-center gap-2.5 min-w-0">
 														<span
-															className={`text-[13px] font-mono shrink-0 ${active ? "text-[var(--accent)]" : "opacity-75"}`}
+															className={`text-[13px] font-mono shrink-0 ${active ? "text-[var(--accent-text)]" : "opacity-75"}`}
 														>
 															{item.icon}
 														</span>
@@ -324,7 +326,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 																className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono font-semibold ${
 																	active
 																		? "bg-[var(--accent)] text-[var(--accent-contrast)]"
-																		: "bg-white/[0.1] text-slate-300"
+																		: "bg-[var(--surface-raised)] text-[var(--ink-muted)] border border-[var(--border)]"
 																}`}
 															>
 																{item.badge}
@@ -340,27 +342,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
 					</div>
 
 					{/* Bottom Area: Operational IST Clock & Theme switch */}
-					<div className="pt-3 border-t border-white/[0.08] space-y-2">
+					<div className="pt-3 border-t border-[var(--border)] space-y-2">
 						{!collapsed ? (
 							<div className="space-y-2">
-								<div className="p-2.5 rounded-lg bg-white/[0.04] border border-white/[0.06] text-[11px]">
-									<div className="flex items-center justify-between text-slate-300 mb-1">
+								<div className="p-2.5 rounded-lg bg-[var(--surface-sunken)] border border-[var(--border)] text-[11px]">
+									<div className="flex items-center justify-between text-[var(--ink)] mb-1">
 										<span className="flex items-center gap-1.5 font-medium">
 											<span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
 											IST Operation
 										</span>
-										<span className="font-mono text-emerald-400 font-semibold">
+										<span className="font-mono text-emerald-500 font-semibold">
 											{formatHour(istHour)}
 										</span>
 									</div>
-									<div className="text-[10px] text-slate-400 flex items-center justify-between">
+									<div className="text-[10px] text-[var(--ink-muted)] flex items-center justify-between">
 										<span>Scheduled On-Duty:</span>
-										<span className="font-mono text-white font-medium">
+										<span className="font-mono text-[var(--ink-strong)] font-medium">
 											{onlineCount} Specialists
 										</span>
 									</div>
 								</div>
-								<div className="flex items-center justify-between px-1 text-[11px] text-slate-400">
+								<div className="flex items-center justify-between px-1 text-[11px] text-[var(--ink-muted)]">
 									<span>Theme Mode</span>
 									<ThemeToggle />
 								</div>

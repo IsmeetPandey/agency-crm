@@ -53,7 +53,7 @@ export const OpportunityChip: React.FC<OpportunityChipProps> = ({
 
 	return (
 		<span
-			className={`inline-flex items-center gap-1.5 font-mono font-medium rounded-md border transition-all ${
+			className={`inline-flex items-center gap-1.5 font-mono font-medium rounded-md border whitespace-nowrap shrink-0 select-none transition-all ${
 				size === "sm"
 					? "text-[11px] px-2 py-0.5 bg-[var(--accent-tint)] text-[var(--ink)] border-[var(--accent-border)]"
 					: "text-[12px] px-2.5 py-1 bg-[var(--accent-tint)] text-[var(--ink-strong)] border-[var(--accent-border)] font-semibold shadow-xs"
@@ -63,15 +63,22 @@ export const OpportunityChip: React.FC<OpportunityChipProps> = ({
 				<button
 					type="button"
 					onClick={handleClick}
-					className="inline-flex items-center gap-1 cursor-pointer hover:text-[var(--accent)] hover:underline focus-visible:underline focus-visible:outline-none transition"
+					className="inline-flex items-center gap-1 cursor-pointer hover:text-[var(--accent)] hover:underline focus-visible:underline focus-visible:outline-none transition whitespace-nowrap"
 					title={`Click to view opportunity ${opportunityNo}`}
 				>
-					<span className="text-[var(--accent-text)] font-semibold">SKU:</span>
+					<span className="text-[var(--accent-text)] font-semibold text-[10px]">
+						SKU:
+					</span>
 					<span className="tracking-tight font-bold">{opportunityNo}</span>
 				</button>
 			) : (
-				<span className="inline-flex items-center gap-1" title={opportunityNo}>
-					<span className="text-[var(--accent-text)] font-semibold">SKU:</span>
+				<span
+					className="inline-flex items-center gap-1 whitespace-nowrap"
+					title={opportunityNo}
+				>
+					<span className="text-[var(--accent-text)] font-semibold text-[10px]">
+						SKU:
+					</span>
 					<span className="tracking-tight font-bold">{opportunityNo}</span>
 				</span>
 			)}

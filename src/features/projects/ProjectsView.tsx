@@ -40,10 +40,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 			{/* Header */}
 			<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
 				<div>
-					<h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
+					<h2 className="text-[18px] font-bold text-[var(--ink)] tracking-tight">
 						Projects & Delivery Operations
 					</h2>
-					<p className="text-[12px] text-slate-500">
+					<p className="text-[12px] text-[var(--ink-muted)]">
 						Active creative & engineering builds, milestones, tech stacks, and
 						team assignments
 					</p>
@@ -66,13 +66,13 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 						<div
 							key={project.id}
 							onClick={() => onOpenProject(project.id)}
-							className="studio-card p-5 cursor-pointer hover:border-blue-400 hover:shadow-md transition bg-white space-y-4 group"
+							className="studio-card p-5 cursor-pointer hover:border-[#49B3FC] hover:shadow-md transition space-y-4 group"
 						>
 							{/* Top info */}
 							<div className="flex items-start justify-between gap-3">
 								<div className="min-w-0">
 									<div className="flex items-center gap-2 mb-1 flex-wrap">
-										<span className="text-[11px] font-mono uppercase tracking-wider text-blue-600 font-semibold">
+										<span className="text-[11px] font-mono uppercase tracking-wider text-[#49B3FC] font-semibold">
 											{clientName}
 										</span>
 										{project.opportunityNo && (
@@ -85,7 +85,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 											</div>
 										)}
 									</div>
-									<h3 className="text-[16px] font-bold text-slate-900 group-hover:text-blue-600 transition truncate">
+									<h3 className="text-[16px] font-bold text-[var(--ink)] group-hover:text-[#49B3FC] transition truncate">
 										{project.name}
 									</h3>
 								</div>
@@ -95,29 +95,29 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 							</div>
 
 							{project.scope && (
-								<p className="text-[12px] text-slate-500 line-clamp-2 leading-relaxed">
+								<p className="text-[12px] text-[var(--ink-muted)] line-clamp-2 leading-relaxed">
 									{project.scope}
 								</p>
 							)}
 
 							{/* Progress Bar */}
-							<div className="space-y-1.5 pt-2 border-t border-slate-100">
-								<div className="flex justify-between text-[11px] font-medium text-slate-500">
+							<div className="space-y-1.5 pt-2 border-t border-[var(--border-subtle)]">
+								<div className="flex justify-between text-[11px] font-medium text-[var(--ink-muted)]">
 									<span>Delivery Velocity</span>
-									<span className="font-mono font-bold text-slate-900">
+									<span className="font-mono font-bold text-[var(--ink)]">
 										{project.progress}%
 									</span>
 								</div>
-								<div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden border border-slate-200">
+								<div className="w-full h-2 rounded-full bg-[var(--surface-sunken)] overflow-hidden border border-[var(--border)]">
 									<div
-										className="h-full bg-blue-600 rounded-full transition-all duration-300"
+										className="h-full bg-[#49B3FC] rounded-full transition-all duration-300"
 										style={{ width: `${project.progress}%` }}
 									/>
 								</div>
 							</div>
 
 							{/* Stack & Team & Budget Footer */}
-							<div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px]">
+							<div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)] text-[11px]">
 								<div className="flex items-center gap-1.5 overflow-hidden">
 									{project.stackNeeded
 										.split(",")
@@ -125,7 +125,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 										.map((tag) => (
 											<span
 												key={tag.trim()}
-												className="font-mono text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200"
+												className="font-mono text-[10px] px-2 py-0.5 rounded bg-[var(--surface-raised)] text-[var(--ink-secondary)] border border-[var(--border-subtle)]"
 											>
 												{tag.trim()}
 											</span>
@@ -133,11 +133,11 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 								</div>
 
 								<div className="flex items-center gap-2 shrink-0">
-									<span className="font-mono font-semibold text-slate-900">
+									<span className="font-mono font-semibold text-[var(--ink)]">
 										₹{(project.budget / 1000).toFixed(0)}k
 									</span>
-									<span className="text-slate-300">•</span>
-									<span className="text-blue-600 font-semibold group-hover:underline">
+									<span className="text-[var(--ink-muted)]">•</span>
+									<span className="text-[#49B3FC] font-semibold group-hover:underline">
 										Cockpit →
 									</span>
 								</div>

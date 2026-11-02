@@ -55,6 +55,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 			const root = document.documentElement;
 			root.setAttribute("data-theme", activeTheme);
 			root.style.colorScheme = activeTheme;
+			root.classList.toggle("dark", activeTheme === "dark");
 
 			try {
 				localStorage.setItem(STORAGE_KEY, theme);

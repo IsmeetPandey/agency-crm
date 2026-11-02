@@ -169,33 +169,33 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 	const getStatusBadge = (status: FinanceStatus) => {
 		switch (status) {
 			case "Paid":
-				return "bg-emerald-100 text-emerald-800 border-emerald-300";
+				return "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800";
 			case "Sent":
 			case "Accepted":
-				return "bg-sky-100 text-sky-800 border-sky-300";
+				return "bg-sky-100 text-sky-800 border-sky-300 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800";
 			case "Overdue":
-				return "bg-rose-100 text-rose-800 border-rose-300 font-bold";
+				return "bg-rose-100 text-rose-800 border-rose-300 font-bold dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800";
 			case "Declined":
-				return "bg-slate-100 text-slate-700 border-slate-300";
+				return "bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800/80 dark:text-slate-300 dark:border-slate-700";
 			default:
-				return "bg-amber-100 text-amber-800 border-amber-300";
+				return "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800";
 		}
 	};
 
 	return (
 		<div className="space-y-6">
 			{/* Header */}
-			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#EBEBEB]">
+			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
 				<div>
 					<div className="flex items-center gap-2">
-						<h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#111111]">
+						<h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--ink-strong)]">
 							Invoices & Proposals
 						</h1>
-						<span className="text-[12px] font-mono px-2 py-0.5 rounded-full bg-[#EDEDED] text-[#444444] font-semibold">
+						<span className="text-[12px] font-mono px-2 py-0.5 rounded-full bg-[var(--surface-raised)] text-[var(--ink-secondary)] border border-[var(--border)] font-semibold">
 							{finance.length} Ledger Records
 						</span>
 					</div>
-					<p className="text-[13px] text-[#666666] mt-1">
+					<p className="text-[13px] text-[var(--ink-muted)] mt-1">
 						Commercial milestone billing, proposal pipeline, and payment
 						tracking for client accounts.
 					</p>
@@ -205,14 +205,14 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 					<button
 						type="button"
 						onClick={exportCSV}
-						className="px-3.5 py-2 rounded-lg border border-[#DEDEDE] text-[#444444] hover:bg-[#F5F5F5] text-[13px] font-medium transition cursor-pointer"
+						className="btn-secondary !h-[34px] text-[13px] font-medium cursor-pointer"
 					>
 						Export CSV
 					</button>
 					<button
 						type="button"
 						onClick={() => onOpenModal("finance")}
-						className="px-4 py-2 rounded-lg bg-[#222222] hover:bg-[#111111] text-white text-[13px] font-medium transition flex items-center gap-2 shadow-xs cursor-pointer"
+						className="btn-primary !h-[34px] text-[13px] font-medium flex items-center gap-2 cursor-pointer"
 					>
 						<span>+</span>
 						<span>Create Record</span>
@@ -222,66 +222,66 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 
 			{/* Metric KPI Cards */}
 			<div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-				<div className="p-3.5 rounded-xl bg-white border border-[#EDEDED] shadow-xs">
-					<div className="text-[11px] font-mono uppercase tracking-wider text-[#777777]">
+				<div className="studio-card p-3.5">
+					<div className="text-[11px] font-mono uppercase tracking-wider text-[var(--ink-muted)]">
 						Total Invoiced
 					</div>
-					<div className="text-xl font-bold font-mono text-[#111111] mt-1">
+					<div className="text-xl font-bold font-mono text-[var(--ink-strong)] mt-1">
 						₹{(stats.totalInvoiced / 100000).toFixed(2)}L
 					</div>
-					<div className="text-[11px] text-[#777777] mt-0.5">
+					<div className="text-[11px] text-[var(--ink-muted)] mt-0.5">
 						All issued invoices
 					</div>
 				</div>
 
-				<div className="p-3.5 rounded-xl bg-white border border-[#EDEDED] shadow-xs">
-					<div className="text-[11px] font-mono uppercase tracking-wider text-[#777777]">
+				<div className="studio-card p-3.5">
+					<div className="text-[11px] font-mono uppercase tracking-wider text-[var(--ink-muted)]">
 						Settled / Paid
 					</div>
-					<div className="text-xl font-bold font-mono text-emerald-600 mt-1">
+					<div className="text-xl font-bold font-mono text-emerald-500 mt-1">
 						₹{(stats.totalPaid / 100000).toFixed(2)}L
 					</div>
-					<div className="text-[11px] text-[#777777] mt-0.5">
+					<div className="text-[11px] text-[var(--ink-muted)] mt-0.5">
 						Collected agency revenue
 					</div>
 				</div>
 
-				<div className="p-3.5 rounded-xl bg-white border border-[#EDEDED] shadow-xs">
-					<div className="text-[11px] font-mono uppercase tracking-wider text-[#777777]">
+				<div className="studio-card p-3.5">
+					<div className="text-[11px] font-mono uppercase tracking-wider text-[var(--ink-muted)]">
 						Overdue Invoices
 					</div>
 					<div
-						className={`text-xl font-bold font-mono mt-1 ${stats.totalOverdue > 0 ? "text-rose-600" : "text-[#777777]"}`}
+						className={`text-xl font-bold font-mono mt-1 ${stats.totalOverdue > 0 ? "text-rose-500" : "text-[var(--ink-muted)]"}`}
 					>
 						₹{(stats.totalOverdue / 100000).toFixed(2)}L
 					</div>
-					<div className="text-[11px] text-[#777777] mt-0.5">
+					<div className="text-[11px] text-[var(--ink-muted)] mt-0.5">
 						Requiring payment follow-up
 					</div>
 				</div>
 
-				<div className="p-3.5 rounded-xl bg-white border border-[#EDEDED] shadow-xs">
-					<div className="text-[11px] font-mono uppercase tracking-wider text-[#777777]">
+				<div className="studio-card p-3.5">
+					<div className="text-[11px] font-mono uppercase tracking-wider text-[var(--ink-muted)]">
 						Open Proposals
 					</div>
-					<div className="text-xl font-bold font-mono text-[#49B3FC] mt-1">
+					<div className="text-xl font-bold font-mono text-[var(--accent)] mt-1">
 						₹{(stats.pendingProposals / 100000).toFixed(2)}L
 					</div>
-					<div className="text-[11px] text-[#777777] mt-0.5">
+					<div className="text-[11px] text-[var(--ink-muted)] mt-0.5">
 						Sent quotes pending signoff
 					</div>
 				</div>
 			</div>
 
 			{/* Filters & Search */}
-			<div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 bg-white border border-[#EDEDED] rounded-xl shadow-xs">
+			<div className="studio-card flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3">
 				<div className="flex-1 max-w-sm">
 					<input
 						type="text"
 						value={localSearch}
 						onChange={(e) => setLocalSearch(e.target.value)}
 						placeholder="Search by title, client, or project..."
-						className="w-full px-3 py-1.5 text-[13px] bg-[#F7F7F7] border border-[#E0E0E0] rounded-lg focus:outline-none focus:border-[#49B3FC]"
+						className="studio-input !h-[34px] text-[13px]"
 					/>
 				</div>
 
@@ -289,7 +289,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 					<select
 						value={typeFilter}
 						onChange={(e) => setTypeFilter(e.target.value)}
-						className="px-2.5 py-1.5 text-[12px] bg-[#F7F7F7] border border-[#E0E0E0] rounded-lg focus:outline-none text-[#222222]"
+						className="px-2.5 py-1.5 text-[12px] bg-[var(--surface-sunken)] border border-[var(--border)] rounded-lg focus:outline-none text-[var(--ink)]"
 					>
 						<option value="all">All Types</option>
 						<option value="invoice">Invoices</option>
@@ -300,7 +300,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 					<select
 						value={statusFilter}
 						onChange={(e) => setStatusFilter(e.target.value)}
-						className="px-2.5 py-1.5 text-[12px] bg-[#F7F7F7] border border-[#E0E0E0] rounded-lg focus:outline-none text-[#222222]"
+						className="px-2.5 py-1.5 text-[12px] bg-[var(--surface-sunken)] border border-[var(--border)] rounded-lg focus:outline-none text-[var(--ink)]"
 					>
 						<option value="all">All Statuses</option>
 						<option value="Draft">Draft</option>
@@ -313,7 +313,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 					<select
 						value={clientFilter}
 						onChange={(e) => setClientFilter(e.target.value)}
-						className="px-2.5 py-1.5 text-[12px] bg-[#F7F7F7] border border-[#E0E0E0] rounded-lg focus:outline-none text-[#222222]"
+						className="px-2.5 py-1.5 text-[12px] bg-[var(--surface-sunken)] border border-[var(--border)] rounded-lg focus:outline-none text-[var(--ink)] max-w-[160px] truncate"
 					>
 						<option value="all">All Accounts</option>
 						{clients.map((c) => (
@@ -340,16 +340,16 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 					<button
 						type="button"
 						onClick={() => onOpenModal("finance")}
-						className="mt-4 px-4 py-2 rounded-lg bg-[#222222] hover:bg-[#111111] text-white text-[13px] font-medium"
+						className="mt-4 px-4 py-2 rounded-lg btn-primary text-[13px] font-medium"
 					>
 						+ Create Finance Record
 					</button>
 				</div>
 			) : (
-				<div className="overflow-x-auto bg-white border border-[#EDEDED] rounded-xl shadow-xs">
+				<div className="overflow-x-auto bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-xs">
 					<table className="w-full text-left border-collapse text-[13px]">
 						<thead>
-							<tr className="border-b border-[#EDEDED] bg-[#FAFAFA] text-[11px] font-mono uppercase tracking-wider text-[#777777]">
+							<tr className="border-b border-[var(--border)] bg-[var(--surface-sunken)] text-[11px] font-mono uppercase tracking-wider text-[var(--ink-muted)]">
 								<th className="py-3 px-4">Item & Deliverable</th>
 								<th className="py-3 px-4">Type</th>
 								<th className="py-3 px-4">Account / Project</th>
@@ -359,33 +359,36 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 								<th className="py-3 px-4 text-right">Actions</th>
 							</tr>
 						</thead>
-						<tbody className="divide-y divide-[#F0F0F0]">
+						<tbody className="divide-y divide-[var(--border-subtle)]">
 							{filteredItems.map((item) => {
 								const client = clientMap.get(item.clientId);
 								const project = item.projectId
 									? projectMap.get(item.projectId)
 									: null;
 								return (
-									<tr key={item.id} className="hover:bg-[#F9F9F9] transition">
+									<tr
+										key={item.id}
+										className="hover:bg-[var(--surface-sunken)] transition"
+									>
 										<td className="py-3 px-4">
-											<div className="font-semibold text-[#111111]">
+											<div className="font-semibold text-[var(--ink)]">
 												{item.title}
 											</div>
 											{item.notes && (
-												<div className="text-[11px] text-[#777777] truncate max-w-xs mt-0.5">
+												<div className="text-[11px] text-[var(--ink-muted)] truncate max-w-xs mt-0.5">
 													{item.notes}
 												</div>
 											)}
 										</td>
 
 										<td className="py-3 px-4">
-											<span className="font-mono text-[11px] uppercase px-2 py-0.5 rounded bg-[#F0F0F0] text-[#555555] font-medium">
+											<span className="font-mono text-[11px] uppercase px-2 py-0.5 rounded bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[var(--ink-secondary)] font-medium">
 												{item.type}
 											</span>
 										</td>
 
 										<td className="py-3 px-4">
-											<div className="font-medium text-[#222222]">
+											<div className="font-medium text-[var(--ink)]">
 												{client?.name || "Client Account"}
 											</div>
 											{item.opportunityNo && (
@@ -398,13 +401,13 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 												</div>
 											)}
 											{project && (
-												<div className="text-[11px] text-[#777777] font-mono mt-0.5">
+												<div className="text-[11px] text-[var(--ink-muted)] font-mono mt-0.5">
 													↳ {project.name}
 												</div>
 											)}
 										</td>
 
-										<td className="py-3 px-4 font-mono font-bold text-[#111111]">
+										<td className="py-3 px-4 font-mono font-bold text-[var(--ink)]">
 											₹{item.amount.toLocaleString()}
 										</td>
 
@@ -418,7 +421,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 											</span>
 										</td>
 
-										<td className="py-3 px-4 text-[12px] font-mono text-[#666666]">
+										<td className="py-3 px-4 text-[12px] font-mono text-[var(--ink-muted)]">
 											<div>Issued: {item.issueDate}</div>
 											{item.dueDate && <div>Due: {item.dueDate}</div>}
 										</td>
@@ -429,7 +432,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 													<button
 														type="button"
 														onClick={() => handleStatusChange(item, "Paid")}
-														className="px-2 py-1 rounded text-[11px] font-medium text-emerald-700 hover:bg-emerald-50"
+														className="px-2 py-1 rounded text-[11px] font-medium text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
 													>
 														Mark Paid
 													</button>
@@ -438,7 +441,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 													<button
 														type="button"
 														onClick={() => handleStatusChange(item, "Sent")}
-														className="px-2 py-1 rounded text-[11px] font-medium text-sky-700 hover:bg-sky-50"
+														className="px-2 py-1 rounded text-[11px] font-medium text-sky-700 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-950/40"
 													>
 														Mark Sent
 													</button>
@@ -446,7 +449,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 												<button
 													type="button"
 													onClick={() => onOpenModal("finance", { item })}
-													className="px-2 py-1 rounded text-[11px] font-medium text-[#49B3FC] hover:bg-[#EBF6FE]"
+													className="px-2 py-1 rounded text-[11px] font-medium text-[#49B3FC] hover:bg-[#EBF6FE] dark:hover:bg-[#49B3FC]/10"
 												>
 													Edit
 												</button>

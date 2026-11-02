@@ -46,17 +46,17 @@ export const RaciView: React.FC<RaciViewProps> = ({ projects }) => {
 			{/* Header */}
 			<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 				<div>
-					<h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
+					<h2 className="text-[18px] font-bold text-[var(--ink)] tracking-tight">
 						RACI Governance Matrix
 					</h2>
-					<p className="text-[12px] text-slate-500">
+					<p className="text-[12px] text-[var(--ink-muted)]">
 						Cross-functional accountability: Responsible (R), Accountable (A),
 						Consulted (C), Informed (I)
 					</p>
 				</div>
 
 				<div className="flex items-center gap-3">
-					<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">
+					<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[var(--ink-muted)]">
 						Project:
 					</label>
 					<select
@@ -71,37 +71,42 @@ export const RaciView: React.FC<RaciViewProps> = ({ projects }) => {
 						))}
 					</select>
 					{isSaving && (
-						<span className="text-[11px] text-emerald-600 font-mono font-semibold animate-pulse">
+						<span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono font-semibold animate-pulse">
 							Saving...
 						</span>
 					)}
 				</div>
 			</div>
 
-			<div className="studio-card p-6 bg-white overflow-hidden">
+			<div className="studio-card p-6 overflow-hidden">
 				<div className="overflow-x-auto">
 					<table className="w-full text-[13px] min-w-[700px] border-collapse">
 						<thead>
-							<tr className="border-b border-slate-200">
-								<th className="text-left font-bold p-3 text-slate-900">
+							<tr className="border-b border-[var(--border)]">
+								<th className="text-left font-bold p-3 text-[var(--ink)]">
 									Deliverable Work Item
 								</th>
 								{RACI_ROLES.map((r) => (
 									<th
 										key={r}
-										className="p-3 font-mono font-bold text-center text-slate-700"
+										className="p-3 font-mono font-bold text-center text-[var(--ink-secondary)]"
 									>
-										<span className="px-2 py-1 rounded bg-slate-100 text-slate-700 text-[11px]">
+										<span className="px-2 py-1 rounded bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[var(--ink)] text-[11px]">
 											{r}
 										</span>
 									</th>
 								))}
 							</tr>
 						</thead>
-						<tbody className="divide-y divide-slate-100">
+						<tbody className="divide-y divide-[var(--border-subtle)]">
 							{RACI_DELIVERABLES.map((deliv) => (
-								<tr key={deliv} className="hover:bg-slate-50/60 transition">
-									<td className="p-3 font-semibold text-slate-900">{deliv}</td>
+								<tr
+									key={deliv}
+									className="hover:bg-[var(--surface-sunken)] transition"
+								>
+									<td className="p-3 font-semibold text-[var(--ink)]">
+										{deliv}
+									</td>
 									{RACI_ROLES.map((role) => {
 										const current =
 											raciList.find(
@@ -117,14 +122,14 @@ export const RaciView: React.FC<RaciViewProps> = ({ projects }) => {
 													}
 													className={`font-mono text-[11px] font-bold px-2 py-1 rounded border outline-none cursor-pointer ${
 														current === "R" || current === "A/R"
-															? "bg-blue-50 text-blue-700 border-blue-200"
+															? "bg-[#49B3FC]/15 text-[#49B3FC] border-[#49B3FC]/30"
 															: current === "A"
-																? "bg-emerald-50 text-emerald-700 border-emerald-200"
+																? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800"
 																: current === "C"
-																	? "bg-amber-50 text-amber-700 border-amber-200"
+																	? "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800"
 																	: current === "I"
-																		? "bg-indigo-50 text-indigo-700 border-indigo-200"
-																		: "bg-slate-50 text-slate-400 border-slate-200"
+																		? "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800"
+																		: "bg-[var(--surface-sunken)] text-[var(--ink-muted)] border-[var(--border)]"
 													}`}
 												>
 													<option value="—">—</option>

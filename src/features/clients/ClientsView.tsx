@@ -47,10 +47,10 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 			{/* Header */}
 			<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 				<div>
-					<h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
+					<h2 className="text-[18px] font-bold text-[var(--ink)] tracking-tight">
 						Client Accounts & Partnerships
 					</h2>
-					<p className="text-[12px] text-slate-500">
+					<p className="text-[12px] text-[var(--ink-muted)]">
 						B2B enterprise client directory, key contacts, and connected active
 						projects & opportunities
 					</p>
@@ -76,19 +76,16 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 					);
 
 					return (
-						<div
-							key={client.id}
-							className="studio-card p-5 space-y-4 bg-white border border-slate-200 rounded-xl shadow-xs"
-						>
+						<div key={client.id} className="studio-card p-5 space-y-4">
 							{/* Client Title & Actions */}
 							<div className="flex items-start justify-between gap-2">
 								<div className="min-w-0">
-									<h3 className="text-[16px] font-bold text-slate-900 truncate">
+									<h3 className="text-[16px] font-bold text-[var(--ink)] truncate">
 										{client.name}
 									</h3>
-									<div className="text-[12px] text-slate-500 mt-0.5">
+									<div className="text-[12px] text-[var(--ink-muted)] mt-0.5">
 										Contact:{" "}
-										<span className="text-slate-800 font-semibold">
+										<span className="text-[var(--ink)] font-semibold">
 											{client.contact || "—"}
 										</span>
 									</div>
@@ -97,46 +94,46 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 									<button
 										type="button"
 										onClick={() => onOpenModal("client", { client })}
-										className="p-1 rounded text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition text-[12px]"
+										className="p-1 rounded text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-sunken)] transition text-[12px]"
 										title="Edit Client"
 										aria-label="Edit Client"
 									>
 										✎
 									</button>
-									<span className="w-7 h-7 rounded-md bg-slate-100 text-slate-600 flex items-center justify-center text-[12px] font-bold">
+									<span className="w-7 h-7 rounded-md bg-[var(--surface-sunken)] border border-[var(--border-subtle)] text-[var(--ink-secondary)] flex items-center justify-center text-[12px] font-bold">
 										◈
 									</span>
 								</div>
 							</div>
 
 							{/* Email & Phone */}
-							<div className="space-y-1 font-mono text-[11px] bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+							<div className="space-y-1 font-mono text-[11px] bg-[var(--surface-sunken)] p-2.5 rounded-lg border border-[var(--border)]">
 								{client.email && (
-									<div className="text-blue-600 font-medium truncate">
+									<div className="text-[#49B3FC] font-medium truncate">
 										✉ {client.email}
 									</div>
 								)}
 								{client.phone && (
-									<div className="text-slate-600 font-medium">
+									<div className="text-[var(--ink-secondary)] font-medium">
 										📞 {client.phone}
 									</div>
 								)}
 								{!client.email && !client.phone && (
-									<div className="text-slate-400 italic">
+									<div className="text-[var(--ink-muted)] italic">
 										No direct contact info logged
 									</div>
 								)}
 							</div>
 
 							{client.notes && (
-								<p className="text-[12px] text-slate-500 italic line-clamp-2">
+								<p className="text-[12px] text-[var(--ink-muted)] italic line-clamp-2">
 									&quot;{client.notes}&quot;
 								</p>
 							)}
 
 							{/* Linked Opportunities Section */}
-							<div className="pt-3 border-t border-slate-100">
-								<div className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center justify-between">
+							<div className="pt-3 border-t border-[var(--border-subtle)]">
+								<div className="text-[10px] font-mono font-bold uppercase tracking-wider text-[var(--ink-muted)] mb-2 flex items-center justify-between">
 									<span>Commercial Opportunities</span>
 									<div className="flex items-center gap-1.5">
 										<button
@@ -144,11 +141,11 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 											onClick={() =>
 												onOpenModal("opportunity", { clientId: client.id })
 											}
-											className="text-[10px] text-blue-600 hover:underline font-sans font-semibold"
+											className="text-[10px] text-[#49B3FC] hover:underline font-sans font-semibold"
 										>
 											+ Deal
 										</button>
-										<span className="font-semibold text-slate-700">
+										<span className="font-semibold text-[var(--ink-secondary)]">
 											{clientOpps.length}
 										</span>
 									</div>
@@ -159,7 +156,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 										{clientOpps.map((o) => (
 											<div
 												key={o.id}
-												className="text-[12px] p-2 rounded-md hover:bg-slate-50 border border-slate-100 flex items-center justify-between transition"
+												className="text-[12px] p-2 rounded-md hover:bg-[var(--surface-sunken)] border border-[var(--border)] flex items-center justify-between transition"
 											>
 												<div className="flex items-center gap-2 min-w-0">
 													<OpportunityChip
@@ -167,28 +164,28 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 														opportunityId={o.id}
 														onNavigate={onNavigateToOpportunity}
 													/>
-													<span className="truncate text-slate-800 font-medium">
+													<span className="truncate text-[var(--ink)] font-medium">
 														{o.title}
 													</span>
 												</div>
-												<span className="font-mono text-[11px] font-bold text-slate-700 shrink-0">
+												<span className="font-mono text-[11px] font-bold text-[var(--ink)] shrink-0">
 													{formatCompactCurrency(o.value, o.currency)}
 												</span>
 											</div>
 										))}
 									</div>
 								) : (
-									<div className="text-[11px] text-slate-400 italic py-1">
+									<div className="text-[11px] text-[var(--ink-muted)] italic py-1">
 										No commercial deals logged
 									</div>
 								)}
 							</div>
 
 							{/* Linked Projects Section */}
-							<div className="pt-3 border-t border-slate-100">
-								<div className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center justify-between">
+							<div className="pt-3 border-t border-[var(--border-subtle)]">
+								<div className="text-[10px] font-mono font-bold uppercase tracking-wider text-[var(--ink-muted)] mb-2 flex items-center justify-between">
 									<span>Linked Delivery Projects</span>
-									<span className="font-semibold text-slate-700">
+									<span className="font-semibold text-[var(--ink-secondary)]">
 										{clientProjects.length}
 									</span>
 								</div>
@@ -199,7 +196,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 											<div
 												key={p.id}
 												onClick={() => onNavigate("project", p.id)}
-												className="text-[12px] p-2 rounded-md hover:bg-blue-50/60 border border-slate-100 hover:border-blue-200 cursor-pointer text-slate-800 flex items-center justify-between transition"
+												className="text-[12px] p-2 rounded-md hover:bg-[var(--surface-sunken)] border border-[var(--border)] cursor-pointer text-[var(--ink)] flex items-center justify-between transition"
 											>
 												<span className="truncate font-semibold">{p.name}</span>
 												<span className="badge-status badge-cobalt text-[10px] font-mono">
@@ -209,7 +206,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 										))}
 									</div>
 								) : (
-									<div className="text-[11px] text-slate-400 italic py-1">
+									<div className="text-[11px] text-[var(--ink-muted)] italic py-1">
 										No active delivery projects
 									</div>
 								)}
