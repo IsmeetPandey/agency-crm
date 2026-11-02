@@ -286,6 +286,8 @@ export const financeRepository = {
 
 		if (isSupabaseConfigured()) {
 			const dbUpdates: any = {};
+			if (updates.clientId !== undefined)
+				dbUpdates.client_id = updates.clientId;
 			if (updates.title !== undefined) dbUpdates.title = updates.title;
 			if (updates.type !== undefined) dbUpdates.type = updates.type;
 			if (updates.amount !== undefined) dbUpdates.amount = updates.amount;

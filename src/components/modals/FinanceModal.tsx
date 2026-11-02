@@ -57,11 +57,40 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({
 			(linkedOpportunity ? linkedOpportunity.clientId : clients[0]?.id || ""),
 	);
 
+	const [selectedProjectId, setSelectedProjectId] = useState<string>(
+		initialItem?.projectId || initialProjectId || "",
+	);
+
 	const handleOppChange = (oppId: string) => {
 		setSelectedOppId(oppId);
 		const opp = opportunities.find((o) => o.id === oppId);
 		if (opp && opp.clientId) {
 			setSelectedClientId(opp.clientId);
+			// Check if current project belongs to new client, else reset
+			if (selectedProjectId) {
+				const proj = projects.find((p) => p.id === selectedProjectId);
+				if (proj && proj.clientId !== opp.clientId) {
+					setSelectedProjectId("");
+				}
+			}
+		}
+	};
+
+	const handleClientChange = (newClientId: string) => {
+		setSelectedClientId(newClientId);
+		// Reset opportunity if it does not belong to new client
+		if (selectedOppId) {
+			const opp = opportunities.find((o) => o.id === selectedOppId);
+			if (opp && opp.clientId !== newClientId) {
+				setSelectedOppId("");
+			}
+		}
+		// Reset project if it does not belong to new client
+		if (selectedProjectId) {
+			const proj = projects.find((p) => p.id === selectedProjectId);
+			if (proj && proj.clientId !== newClientId) {
+				setSelectedProjectId("");
+			}
 		}
 	};
 
@@ -288,7 +317,7 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({
 								name="clientId"
 								required
 								value={selectedClientId}
-								onChange={(e) => setSelectedClientId(e.target.value)}
+								onChange={(e) => handleClientChange(e.target.value)}
 								className="studio-input"
 							>
 								{clients.map((c) => (
@@ -305,7 +334,8 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({
 							</label>
 							<select
 								name="projectId"
-								defaultValue={initialItem?.projectId || initialProjectId || ""}
+								value={selectedProjectId}
+								onChange={(e) => setSelectedProjectId(e.target.value)}
 								className="studio-input"
 							>
 								<option value="">None / General Retainer</option>

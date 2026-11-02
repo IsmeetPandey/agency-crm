@@ -858,9 +858,64 @@ export interface Database {
 					content?: string;
 				};
 			};
+			organization_invitations: {
+				Row: {
+					id: string;
+					organization_id: string;
+					email: string;
+					role: "admin" | "manager" | "member";
+					token: string;
+					invited_by: string | null;
+					status: "pending" | "accepted" | "revoked" | "expired";
+					expires_at: string;
+					created_at: string;
+					updated_at: string;
+				};
+				Insert: {
+					id?: string;
+					organization_id: string;
+					email: string;
+					role: "admin" | "manager" | "member";
+					token: string;
+					invited_by?: string | null;
+					status?: "pending" | "accepted" | "revoked" | "expired";
+					expires_at?: string;
+					created_at?: string;
+					updated_at?: string;
+				};
+				Update: {
+					status?: "pending" | "accepted" | "revoked" | "expired";
+					updated_at?: string;
+				};
+			};
 		}>;
 		Views: Record<string, never>;
-		Functions: Record<string, never>;
+		Functions: {
+			rpc_provision_user_membership: {
+				Args: {
+					p_org_id?: string;
+				};
+				Returns: {
+					status: string;
+					organization_id: string;
+					user_id: string;
+					role: "owner" | "admin" | "manager" | "member";
+				};
+			};
+			rpc_convert_lead_to_client: {
+				Args: {
+					p_lead_id: string;
+					p_actor?: string;
+				};
+				Returns: Json;
+			};
+			rpc_accept_invitation: {
+				Args: {
+					p_token: string;
+				};
+				Returns: Json;
+			};
+		};
 		Enums: Record<string, never>;
 		CompositeTypes: Record<string, never>;
 	};

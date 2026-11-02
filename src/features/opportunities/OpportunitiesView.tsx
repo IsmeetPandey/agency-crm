@@ -607,10 +607,7 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 						const stageOpps = filteredOpportunities.filter(
 							(o) => o.stage === stage,
 						);
-						const stageTotal = stageOpps.reduce(
-							(sum, o) => sum + (o.value || 0),
-							0,
-						);
+						const stageSums = sumByCurrency(stageOpps);
 						const style = STAGE_COLORS[stage];
 
 						return (
@@ -633,8 +630,11 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 											{stageOpps.length}
 										</span>
 									</div>
-									<span className="text-[10px] font-mono font-bold text-slate-600">
-										{formatCompactCurrency(stageTotal)}
+									<span
+										className="text-[10px] font-mono font-bold text-slate-600 truncate max-w-[90px]"
+										title={formatMultiCurrency(stageSums)}
+									>
+										{formatMultiCurrency(stageSums, true)}
 									</span>
 								</div>
 

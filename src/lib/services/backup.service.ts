@@ -101,45 +101,50 @@ export const backupService = {
 		let approvals: ApprovalRequest[] = local.approvals;
 		let scopeChanges: ScopeChange[] = local.scopeChanges;
 
-		try {
-			const [
-				repLeads,
-				repOpps,
-				repClients,
-				repContacts,
-				repProjects,
-				repTasks,
-				repFinance,
-				repHandoffs,
-				repTeam,
-				repActivity,
-			] = await Promise.all([
-				leadsRepository.list().catch(() => local.leads),
-				opportunitiesRepository.list().catch(() => local.opportunities),
-				clientsRepository.list().catch(() => local.clients),
-				contactsRepository.list().catch(() => local.contacts),
-				projectsRepository.list().catch(() => local.projects),
-				tasksRepository.list().catch(() => local.tasks),
-				financeRepository.list().catch(() => local.finance),
-				handoffsRepository.list().catch(() => local.handoffs),
-				teamRepository.list().catch(() => local.team),
-				activityRepository.list().catch(() => local.activity),
-			]);
+		if (isSupabaseConfigured()) {
+			try {
+				const [
+					repLeads,
+					repOpps,
+					repClients,
+					repContacts,
+					repProjects,
+					repTasks,
+					repFinance,
+					repHandoffs,
+					repTeam,
+					repActivity,
+				] = await Promise.all([
+					leadsRepository.list(),
+					opportunitiesRepository.list(),
+					clientsRepository.list(),
+					contactsRepository.list(),
+					projectsRepository.list(),
+					tasksRepository.list(),
+					financeRepository.list(),
+					handoffsRepository.list(),
+					teamRepository.list(),
+					activityRepository.list(),
+				]);
 
-			if (repLeads?.length) leads = repLeads;
-			if (repOpps?.length) opportunities = repOpps;
-			if (repClients?.length) clients = repClients;
-			if (repContacts?.length) contacts = repContacts;
-			if (repProjects?.length) projects = repProjects;
-			if (repTasks?.length) tasks = repTasks;
-			if (repFinance?.length) finance = repFinance;
-			if (repHandoffs?.length) handoffs = repHandoffs;
-			if (repTeam?.length) team = repTeam;
-			if (repActivity?.length) activity = repActivity;
+				leads = repLeads;
+				opportunities = repOpps;
+				clients = repClients;
+				contacts = repContacts;
+				projects = repProjects;
+				tasks = repTasks;
+				finance = repFinance;
+				handoffs = repHandoffs;
+				team = repTeam;
+				activity = repActivity;
 
-			if (isSupabaseConfigured()) {
-				const { data: dbNotes } = await supabase.from("notes").select("*");
-				if (dbNotes && dbNotes.length > 0) {
+				const { data: dbNotes, error: notesError } = await supabase
+					.from("notes")
+					.select("*");
+				if (notesError) {
+					throw new Error(`Failed to load cloud notes: ${notesError.message}`);
+				}
+				if (dbNotes) {
 					notes = dbNotes.map((n) => ({
 						id: n.id,
 						entityType: n.entity_type as any,
@@ -150,10 +155,15 @@ export const backupService = {
 					}));
 				}
 
-				const { data: dbApprovals } = await supabase
+				const { data: dbApprovals, error: appError } = await supabase
 					.from("approval_requests")
 					.select("*");
-				if (dbApprovals && dbApprovals.length > 0) {
+				if (appError) {
+					throw new Error(
+						`Failed to load cloud approvals: ${appError.message}`,
+					);
+				}
+				if (dbApprovals) {
 					approvals = dbApprovals.map((a) => ({
 						id: a.id,
 						projectId: a.project_id,
@@ -167,10 +177,15 @@ export const backupService = {
 					}));
 				}
 
-				const { data: dbScope } = await supabase
+				const { data: dbScope, error: scopeError } = await supabase
 					.from("scope_changes")
 					.select("*");
-				if (dbScope && dbScope.length > 0) {
+				if (scopeError) {
+					throw new Error(
+						`Failed to load cloud scope changes: ${scopeError.message}`,
+					);
+				}
+				if (dbScope) {
 					scopeChanges = dbScope.map((s) => ({
 						id: s.id,
 						projectId: s.project_id,
@@ -185,12 +200,12 @@ export const backupService = {
 						createdAt: s.created_at,
 					}));
 				}
+			} catch (err: any) {
+				console.error("Cloud backup extraction error:", err);
+				throw new Error(
+					`Failed to export cloud database archive: ${err?.message || "Cloud retrieval error"}`,
+				);
 			}
-		} catch (err) {
-			console.warn(
-				"Using local resilient snapshot for backup generation:",
-				err,
-			);
 		}
 
 		const totalGatesCount = Object.values(gates).reduce(

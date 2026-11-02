@@ -59,7 +59,16 @@ import type {
 } from "./types";
 
 function AgencyOSApp() {
-	const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+	const {
+		isAuthenticated,
+		isLoading: isAuthLoading,
+		authState,
+		authError,
+		user,
+		signOut,
+		retryMembershipResolution,
+		requestMembershipProvisioning,
+	} = useAuth();
 	const [view, setView] = useState("overview");
 	const [activeProjectId, setActiveProjectId] = useState<string>("p1");
 	const [search, setSearch] = useState("");
@@ -203,6 +212,81 @@ function AgencyOSApp() {
 					</div>
 					<div className="text-[12px] text-slate-500 font-mono">
 						Secure Enterprise Authorization
+					</div>
+				</div>
+			</div>
+		);
+	}
+
+	if (authState === "membership_required") {
+		return (
+			<div className="flex h-screen w-full items-center justify-center studio-canvas p-4 bg-[#0F1117] font-sans">
+				<div className="w-full max-w-[480px] bg-[#181C26]/95 border border-amber-500/30 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-4">
+					<div className="flex items-center gap-2 text-amber-400 text-[14px] font-bold">
+						<span>🛡</span>
+						<span>Organization Membership Required</span>
+					</div>
+					<p className="text-[13px] text-slate-300 leading-relaxed">
+						Authenticated as{" "}
+						<strong className="text-white">{user?.email}</strong>. However, your
+						user account does not have an active membership assigned in this
+						studio organization.
+					</p>
+					<div className="p-3.5 rounded-lg bg-black/40 border border-white/[0.06] text-[11px] text-slate-400 leading-relaxed">
+						Access is restricted to authorized studio personnel. You can request
+						automatic member self-provisioning or ask an administrator to invite
+						you.
+					</div>
+					<div className="flex items-center gap-3 pt-2">
+						<button
+							type="button"
+							onClick={async () => {
+								await requestMembershipProvisioning();
+							}}
+							className="flex-1 py-2.5 px-4 rounded-lg bg-[#49B3FC] hover:bg-[#3ba4ea] text-slate-950 text-[12px] font-semibold transition cursor-pointer"
+						>
+							Provision Membership
+						</button>
+						<button
+							type="button"
+							onClick={signOut}
+							className="py-2.5 px-4 rounded-lg bg-white/10 hover:bg-white/15 text-white text-[12px] font-medium transition cursor-pointer"
+						>
+							Sign Out
+						</button>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
+	if (authState === "authorization_error") {
+		return (
+			<div className="flex h-screen w-full items-center justify-center studio-canvas p-4 bg-[#0F1117] font-sans">
+				<div className="w-full max-w-[480px] bg-[#181C26]/95 border border-rose-500/30 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-4">
+					<div className="flex items-center gap-2 text-rose-400 text-[14px] font-bold">
+						<span>⚠</span>
+						<span>Authorization Connection Disrupted</span>
+					</div>
+					<p className="text-[13px] text-slate-300 leading-relaxed">
+						{authError ||
+							"Unable to reach database to verify organization role. Please check network connectivity and retry."}
+					</p>
+					<div className="flex items-center gap-3 pt-2">
+						<button
+							type="button"
+							onClick={retryMembershipResolution}
+							className="flex-1 py-2.5 px-4 rounded-lg bg-[#49B3FC] hover:bg-[#3ba4ea] text-slate-950 text-[12px] font-semibold transition cursor-pointer"
+						>
+							Retry Connection
+						</button>
+						<button
+							type="button"
+							onClick={signOut}
+							className="py-2.5 px-4 rounded-lg bg-white/10 hover:bg-white/15 text-white text-[12px] font-medium transition cursor-pointer"
+						>
+							Sign Out
+						</button>
 					</div>
 				</div>
 			</div>
