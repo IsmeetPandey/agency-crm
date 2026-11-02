@@ -16,7 +16,7 @@ async function runImport() {
   const backupFile = path.resolve(process.cwd(), ".data-backup", "legacy-agency-data.json");
 
   if (!fs.existsSync(backupFile)) {
-    console.error(`Backup file not found at ${backupFile}. Run 'bun run scripts/backup-legacy-data.js' first.`);
+    console.error(`Backup file not found at ${backupFile}. Run 'node scripts/backup-legacy-data.js' first.`);
     process.exit(1);
   }
 

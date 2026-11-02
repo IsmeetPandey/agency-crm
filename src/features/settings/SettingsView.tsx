@@ -24,15 +24,15 @@ import type {
 } from "../../types";
 
 interface SettingsViewProps {
-	leads: Lead[];
+	leads?: Lead[];
 	opportunities?: Opportunity[];
-	clients: Client[];
+	clients?: Client[];
 	contacts?: Contact[];
-	projects: Project[];
-	tasks: Task[];
-	handoffs: Handoff[];
-	team: TeamMemberDetail[];
-	activity: Activity[];
+	projects?: Project[];
+	tasks?: Task[];
+	handoffs?: Handoff[];
+	team?: TeamMemberDetail[];
+	activity?: Activity[];
 	finance?: FinanceItem[];
 	notes?: Note[];
 	gates?: Record<string, ProjectGate[]>;
@@ -42,15 +42,15 @@ interface SettingsViewProps {
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
-	leads,
+	leads = [],
 	opportunities = [],
-	clients,
+	clients = [],
 	contacts = [],
-	projects,
-	tasks,
-	handoffs,
-	team,
-	activity,
+	projects = [],
+	tasks = [],
+	handoffs = [],
+	team = [],
+	activity = [],
 	finance = [],
 	notes = [],
 	gates = {},
