@@ -1,9 +1,10 @@
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../lib/auth/auth.context";
 import { useToast } from "../../lib/feedback/toast.context";
 import { PERMISSIONS, type UserRole } from "../../lib/permissions/permissions";
-import { isSupabaseConfigured } from "../../lib/supabase/client";
+import { backupService } from "../../lib/services/backup.service";
+import { isSupabaseConfigured, supabase } from "../../lib/supabase/client";
 import type {
 	Activity,
 	ApprovalRequest,
@@ -57,77 +58,89 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 	approvals = [],
 	scopeChanges = [],
 }) => {
-	const { user, role, setRole } = useAuth();
-	const { showToast } = useToast();
-	const [, setClearedCache] = useState(false);
+	const { user, role } = useAuth();
+	const { toast } = useToast();
+	const [previewRole, setPreviewRole] = useState<UserRole>(role);
+	const [isExporting, setIsExporting] = useState(false);
+	const [pingStatus, setPingStatus] = useState<
+		"checking" | "connected" | "fallback" | "error"
+	>("checking");
+	const [latencyMs, setLatencyMs] = useState<number | null>(null);
 
-	const isConnected = isSupabaseConfigured();
+	const isConfigured = isSupabaseConfigured();
 
-	const handleExportJSON = () => {
+	useEffect(() => {
+		let isMounted = true;
+		const checkConnection = async () => {
+			if (!isSupabaseConfigured()) {
+				if (isMounted) setPingStatus("fallback");
+				return;
+			}
+			const t0 = performance.now();
+			try {
+				const { error } = await supabase
+					.from("leads")
+					.select("id", { count: "exact", head: true });
+				const elapsed = Math.round(performance.now() - t0);
+				if (isMounted) {
+					if (error) {
+						setPingStatus("error");
+					} else {
+						setPingStatus("connected");
+						setLatencyMs(elapsed);
+					}
+				}
+			} catch {
+				if (isMounted) setPingStatus("error");
+			}
+		};
+		checkConnection();
+		return () => {
+			isMounted = false;
+		};
+	}, []);
+
+	const handleExportJSON = async () => {
+		// Strict Security Enforcement: Real authenticated role ONLY
 		if (!PERMISSIONS.canExportData(role)) {
-			showToast({
-				type: "error",
-				title: "Export Restricted",
-				message:
-					"Permission denied: Your current role cannot export organizational data.",
-			});
+			toast.error(
+				"Permission denied: Your authenticated role is not authorized to export organizational data.",
+				"Export Restricted",
+			);
 			return;
 		}
 
-		const exportPayload = {
-			agency: "Kreatiwit AgencyOS",
-			exportedAt: new Date().toISOString(),
-			exportedBy: user?.email || "Executive",
-			role,
-			data: {
-				leads,
-				opportunities,
-				clients,
-				contacts,
-				projects,
-				tasks,
-				handoffs,
-				team,
-				activity,
-				finance,
-				notes,
-				gates,
-				raci,
-				approvals,
-				scopeChanges,
-			},
-		};
-
-		const blob = new Blob([JSON.stringify(exportPayload, null, 2)], {
-			type: "application/json",
-		});
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement("a");
-		a.href = url;
-		a.download = `kreatiwit-agencyos-backup-${new Date().toISOString().slice(0, 10)}.json`;
-		a.click();
-		URL.revokeObjectURL(url);
-
-		showToast({
-			type: "success",
-			title: "Backup Generated",
-			message: "Full agency JSON data archive downloaded successfully.",
-		});
+		setIsExporting(true);
+		try {
+			const archive = await backupService.createBackup(
+				user?.email || "Executive User",
+				role,
+			);
+			backupService.downloadArchive(archive);
+			toast.success(
+				`Downloaded backup archive v${archive.schemaVersion} with all 16 domains.`,
+				"Backup Generated",
+			);
+		} catch (err: any) {
+			toast.error(err?.message || "Failed to generate backup", "Export Error");
+		} finally {
+			setIsExporting(false);
+		}
 	};
 
 	const handleClearCache = () => {
 		if (
-			confirm(
-				"Clear local UI cache? This will reset transient UI caches and reload page.",
+			window.confirm(
+				"Clear local UI cache? This will reset transient UI caches and reload workspace.",
 			)
 		) {
-			localStorage.removeItem("kreatiwit_agencyos_v3_state");
-			setClearedCache(true);
-			showToast({
-				type: "info",
-				message: "Cache reset. Reloading workspace...",
-			});
-			setTimeout(() => window.location.reload(), 1000);
+			try {
+				localStorage.removeItem("kreatiwit_agencyos_v3_state");
+				toast.info("Cache reset. Reloading workspace...", "Cache Cleared");
+				setTimeout(() => window.location.reload(), 800);
+			} catch (e) {
+				console.error(e);
+			}
 		}
 	};
 
@@ -158,10 +171,18 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 						</div>
 						<span
 							className={`badge-status ${
-								isConnected ? "badge-emerald" : "badge-amber"
+								pingStatus === "connected"
+									? "badge-emerald"
+									: pingStatus === "fallback"
+										? "badge-amber"
+										: "badge-rose"
 							}`}
 						>
-							{isConnected ? "Live Supabase" : "Resilient Engine"}
+							{pingStatus === "connected"
+								? `Live Supabase (${latencyMs}ms)`
+								: pingStatus === "fallback"
+									? "Resilient Engine"
+									: "Connection Disrupted"}
 						</span>
 					</div>
 
@@ -169,7 +190,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 						<div className="flex justify-between py-1.5 border-b border-slate-100">
 							<span className="text-slate-500">Storage Engine:</span>
 							<span className="font-mono font-semibold text-slate-800">
-								{isConnected
+								{isConfigured
 									? "Supabase Cloud (PostgreSQL 15+)"
 									: "Local Persistent Engine"}
 							</span>
@@ -195,13 +216,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 					</div>
 
 					<div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-[11px] text-slate-600 leading-relaxed">
-						{isConnected
+						{isConfigured
 							? "PostgreSQL database connected. All mutations commit directly to server with foreign-key constraints and atomic RPC rollbacks."
 							: "Operating in resilient engine mode. Agency records are preserved cleanly across browser sessions. Live Supabase credentials in .env will synchronize to PostgreSQL cloud."}
 					</div>
 				</div>
 
-				{/* Card 2: User Authorization & RBAC */}
+				{/* Card 2: User Authorization & RBAC Preview */}
 				<div className="studio-card p-5 space-y-4 bg-white border border-slate-200 rounded-xl">
 					<div className="flex items-center justify-between pb-3 border-b border-slate-100">
 						<div>
@@ -209,12 +230,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 								User Session & RBAC Permissions
 							</h3>
 							<p className="text-[11px] text-slate-500">
-								Active authenticated role and authorization boundaries
+								Active authenticated role and isolated simulation preview
 							</p>
 						</div>
-						<span className="badge-status badge-cobalt uppercase font-mono text-[10px]">
-							{role}
-						</span>
+						<div className="flex items-center gap-1.5">
+							<span className="badge-status badge-cobalt uppercase font-mono text-[10px]">
+								Real: {role}
+							</span>
+						</div>
 					</div>
 
 					<div className="space-y-3">
@@ -226,10 +249,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 							</span>
 						</div>
 
-						{/* Role Switcher for Testing RBAC */}
-						<div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
-							<div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
-								Simulate Role Permissions
+						{/* Role Simulator (Isolated Local Preview Only) */}
+						<div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 space-y-2.5">
+							<div className="flex items-center justify-between">
+								<span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-600">
+									Simulate Role Matrix (Local Preview)
+								</span>
+								<span className="text-[10px] text-amber-600 font-medium bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+									Non-Authoritative
+								</span>
 							</div>
 							<div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
 								{(["owner", "admin", "manager", "member"] as UserRole[]).map(
@@ -238,15 +266,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 											key={r}
 											type="button"
 											onClick={() => {
-												setRole(r);
-												showToast({
-													type: "info",
-													message: `Active role switched to: ${r.toUpperCase()}`,
-												});
+												setPreviewRole(r);
+												toast.info(
+													`Previewing permissions for: ${r.toUpperCase()}`,
+													"Role Preview Changed",
+												);
 											}}
 											className={`py-1.5 px-2 rounded-md font-mono text-[11px] font-semibold border transition cursor-pointer ${
-												role === r
-													? "bg-blue-600 text-white border-blue-600"
+												previewRole === r
+													? "bg-blue-600 text-white border-blue-600 shadow-xs"
 													: "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
 											}`}
 										>
@@ -255,6 +283,71 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 									),
 								)}
 							</div>
+
+							{/* Simulated Capabilities Grid */}
+							<div className="pt-2 border-t border-slate-200 grid grid-cols-2 gap-x-4 gap-y-1 text-[11px]">
+								<div className="flex justify-between">
+									<span className="text-slate-500">Team Management:</span>
+									<span
+										className={
+											PERMISSIONS.canManageTeam(previewRole)
+												? "text-emerald-600 font-semibold"
+												: "text-slate-400"
+										}
+									>
+										{PERMISSIONS.canManageTeam(previewRole)
+											? "Granted"
+											: "Denied"}
+									</span>
+								</div>
+								<div className="flex justify-between">
+									<span className="text-slate-500">Export Backup:</span>
+									<span
+										className={
+											PERMISSIONS.canExportData(previewRole)
+												? "text-emerald-600 font-semibold"
+												: "text-slate-400"
+										}
+									>
+										{PERMISSIONS.canExportData(previewRole)
+											? "Granted"
+											: "Denied"}
+									</span>
+								</div>
+								<div className="flex justify-between">
+									<span className="text-slate-500">Finance Control:</span>
+									<span
+										className={
+											PERMISSIONS.canManageFinance(previewRole)
+												? "text-emerald-600 font-semibold"
+												: "text-slate-400"
+										}
+									>
+										{PERMISSIONS.canManageFinance(previewRole)
+											? "Granted"
+											: "Denied"}
+									</span>
+								</div>
+								<div className="flex justify-between">
+									<span className="text-slate-500">Delete Deals:</span>
+									<span
+										className={
+											PERMISSIONS.canDeleteOpportunity(previewRole)
+												? "text-emerald-600 font-semibold"
+												: "text-slate-400"
+										}
+									>
+										{PERMISSIONS.canDeleteOpportunity(previewRole)
+											? "Granted"
+											: "Denied"}
+									</span>
+								</div>
+							</div>
+							<p className="text-[10px] text-slate-500 italic pt-1">
+								* Preview does not alter real session authorization. All data
+								mutations and exports use the authoritative membership role (
+								{role}).
+							</p>
 						</div>
 					</div>
 				</div>
@@ -268,8 +361,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 							Organizational Data Archive & Safety
 						</h3>
 						<p className="text-[11px] text-slate-500">
-							Export immutable JSON snapshots of opportunities, clients,
-							contacts, projects, tasks, finance records, and audit logs
+							Export complete 16-domain JSON snapshots of opportunities,
+							clients, contacts, projects, tasks, finance records, and audit
+							logs (Schema 3.2.0)
 						</p>
 					</div>
 				</div>
@@ -278,9 +372,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 					<button
 						type="button"
 						onClick={handleExportJSON}
-						className="btn-primary !h-[34px] !text-[12px] cursor-pointer"
+						disabled={isExporting}
+						className="btn-primary !h-[34px] !text-[12px] cursor-pointer disabled:opacity-50"
 					>
-						📥 Export Complete Agency Backup (.json)
+						{isExporting
+							? "Generating Backup..."
+							: "📥 Export Complete Agency Backup (.json)"}
 					</button>
 
 					<button

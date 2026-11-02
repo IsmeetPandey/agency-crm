@@ -97,7 +97,7 @@ export const tasksRepository = {
 
 	async update(id: string, updates: Partial<Task>): Promise<Task> {
 		if (isSupabaseConfigured()) {
-			const dbUpdates: Record<string, any> = {};
+			const dbUpdates: any = {};
 			if (updates.name !== undefined) dbUpdates.title = updates.name;
 			if (updates.dept !== undefined) dbUpdates.department_code = updates.dept;
 			if (updates.owner !== undefined)

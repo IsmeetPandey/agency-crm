@@ -103,7 +103,9 @@ export const clientsRepository = {
 		payload: Omit<Client, "id"> & { id?: string },
 		actor = "User",
 	): Promise<Client> {
-		const id = payload.id || `c${Date.now()}`;
+		const id =
+			payload.id ||
+			`c_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 		const newClient: Client = {
 			...payload,
 			id,
@@ -162,7 +164,7 @@ export const clientsRepository = {
 
 	async update(id: string, updates: Partial<Client>): Promise<Client> {
 		if (isSupabaseConfigured()) {
-			const dbUpdates: Record<string, any> = {};
+			const dbUpdates: any = {};
 			if (updates.name !== undefined) dbUpdates.name = updates.name;
 			if (updates.contact !== undefined)
 				dbUpdates.contact_person = updates.contact;

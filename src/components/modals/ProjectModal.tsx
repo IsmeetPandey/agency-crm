@@ -3,7 +3,12 @@ import { useState } from "react";
 import { PHASES } from "../../lib/constants/agency";
 import { projectsRepository } from "../../lib/repositories/projects.repository";
 import { suggestTeamForProject } from "../../lib/utils/team-match";
-import type { Client, Opportunity, TeamMemberDetail } from "../../types";
+import type {
+	Client,
+	Opportunity,
+	ProjectPhase,
+	TeamMemberDetail,
+} from "../../types";
 
 interface ProjectModalProps {
 	clients: Client[];
@@ -83,10 +88,9 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 				clientId,
 				opportunityId: linkedOpp ? linkedOpp.id : undefined,
 				opportunityNo: linkedOpp ? linkedOpp.opportunityNo : undefined,
-				phase: String(fd.get("phase") || "Discovery"),
+				phase: String(fd.get("phase") || "Discovery") as ProjectPhase,
 				budget: Number(fd.get("budget") || (linkedOpp ? linkedOpp.value : 0)),
 				due: String(fd.get("deadline") || "2026-12-31"),
-				deadline: String(fd.get("deadline") || "2026-12-31"),
 				stackNeeded: techQuery,
 				assignedTeam:
 					assigned.length > 0

@@ -6,9 +6,23 @@ export type Json =
 	| { [key: string]: Json | undefined }
 	| Json[];
 
+export type GenericRelationship = {
+	foreignKeyName: string;
+	columns: string[];
+	isOneToOne?: boolean;
+	referencedRelation: string;
+	referencedColumns: string[];
+};
+
+export type WithTableRelations<T> = {
+	[K in keyof T]: T[K] & {
+		Relationships: GenericRelationship[];
+	};
+};
+
 export interface Database {
 	public: {
-		Tables: {
+		Tables: WithTableRelations<{
 			organizations: {
 				Row: {
 					id: string;
@@ -359,6 +373,27 @@ export interface Database {
 					progress?: number;
 					status?: "active" | "completed" | "archived";
 					updated_at?: string;
+				};
+			};
+			project_members: {
+				Row: {
+					id: string;
+					project_id: string;
+					team_member_id: string;
+					role_in_project: string | null;
+					created_at: string;
+				};
+				Insert: {
+					id?: string;
+					project_id: string;
+					team_member_id: string;
+					role_in_project?: string | null;
+					created_at?: string;
+				};
+				Update: {
+					project_id?: string;
+					team_member_id?: string;
+					role_in_project?: string | null;
 				};
 			};
 			tasks: {
@@ -823,6 +858,10 @@ export interface Database {
 					content?: string;
 				};
 			};
-		};
+		}>;
+		Views: Record<string, never>;
+		Functions: Record<string, never>;
+		Enums: Record<string, never>;
+		CompositeTypes: Record<string, never>;
 	};
 }

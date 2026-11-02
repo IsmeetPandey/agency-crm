@@ -16,9 +16,11 @@ export const OpportunityChip: React.FC<OpportunityChipProps> = ({
 	size = "sm",
 	className = "",
 }) => {
-	const [copied, setCopied] = useState(false);
+	const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">(
+		"idle",
+	);
 
-	const handleCopy = async (e: React.MouseEvent | React.KeyboardEvent) => {
+	const handleCopy = async (e: React.MouseEvent) => {
 		e.stopPropagation();
 		try {
 			if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -31,24 +33,19 @@ export const OpportunityChip: React.FC<OpportunityChipProps> = ({
 				document.execCommand("copy");
 				document.body.removeChild(textArea);
 			}
-			setCopied(true);
-			setTimeout(() => setCopied(false), 2000);
+			setCopyStatus("success");
+			setTimeout(() => setCopyStatus("idle"), 2000);
 		} catch (err) {
 			console.error("Failed to copy opportunity reference:", err);
+			setCopyStatus("error");
+			setTimeout(() => setCopyStatus("idle"), 2500);
 		}
 	};
 
-	const handleClick = (e: React.MouseEvent | React.KeyboardEvent) => {
+	const handleClick = (e: React.MouseEvent) => {
 		if (onNavigate && opportunityId) {
 			e.stopPropagation();
 			onNavigate(opportunityId);
-		}
-	};
-
-	const handleKeyDown = (e: React.KeyboardEvent) => {
-		if (e.key === "Enter" || e.key === " ") {
-			e.preventDefault();
-			handleClick(e);
 		}
 	};
 
@@ -56,37 +53,51 @@ export const OpportunityChip: React.FC<OpportunityChipProps> = ({
 
 	return (
 		<span
-			tabIndex={isClickable ? 0 : undefined}
-			role={isClickable ? "button" : undefined}
-			onClick={isClickable ? handleClick : undefined}
-			onKeyDown={isClickable ? handleKeyDown : undefined}
-			className={`inline-flex items-center gap-1.5 font-mono font-medium rounded-md border transition-all outline-none focus-visible:ring-2 focus-visible:ring-[#49B3FC] ${
-				isClickable
-					? "cursor-pointer hover:border-[#49B3FC] hover:bg-[#F0F8FF] hover:text-[#0070BA]"
-					: ""
-			} ${
+			className={`inline-flex items-center gap-1.5 font-mono font-medium rounded-md border transition-all ${
 				size === "sm"
 					? "text-[11px] px-2 py-0.5 bg-[#F5F7FA] text-[#333333] border-[#DCE2EB]"
 					: "text-[13px] px-2.5 py-1 bg-[#F5F7FA] text-[#111111] border-[#CCD5E2] font-semibold"
 			} ${className}`}
-			title={
-				isClickable
-					? `Click to view opportunity ${opportunityNo}`
-					: opportunityNo
-			}
 		>
-			<span className="text-[#888888] font-light">#</span>
-			<span className="tracking-tight">{opportunityNo}</span>
+			{isClickable ? (
+				<button
+					type="button"
+					onClick={handleClick}
+					className="inline-flex items-center gap-1 cursor-pointer hover:text-[#0070BA] focus-visible:underline focus-visible:outline-none"
+					title={`Click to view opportunity ${opportunityNo}`}
+				>
+					<span className="text-[#888888] font-light">#</span>
+					<span className="tracking-tight">{opportunityNo}</span>
+				</button>
+			) : (
+				<span className="inline-flex items-center gap-1" title={opportunityNo}>
+					<span className="text-[#888888] font-light">#</span>
+					<span className="tracking-tight">{opportunityNo}</span>
+				</span>
+			)}
 
 			<button
 				type="button"
 				onClick={handleCopy}
-				className="text-[#999999] hover:text-[#111111] p-0.5 transition cursor-pointer flex items-center justify-center"
-				title="Copy Opportunity Number"
+				className="text-[#999999] hover:text-[#111111] p-0.5 transition cursor-pointer flex items-center justify-center rounded hover:bg-slate-200/50"
+				title={
+					copyStatus === "success"
+						? "Copied!"
+						: copyStatus === "error"
+							? "Copy failed"
+							: "Copy Opportunity Number"
+				}
 				aria-label="Copy Opportunity Number"
 			>
-				{copied ? (
+				{copyStatus === "success" ? (
 					<span className="text-emerald-600 text-[10px] font-bold">✓</span>
+				) : copyStatus === "error" ? (
+					<span
+						className="text-rose-600 text-[10px] font-bold"
+						title="Copy failed"
+					>
+						!
+					</span>
 				) : (
 					<span className="text-[10px] opacity-70 hover:opacity-100">📋</span>
 				)}

@@ -182,7 +182,7 @@ describe("E2E CRM Workflow: Complete User Journey", () => {
 			projectId: createdProject.id,
 			amount: 150000,
 			status: "Sent",
-			issueDate: "2026-11-01",
+			issuedDate: "2026-11-01",
 		});
 		expect(invoice.id).toBeDefined();
 		expect(invoice.amount).toBe(150000);
@@ -305,7 +305,7 @@ describe("E2E CRM Workflow: Complete User Journey", () => {
 			opportunityNo: conversion.opportunity.opportunityNo,
 			amount: 200000,
 			status: "Sent",
-			issueDate: "2026-11-02",
+			issuedDate: "2026-11-02",
 		});
 
 		expect(invoice.opportunityId).toBe(conversion.opportunity.id);

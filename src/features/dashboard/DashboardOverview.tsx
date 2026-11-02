@@ -501,7 +501,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 									unit="k"
 								/>
 								<Tooltip
-									formatter={(val: number) => [`₹${val}k`, "Value"]}
+									formatter={(val: any) => [`₹${val}k`, "Value"]}
 									contentStyle={{
 										backgroundColor: "#FFFFFF",
 										borderRadius: "4px",

@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "./database.types";
 
 const getEnvVar = (key: string): string | undefined => {
@@ -39,27 +39,29 @@ export const DEFAULT_ORG_ID =
 	getEnvVar("ORGANIZATION_ID") ||
 	"11111111-1111-1111-1111-111111111111";
 
-// Create client if configured, otherwise provide a fallback mock-safe instance
-export const supabase = isSupabaseConfigured()
-	? createClient<Database>(supabaseUrl, supabaseAnonKey, {
-			auth: {
-				autoRefreshToken: true,
-				persistSession: true,
-				detectSessionInUrl: true,
-			},
-			realtime: {
-				params: {
-					eventsPerSecond: 10,
-				},
-			},
-		})
-	: createClient<Database>(
-			"https://placeholder-domain-kreatiwit.supabase.co",
-			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.placeholder",
-			{
+export const supabase: SupabaseClient<Database> =
+	isSupabaseConfigured() &&
+	typeof supabaseUrl === "string" &&
+	typeof supabaseAnonKey === "string"
+		? createClient<Database>(supabaseUrl, supabaseAnonKey, {
 				auth: {
-					autoRefreshToken: false,
-					persistSession: false,
+					autoRefreshToken: true,
+					persistSession: true,
+					detectSessionInUrl: true,
 				},
-			},
-		);
+				realtime: {
+					params: {
+						eventsPerSecond: 10,
+					},
+				},
+			})
+		: createClient<Database>(
+				"https://placeholder-domain-kreatiwit.supabase.co",
+				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.placeholder",
+				{
+					auth: {
+						autoRefreshToken: false,
+						persistSession: false,
+					},
+				},
+			);

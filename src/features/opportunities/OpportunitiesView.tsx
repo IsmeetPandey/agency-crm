@@ -3,7 +3,12 @@ import { useMemo, useState } from "react";
 import { OpportunityChip } from "../../components/ui/OpportunityChip";
 import { useToast } from "../../lib/feedback/toast.context";
 import { opportunitiesRepository } from "../../lib/repositories/opportunities.repository";
-import { formatCompactCurrency, formatCurrency } from "../../lib/utils/format";
+import {
+	formatCompactCurrency,
+	formatCurrency,
+	formatMultiCurrency,
+	sumByCurrency,
+} from "../../lib/utils/format";
 import type {
 	Client,
 	Opportunity,
@@ -119,27 +124,29 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 		clientMap,
 	]);
 
-	// Metrics
+	// Multi-Currency Metrics
 	const metrics = useMemo(() => {
 		const activeDeals = opportunities.filter(
 			(o) => o.stage !== "Won" && o.stage !== "Lost",
 		);
 		const wonDeals = opportunities.filter((o) => o.stage === "Won");
 
-		const totalActiveValue = activeDeals.reduce(
-			(sum, o) => sum + (o.value || 0),
-			0,
-		);
-		const totalWonValue = wonDeals.reduce((sum, o) => sum + (o.value || 0), 0);
-		const avgActiveDeal =
-			activeDeals.length > 0 ? totalActiveValue / activeDeals.length : 0;
+		const activeSums = sumByCurrency(activeDeals);
+		const wonSums = sumByCurrency(wonDeals);
+
+		const avgActiveSums: Record<string, number> = {};
+		if (activeDeals.length > 0) {
+			for (const [curr, val] of Object.entries(activeSums)) {
+				avgActiveSums[curr] = Math.round(val / activeDeals.length);
+			}
+		}
 
 		return {
 			activeCount: activeDeals.length,
-			totalActiveValue,
+			activeSums,
 			wonCount: wonDeals.length,
-			totalWonValue,
-			avgActiveDeal,
+			wonSums,
+			avgActiveSums,
 		};
 	}, [opportunities]);
 
@@ -305,11 +312,14 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 					<div className="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-500">
 						Active Pipeline Value
 					</div>
-					<div className="text-[22px] font-bold text-blue-600 mt-1">
-						{formatCompactCurrency(metrics.totalActiveValue)}
+					<div
+						className="text-[20px] font-bold text-blue-600 mt-1 truncate"
+						title={formatMultiCurrency(metrics.activeSums)}
+					>
+						{formatMultiCurrency(metrics.activeSums, true)}
 					</div>
-					<div className="text-[11px] text-slate-500 mt-0.5 font-mono">
-						{formatCurrency(metrics.totalActiveValue)} total
+					<div className="text-[11px] text-slate-500 mt-0.5 font-mono truncate">
+						{formatMultiCurrency(metrics.activeSums, false)}
 					</div>
 				</div>
 
@@ -317,11 +327,15 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 					<div className="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-500">
 						Closed Won Revenue
 					</div>
-					<div className="text-[22px] font-bold text-emerald-600 mt-1">
-						{formatCompactCurrency(metrics.totalWonValue)}
+					<div
+						className="text-[20px] font-bold text-emerald-600 mt-1 truncate"
+						title={formatMultiCurrency(metrics.wonSums)}
+					>
+						{formatMultiCurrency(metrics.wonSums, true)}
 					</div>
-					<div className="text-[11px] text-slate-500 mt-0.5 font-mono">
-						{metrics.wonCount} won contracts
+					<div className="text-[11px] text-slate-500 mt-0.5 font-mono truncate">
+						{metrics.wonCount} won contracts •{" "}
+						{formatMultiCurrency(metrics.wonSums, false)}
 					</div>
 				</div>
 
@@ -329,10 +343,13 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 					<div className="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-500">
 						Avg Active Deal
 					</div>
-					<div className="text-[22px] font-bold text-purple-600 mt-1">
-						{formatCompactCurrency(metrics.avgActiveDeal)}
+					<div
+						className="text-[20px] font-bold text-purple-600 mt-1 truncate"
+						title={formatMultiCurrency(metrics.avgActiveSums)}
+					>
+						{formatMultiCurrency(metrics.avgActiveSums, true)}
 					</div>
-					<div className="text-[11px] text-slate-500 mt-0.5 font-mono">
+					<div className="text-[11px] text-slate-500 mt-0.5 font-mono truncate">
 						Commercial deal size
 					</div>
 				</div>

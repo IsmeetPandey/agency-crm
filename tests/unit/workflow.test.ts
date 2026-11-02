@@ -94,9 +94,11 @@ describe("Workflow & Governance Repository", () => {
 			{
 				projectId: testProjId,
 				title: "Added Apple Pay Integration",
-				reason: "Client request for European and US checkout expansion",
+				category: "Scope",
+				description: "Client request for European and US checkout expansion",
 				daysDelta: 5,
 				costDelta: 45000,
+				requestedBy: "Shreyas",
 			},
 			"Shreyas",
 		);
@@ -121,6 +123,8 @@ describe("Workflow & Governance Repository", () => {
 			value: 120000,
 			stage: "Qualified",
 			owner: "Abhishek",
+			notes: "Initial discovery discussion",
+			followup: "2025-10-15",
 		});
 
 		const updated = await leadsRepository.update(lead.id, {
@@ -140,6 +144,7 @@ describe("Workflow & Governance Repository", () => {
 			contact: "Elena Vance",
 			email: "elena@acme.example",
 			phone: "+91 9876543210",
+			notes: "Key strategic partner account",
 		});
 
 		const updated = await clientsRepository.update(client.id, {

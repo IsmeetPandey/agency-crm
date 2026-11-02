@@ -40,6 +40,12 @@ export const PERMISSIONS = {
 	canManageRaci(role: UserRole): boolean {
 		return role === "owner" || role === "admin" || role === "manager";
 	},
+	canManageFinance(role: UserRole): boolean {
+		return role === "owner" || role === "admin" || role === "manager";
+	},
+	canDeleteOpportunity(role: UserRole): boolean {
+		return role === "owner" || role === "admin";
+	},
 	canExportData(role: UserRole): boolean {
 		return role === "owner" || role === "admin" || role === "manager";
 	},

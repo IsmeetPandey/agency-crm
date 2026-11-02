@@ -30,7 +30,7 @@ export const projectsRepository = {
 				throw new Error(`Failed to list projects: ${error.message}`);
 			}
 
-			return (data || []).map((row) => ({
+			return ((data as any[]) || []).map((row: any) => ({
 				id: row.id,
 				legacyId: row.legacy_id || undefined,
 				name: row.name,
@@ -77,7 +77,7 @@ export const projectsRepository = {
 				throw new Error(`Failed to list archived projects: ${error.message}`);
 			}
 
-			return (data || []).map((row) => ({
+			return ((data as any[]) || []).map((row: any) => ({
 				id: row.id,
 				legacyId: row.legacy_id || undefined,
 				name: row.name,
@@ -120,26 +120,26 @@ export const projectsRepository = {
 				throw new Error(`Failed to get project: ${error.message}`);
 			}
 			if (!data) return null;
+			const row: any = data;
 
 			return {
-				id: data.id,
-				legacyId: data.legacy_id || undefined,
-				name: data.name,
-				clientId: data.client_id,
-				opportunityId: data.opportunity_id || undefined,
-				opportunityNo: data.opportunity_no || undefined,
-				phase: data.phase as ProjectPhase,
-				stackNeeded: data.stack_needed || "",
-				budget: Number(data.budget) || 0,
-				due: data.due_date || "",
-				owner: data.owner_name || "Unassigned",
-				scope: data.scope || "",
-				assignedTeam: ((data as any).project_members || []).map(
+				id: row.id,
+				legacyId: row.legacy_id || undefined,
+				name: row.name,
+				clientId: row.client_id,
+				opportunityId: row.opportunity_id || undefined,
+				opportunityNo: row.opportunity_no || undefined,
+				phase: row.phase as ProjectPhase,
+				stackNeeded: row.stack_needed || "",
+				budget: Number(row.budget) || 0,
+				due: row.due_date || "",
+				owner: row.owner_name || "Unassigned",
+				scope: row.scope || "",
+				assignedTeam: ((row as any).project_members || []).map(
 					(m: any) => m.team_member_id,
 				),
-				progress: data.progress || 0,
-				status:
-					(data.status as "active" | "completed" | "archived") || "active",
+				progress: row.progress || 0,
+				status: (row.status as "active" | "completed" | "archived") || "active",
 			};
 		}
 
@@ -225,7 +225,7 @@ export const projectsRepository = {
 
 	async update(id: string, updates: Partial<Project>): Promise<Project> {
 		if (isSupabaseConfigured()) {
-			const dbUpdates: Record<string, any> = {};
+			const dbUpdates: any = {};
 			if (updates.name !== undefined) dbUpdates.name = updates.name;
 			if (updates.clientId !== undefined)
 				dbUpdates.client_id = updates.clientId;

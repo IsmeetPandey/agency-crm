@@ -7,6 +7,62 @@ import {
 import { activityRepository } from "./activity.repository";
 import { loadLocalState, saveLocalState } from "./store";
 
+async function validateFinanceRelationships(
+	clientId: string,
+	opportunityId?: string | null,
+	projectId?: string | null,
+): Promise<void> {
+	if (!clientId) {
+		throw new Error(
+			"Invalid relationship: Client ID is required for financial records.",
+		);
+	}
+
+	if (opportunityId) {
+		let oppClient: string | undefined;
+		if (isSupabaseConfigured()) {
+			const { data } = await supabase
+				.from("opportunities")
+				.select("client_id")
+				.eq("id", opportunityId)
+				.maybeSingle();
+			oppClient = data?.client_id;
+		} else {
+			const state = loadLocalState();
+			oppClient = state.opportunities.find(
+				(o) => o.id === opportunityId,
+			)?.clientId;
+		}
+
+		if (oppClient && oppClient !== clientId) {
+			throw new Error(
+				`Invalid relationship: Opportunity ${opportunityId} belongs to client ${oppClient}, not client ${clientId}.`,
+			);
+		}
+	}
+
+	if (projectId) {
+		let projClient: string | undefined;
+		if (isSupabaseConfigured()) {
+			const { data } = await supabase
+				.from("projects")
+				.select("client_id")
+				.eq("id", projectId)
+				.maybeSingle();
+			projClient = data?.client_id;
+		} else {
+			const state = loadLocalState();
+			projClient = state.projects.find((p) => p.id === projectId)?.clientId;
+		}
+
+		if (projClient && projClient !== clientId) {
+			throw new Error(
+				`Invalid relationship: Project ${projectId} belongs to client ${projClient}, not client ${clientId}.`,
+			);
+		}
+	}
+}
+
 export const financeRepository = {
 	async list(
 		clientId?: string,
@@ -117,11 +173,19 @@ export const financeRepository = {
 		payload: Omit<FinanceItem, "id" | "createdAt"> & { id?: string },
 		actor = "User",
 	): Promise<FinanceItem> {
-		const id = payload.id || `fin_${Date.now()}`;
+		const id =
+			payload.id ||
+			`fin_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 		const canonicalIssuedDate =
 			payload.issuedDate ||
 			(payload as any).issueDate ||
 			new Date().toISOString().split("T")[0];
+
+		await validateFinanceRelationships(
+			payload.clientId,
+			payload.opportunityId,
+			payload.projectId,
+		);
 
 		if (isSupabaseConfigured()) {
 			const { data, error } = await supabase
@@ -203,8 +267,25 @@ export const financeRepository = {
 		id: string,
 		updates: Partial<FinanceItem>,
 	): Promise<FinanceItem> {
+		const existing = await this.getById(id);
+		if (!existing) throw new Error(`Finance record ${id} not found`);
+
+		const effectiveClientId = updates.clientId || existing.clientId;
+		const effectiveOppId =
+			updates.opportunityId !== undefined
+				? updates.opportunityId
+				: existing.opportunityId;
+		const effectiveProjId =
+			updates.projectId !== undefined ? updates.projectId : existing.projectId;
+
+		await validateFinanceRelationships(
+			effectiveClientId,
+			effectiveOppId,
+			effectiveProjId,
+		);
+
 		if (isSupabaseConfigured()) {
-			const dbUpdates: Record<string, any> = {};
+			const dbUpdates: any = {};
 			if (updates.title !== undefined) dbUpdates.title = updates.title;
 			if (updates.type !== undefined) dbUpdates.type = updates.type;
 			if (updates.amount !== undefined) dbUpdates.amount = updates.amount;

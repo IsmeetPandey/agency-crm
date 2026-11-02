@@ -184,7 +184,7 @@ export const leadsRepository = {
 
 	async update(id: string, updates: Partial<Lead>): Promise<Lead> {
 		if (isSupabaseConfigured()) {
-			const dbUpdates: Record<string, any> = {};
+			const dbUpdates: any = {};
 			if (updates.name !== undefined) dbUpdates.name = updates.name;
 			if (updates.contact !== undefined)
 				dbUpdates.contact_person = updates.contact;

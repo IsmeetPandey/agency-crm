@@ -248,6 +248,7 @@ export interface ApprovalRequest {
 	status: "Pending" | "Approved" | "Rejected" | "Changes Requested";
 	requestedBy: string;
 	assignedApprover?: string;
+	approverRole?: string;
 	decisionNotes?: string;
 	createdAt: string;
 }

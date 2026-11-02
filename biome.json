@@ -18,6 +18,7 @@
 				"noArrayIndexKey": "warn"
 			},
 			"style": { "noNonNullAssertion": "warn" },
+			"complexity": { "noImportantStyles": "off" },
 			"correctness": { "useExhaustiveDependencies": "warn" }
 		}
 	}

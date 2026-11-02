@@ -176,7 +176,7 @@ export const contactsRepository = {
 				}
 			}
 
-			const dbUpdates: Record<string, any> = {};
+			const dbUpdates: any = {};
 			if (updates.name !== undefined) dbUpdates.name = updates.name;
 			if (updates.role !== undefined) dbUpdates.role = updates.role;
 			if (updates.email !== undefined) dbUpdates.email = updates.email || null;

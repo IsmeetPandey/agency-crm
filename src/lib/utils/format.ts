@@ -77,3 +77,39 @@ export function formatDate(dateString?: string): string {
 		return dateString;
 	}
 }
+
+/**
+ * Sums amounts grouped by currency code to prevent false blended totals.
+ */
+export function sumByCurrency(
+	items: Array<{ value?: number; amount?: number; currency?: string }>,
+): Record<string, number> {
+	const map: Record<string, number> = {};
+	for (const item of items) {
+		const val = item.value ?? item.amount ?? 0;
+		if (typeof val === "number" && !Number.isNaN(val)) {
+			const c = (item.currency || "INR").toUpperCase();
+			map[c] = (map[c] || 0) + val;
+		}
+	}
+	return map;
+}
+
+/**
+ * Formats a grouped currency map into human-readable segmented totals,
+ * e.g., "₹4,20,000 + $2,500".
+ */
+export function formatMultiCurrency(
+	sums: Record<string, number>,
+	compact = false,
+): string {
+	const entries = Object.entries(sums).filter(([_, val]) => val > 0);
+	if (entries.length === 0) {
+		return formatCurrency(0, "INR");
+	}
+	return entries
+		.map(([code, val]) =>
+			compact ? formatCompactCurrency(val, code) : formatCurrency(val, code),
+		)
+		.join(" + ");
+}

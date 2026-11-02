@@ -22,7 +22,12 @@ interface TasksViewProps {
 	search?: string;
 }
 
-const STATUS_COLUMNS: TaskStatus[] = ["Todo", "InProgress", "Review", "Done"];
+const STATUS_COLUMNS: TaskStatus[] = [
+	"Todo",
+	"In progress",
+	"Blocked",
+	"Completed",
+];
 
 export const TasksView: React.FC<TasksViewProps> = ({
 	tasks,
@@ -114,16 +119,17 @@ export const TasksView: React.FC<TasksViewProps> = ({
 	};
 
 	const overdueCount = useMemo(() => {
-		return tasks.filter((t) => t.status !== "Done" && t.due && t.due < todayStr)
-			.length;
+		return tasks.filter(
+			(t) => t.status !== "Completed" && t.due && t.due < todayStr,
+		).length;
 	}, [tasks, todayStr]);
 
 	const inProgressCount = useMemo(() => {
-		return tasks.filter((t) => t.status === "InProgress").length;
+		return tasks.filter((t) => t.status === "In progress").length;
 	}, [tasks]);
 
 	const doneCount = useMemo(() => {
-		return tasks.filter((t) => t.status === "Done").length;
+		return tasks.filter((t) => t.status === "Completed").length;
 	}, [tasks]);
 
 	return (
@@ -319,7 +325,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
 										colTasks.map((task) => {
 											const project = projectMap.get(task.projectId);
 											const isOverdue =
-												task.status !== "Done" &&
+												task.status !== "Completed" &&
 												task.due &&
 												task.due < todayStr;
 
@@ -386,25 +392,25 @@ export const TasksView: React.FC<TasksViewProps> = ({
 																	← Todo
 																</button>
 															)}
-															{colStatus !== "Done" && (
+															{colStatus !== "Completed" && (
 																<button
 																	type="button"
 																	onClick={() =>
 																		handleStatusChange(
 																			task,
 																			colStatus === "Todo"
-																				? "InProgress"
-																				: colStatus === "InProgress"
-																					? "Review"
-																					: "Done",
+																				? "In progress"
+																				: colStatus === "In progress"
+																					? "Blocked"
+																					: "Completed",
 																		)
 																	}
 																	className="px-2 py-0.5 text-[10px] font-semibold rounded bg-[#EBF6FE] hover:bg-[#D5EEFD] text-[#0070BA]"
 																>
 																	{colStatus === "Todo"
 																		? "Start →"
-																		: colStatus === "InProgress"
-																			? "Review →"
+																		: colStatus === "In progress"
+																			? "Block / Review →"
 																			: "Done ✓"}
 																</button>
 															)}
@@ -447,7 +453,9 @@ export const TasksView: React.FC<TasksViewProps> = ({
 							{filteredTasks.map((task) => {
 								const project = projectMap.get(task.projectId);
 								const isOverdue =
-									task.status !== "Done" && task.due && task.due < todayStr;
+									task.status !== "Completed" &&
+									task.due &&
+									task.due < todayStr;
 
 								return (
 									<tr key={task.id} className="hover:bg-[#F9F9F9] transition">
@@ -504,10 +512,12 @@ export const TasksView: React.FC<TasksViewProps> = ({
 										</td>
 										<td className="py-3 px-4 text-right whitespace-nowrap">
 											<div className="inline-flex items-center gap-2">
-												{task.status !== "Done" && (
+												{task.status !== "Completed" && (
 													<button
 														type="button"
-														onClick={() => handleStatusChange(task, "Done")}
+														onClick={() =>
+															handleStatusChange(task, "Completed")
+														}
 														className="text-[11px] font-medium text-emerald-700 hover:bg-emerald-50 px-2 py-1 rounded"
 													>
 														Done ✓

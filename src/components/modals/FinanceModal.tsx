@@ -136,6 +136,7 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({
 					opportunityNo: opp ? opp.opportunityNo : undefined,
 					amount,
 					status,
+					issuedDate: issueDate,
 					issueDate,
 					dueDate,
 					notes,

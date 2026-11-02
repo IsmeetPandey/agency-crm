@@ -447,20 +447,7 @@ function AgencyOSApp() {
 						<ArchiveView onRefresh={loadData} search={search} />
 					)}
 
-					{view === "settings" && (
-						<SettingsView
-							leads={leads}
-							opportunities={opportunities}
-							clients={clients}
-							contacts={contacts}
-							projects={projects}
-							tasks={tasks}
-							handoffs={handoffs}
-							team={team}
-							activity={activity}
-							finance={finance}
-						/>
-					)}
+					{view === "settings" && <SettingsView />}
 				</main>
 			</div>
 

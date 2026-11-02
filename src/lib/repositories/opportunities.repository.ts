@@ -287,7 +287,7 @@ export const opportunitiesRepository = {
 		actor = "User",
 	): Promise<Opportunity> {
 		if (isSupabaseConfigured()) {
-			const dbUpdates: Record<string, any> = {};
+			const dbUpdates: any = {};
 			if (updates.title !== undefined) dbUpdates.title = updates.title;
 			if (updates.service !== undefined) dbUpdates.service = updates.service;
 			if (updates.description !== undefined)

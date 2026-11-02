@@ -34,43 +34,52 @@ export interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * Authoritatively determines a user's role strictly from organization_memberships.
+ * Never trusts user-editable `user_metadata` or client-controlled tokens.
+ * Fails closed to "member" if no confirmed organization membership exists.
+ */
+export async function loadAuthoritativeRole(
+	userIdOrSession: string | { user?: { id?: string } } | null | undefined,
+): Promise<UserRole> {
+	const userId =
+		typeof userIdOrSession === "string"
+			? userIdOrSession
+			: userIdOrSession?.user?.id;
+
+	if (!userId) {
+		return "member";
+	}
+
+	try {
+		if (isSupabaseConfigured()) {
+			const { data, error } = await supabase
+				.from("organization_memberships")
+				.select("role")
+				.eq("user_id", userId)
+				.eq("organization_id", DEFAULT_ORG_ID)
+				.maybeSingle();
+
+			if (!error && data?.role) {
+				const r = data.role as UserRole;
+				if (["owner", "admin", "manager", "member"].includes(r)) {
+					return r;
+				}
+			}
+		}
+	} catch (e) {
+		console.warn("Could not load organization membership role:", e);
+	}
+
+	// Fail closed: Never grant elevated privileges without verified organization membership
+	return "member";
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
 	const [isLoading, setIsLoading] = useState(true);
 	const [role, setRole] = useState<UserRole>("member");
 	const [user, setUser] = useState<AuthUser | null>(null);
 	const isCloudConfigured = isSupabaseConfigured();
-
-	const loadAuthoritativeRole = async (
-		userId: string,
-		metadataRole?: string,
-	): Promise<UserRole> => {
-		try {
-			if (isCloudConfigured) {
-				const { data, error } = await supabase
-					.from("organization_memberships")
-					.select("role")
-					.eq("user_id", userId)
-					.eq("organization_id", DEFAULT_ORG_ID)
-					.maybeSingle();
-
-				if (!error && data?.role) {
-					return data.role as UserRole;
-				}
-			}
-		} catch (e) {
-			console.warn("Could not load organization membership role:", e);
-		}
-
-		if (
-			metadataRole &&
-			["owner", "admin", "manager", "member"].includes(metadataRole)
-		) {
-			return metadataRole as UserRole;
-		}
-
-		// Secure default: standard member, never owner
-		return "member";
-	};
 
 	useEffect(() => {
 		async function checkAuth() {
@@ -83,10 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			try {
 				const { data } = await supabase.auth.getSession();
 				if (data?.session?.user) {
-					const authRole = await loadAuthoritativeRole(
-						data.session.user.id,
-						data.session.user.user_metadata?.role,
-					);
+					const authRole = await loadAuthoritativeRole(data.session.user.id);
 					const u: AuthUser = {
 						id: data.session.user.id,
 						email: data.session.user.email || "",
@@ -112,10 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			const { data: authListener } = supabase.auth.onAuthStateChange(
 				async (_event, session) => {
 					if (session?.user) {
-						const authRole = await loadAuthoritativeRole(
-							session.user.id,
-							session.user.user_metadata?.role,
-						);
+						const authRole = await loadAuthoritativeRole(session.user.id);
 						const u: AuthUser = {
 							id: session.user.id,
 							email: session.user.email || "",
@@ -159,10 +162,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			}
 
 			if (data.user) {
-				const authRole = await loadAuthoritativeRole(
-					data.user.id,
-					data.user.user_metadata?.role,
-				);
+				const authRole = await loadAuthoritativeRole(data.user.id);
 				const u: AuthUser = {
 					id: data.user.id,
 					email: data.user.email || "",
@@ -209,10 +209,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			}
 
 			if (data.session?.user) {
-				const authRole = await loadAuthoritativeRole(
-					data.session.user.id,
-					data.session.user.user_metadata?.role,
-				);
+				const authRole = await loadAuthoritativeRole(data.session.user.id);
 				const u: AuthUser = {
 					id: data.session.user.id,
 					email: data.session.user.email || "",
