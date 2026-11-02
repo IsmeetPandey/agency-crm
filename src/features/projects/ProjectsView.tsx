@@ -1,4 +1,5 @@
 import type React from "react";
+import { OpportunityChip } from "../../components/ui/OpportunityChip";
 import type { Client, Project, TeamMemberDetail } from "../../types";
 
 interface ProjectsViewProps {
@@ -7,6 +8,7 @@ interface ProjectsViewProps {
 	team: TeamMemberDetail[];
 	onOpenModal: (type: string) => void;
 	onOpenProject: (projectId: string) => void;
+	onNavigateToOpportunity?: (id: string) => void;
 	search: string;
 }
 
@@ -16,6 +18,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 	team,
 	onOpenModal,
 	onOpenProject,
+	onNavigateToOpportunity,
 	search,
 }) => {
 	const filteredProjects = projects.filter((p) => {
@@ -68,8 +71,19 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 							{/* Top info */}
 							<div className="flex items-start justify-between gap-3">
 								<div className="min-w-0">
-									<div className="text-[11px] font-mono uppercase tracking-wider text-blue-600 font-semibold mb-1">
-										{clientName}
+									<div className="flex items-center gap-2 mb-1 flex-wrap">
+										<span className="text-[11px] font-mono uppercase tracking-wider text-blue-600 font-semibold">
+											{clientName}
+										</span>
+										{project.opportunityNo && (
+											<div onClick={(e) => e.stopPropagation()}>
+												<OpportunityChip
+													opportunityNo={project.opportunityNo}
+													opportunityId={project.opportunityId}
+													onNavigate={onNavigateToOpportunity}
+												/>
+											</div>
+										)}
 									</div>
 									<h3 className="text-[16px] font-bold text-slate-900 group-hover:text-blue-600 transition truncate">
 										{project.name}

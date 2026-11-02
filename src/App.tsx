@@ -8,6 +8,7 @@ import { ContactModal } from "./components/modals/ContactModal";
 import { FinanceModal } from "./components/modals/FinanceModal";
 import { HandoffModal } from "./components/modals/HandoffModal";
 import { LeadModal } from "./components/modals/LeadModal";
+import { OpportunityModal } from "./components/modals/OpportunityModal";
 import { ProjectModal } from "./components/modals/ProjectModal";
 import { ScopeChangeModal } from "./components/modals/ScopeChangeModal";
 import { TaskModal } from "./components/modals/TaskModal";
@@ -21,6 +22,8 @@ import { DashboardOverview } from "./features/dashboard/DashboardOverview";
 import { FinanceView } from "./features/finance/FinanceView";
 import { HandoffsView } from "./features/handoffs/HandoffsView";
 import { PipelineView } from "./features/leads/PipelineView";
+import { OpportunitiesView } from "./features/opportunities/OpportunitiesView";
+import { OpportunityDetailView } from "./features/opportunities/OpportunityDetailView";
 import { ProjectDetailView } from "./features/projects/ProjectDetailView";
 import { ProjectsView } from "./features/projects/ProjectsView";
 import { RaciView } from "./features/raci/RaciView";
@@ -36,6 +39,7 @@ import { contactsRepository } from "./lib/repositories/contacts.repository";
 import { financeRepository } from "./lib/repositories/finance.repository";
 import { handoffsRepository } from "./lib/repositories/handoffs.repository";
 import { leadsRepository } from "./lib/repositories/leads.repository";
+import { opportunitiesRepository } from "./lib/repositories/opportunities.repository";
 import { projectsRepository } from "./lib/repositories/projects.repository";
 import { tasksRepository } from "./lib/repositories/tasks.repository";
 import { teamRepository } from "./lib/repositories/team.repository";
@@ -48,6 +52,7 @@ import type {
 	FinanceItem,
 	Handoff,
 	Lead,
+	Opportunity,
 	Project,
 	Task,
 	TeamMemberDetail,
@@ -65,6 +70,8 @@ function AgencyOSApp() {
 
 	// Domain records state
 	const [leads, setLeads] = useState<Lead[]>([]);
+	const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+	const [activeOpportunityId, setActiveOpportunityId] = useState<string>("");
 	const [clients, setClients] = useState<Client[]>([]);
 	const [contacts, setContacts] = useState<Contact[]>([]);
 	const [finance, setFinance] = useState<FinanceItem[]>([]);
@@ -82,8 +89,9 @@ function AgencyOSApp() {
 	// Load authoritative data
 	const loadData = async () => {
 		try {
-			const [l, c, con, fin, p, t, h, tm, a, app] = await Promise.all([
+			const [l, opps, c, con, fin, p, t, h, tm, a, app] = await Promise.all([
 				leadsRepository.list(),
+				opportunitiesRepository.list(),
 				clientsRepository.list(),
 				contactsRepository.list(),
 				financeRepository.list(),
@@ -95,6 +103,7 @@ function AgencyOSApp() {
 				workflowRepository.listApprovals(),
 			]);
 			setLeads(l);
+			setOpportunities(opps);
 			setClients(c);
 			setContacts(con);
 			setFinance(fin);
@@ -152,13 +161,24 @@ function AgencyOSApp() {
 		setView("project");
 	};
 
+	const openOpportunity = (oppId: string) => {
+		setActiveOpportunityId(oppId);
+		setView("opportunity");
+	};
+
 	const activeProject =
 		projects.find((p) => p.id === activeProjectId) || projects[0];
 	const activeClient = clients.find((c) => c.id === activeProject?.clientId);
+	const activeOpportunity =
+		opportunities.find((o) => o.id === activeOpportunityId) || opportunities[0];
 
 	const viewTitles: Record<string, string> = {
 		overview: "Command Center",
 		pipeline: "Sales Pipeline",
+		opportunities: "Commercial Opportunities",
+		opportunity: activeOpportunity
+			? `${activeOpportunity.opportunityNo} • ${activeOpportunity.title}`
+			: "Commercial Opportunity",
 		clients: "Client Accounts",
 		contacts: "Key Client Stakeholders",
 		finance: "Invoices & Proposals",
@@ -227,6 +247,7 @@ function AgencyOSApp() {
 					handoffs.filter((h) => h.status === "Pending").length
 				}
 				tasksCount={tasks.length}
+				opportunitiesCount={opportunities.length}
 				contactsCount={contacts.length}
 				financeCount={finance.length}
 				onlineCount={team.length}
@@ -273,7 +294,51 @@ function AgencyOSApp() {
 							leads={leads}
 							onRefresh={loadData}
 							onOpenModal={(t, data) => setModal({ type: t, data })}
+							onNavigate={(v, id) => {
+								if (v === "opportunity" && id) openOpportunity(id);
+								else setView(v);
+							}}
 							search={search}
+						/>
+					)}
+
+					{view === "opportunities" && (
+						<OpportunitiesView
+							opportunities={opportunities}
+							clients={clients}
+							team={team}
+							onOpenModal={(t, data) => setModal({ type: t, data })}
+							onSelectOpportunity={openOpportunity}
+							onRefresh={loadData}
+							search={search}
+						/>
+					)}
+
+					{view === "opportunity" && activeOpportunity && (
+						<OpportunityDetailView
+							opportunity={activeOpportunity}
+							client={clients.find((c) => c.id === activeOpportunity.clientId)}
+							contacts={contacts.filter(
+								(c) => c.clientId === activeOpportunity.clientId,
+							)}
+							projects={projects.filter(
+								(p) => p.opportunityId === activeOpportunity.id,
+							)}
+							finance={finance.filter(
+								(f) =>
+									f.opportunityId === activeOpportunity.id ||
+									f.opportunityNo === activeOpportunity.opportunityNo,
+							)}
+							sourceLead={leads.find(
+								(l) =>
+									l.id === activeOpportunity.sourceLeadId ||
+									l.convertedOpportunityId === activeOpportunity.id,
+							)}
+							team={team}
+							onBack={() => setView("opportunities")}
+							onOpenModal={(t, data) => setModal({ type: t, data })}
+							onOpenProject={openProject}
+							onRefresh={loadData}
 						/>
 					)}
 
@@ -306,6 +371,7 @@ function AgencyOSApp() {
 							clients={clients}
 							projects={projects}
 							onOpenModal={(t, data) => setModal({ type: t, data })}
+							onNavigateToOpportunity={openOpportunity}
 							onRefresh={loadData}
 							search={search}
 						/>
@@ -318,6 +384,7 @@ function AgencyOSApp() {
 							team={team}
 							onOpenModal={(t) => setModal({ type: t })}
 							onOpenProject={openProject}
+							onNavigateToOpportunity={openOpportunity}
 							search={search}
 						/>
 					)}
@@ -332,6 +399,7 @@ function AgencyOSApp() {
 							departments={DEPARTMENTS}
 							onBack={() => setView("projects")}
 							onOpenModal={(t, data) => setModal({ type: t, data })}
+							onNavigateToOpportunity={openOpportunity}
 							onRefresh={loadData}
 						/>
 					)}
@@ -396,20 +464,32 @@ function AgencyOSApp() {
 				isOpen={cmdOpen}
 				onClose={() => setCmdOpen(false)}
 				leads={leads}
+				opportunities={opportunities}
 				clients={clients}
 				projects={projects}
 				tasks={tasks}
 				team={team}
 				contacts={contacts}
 				finance={finance}
-				onNavigate={(v, pId) => {
-					if (pId) openProject(pId);
+				onNavigate={(v, entityId) => {
+					if (v === "project" && entityId) openProject(entityId);
+					else if (v === "opportunity" && entityId) openOpportunity(entityId);
 					else setView(v);
 				}}
 				onOpenModal={(t) => setModal({ type: t })}
 			/>
 
 			{/* Modals */}
+			{modal?.type === "opportunity" && (
+				<OpportunityModal
+					clients={clients}
+					team={team}
+					initialOpportunity={modal.data?.opportunity}
+					initialClientId={modal.data?.clientId}
+					onClose={() => setModal(null)}
+					onSuccess={loadData}
+				/>
+			)}
 			{modal?.type === "lead" && (
 				<LeadModal
 					initialLead={modal.data?.lead}
@@ -437,9 +517,11 @@ function AgencyOSApp() {
 				<FinanceModal
 					clients={clients}
 					projects={projects}
+					opportunities={opportunities}
 					initialItem={modal.data?.item}
 					initialClientId={modal.data?.clientId}
 					initialProjectId={modal.data?.projectId}
+					initialOpportunityId={modal.data?.opportunityId}
 					onClose={() => setModal(null)}
 					onSuccess={loadData}
 				/>
@@ -448,6 +530,8 @@ function AgencyOSApp() {
 				<ProjectModal
 					clients={clients}
 					team={team}
+					opportunities={opportunities}
+					initialOpportunityId={modal.data?.opportunityId}
 					onClose={() => setModal(null)}
 					onSuccess={loadData}
 				/>

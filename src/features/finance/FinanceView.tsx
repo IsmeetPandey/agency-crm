@@ -1,5 +1,6 @@
 import type React from "react";
 import { useMemo, useState } from "react";
+import { OpportunityChip } from "../../components/ui/OpportunityChip";
 import { useToast } from "../../lib/feedback/toast.context";
 import { financeRepository } from "../../lib/repositories/finance.repository";
 import type {
@@ -15,6 +16,7 @@ interface FinanceViewProps {
 	clients: Client[];
 	projects: Project[];
 	onOpenModal: (type: string, data?: any) => void;
+	onNavigateToOpportunity?: (id: string) => void;
 	onRefresh: () => void;
 	search?: string;
 }
@@ -24,6 +26,7 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 	clients,
 	projects,
 	onOpenModal,
+	onNavigateToOpportunity,
 	onRefresh,
 	search: externalSearch = "",
 }) => {
@@ -385,6 +388,15 @@ export const FinanceView: React.FC<FinanceViewProps> = ({
 											<div className="font-medium text-[#222222]">
 												{client?.name || "Client Account"}
 											</div>
+											{item.opportunityNo && (
+												<div className="mt-1">
+													<OpportunityChip
+														opportunityNo={item.opportunityNo}
+														opportunityId={item.opportunityId}
+														onNavigate={onNavigateToOpportunity}
+													/>
+												</div>
+											)}
 											{project && (
 												<div className="text-[11px] text-[#777777] font-mono mt-0.5">
 													↳ {project.name}

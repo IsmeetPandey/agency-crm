@@ -1,11 +1,14 @@
 import { describe, it, expect } from "../test-utils";
 import { leadsRepository } from "../../src/lib/repositories/leads.repository";
 import { clientsRepository } from "../../src/lib/repositories/clients.repository";
+import { opportunitiesRepository } from "../../src/lib/repositories/opportunities.repository";
 import { projectsRepository } from "../../src/lib/repositories/projects.repository";
 import { tasksRepository } from "../../src/lib/repositories/tasks.repository";
 import { handoffsRepository } from "../../src/lib/repositories/handoffs.repository";
 import { workflowRepository } from "../../src/lib/repositories/workflow.repository";
 import { activityRepository } from "../../src/lib/repositories/activity.repository";
+import { financeRepository } from "../../src/lib/repositories/finance.repository";
+import { notesRepository } from "../../src/lib/repositories/notes.repository";
 
 describe("E2E CRM Workflow: Complete User Journey", () => {
 	it("executes the full lifecycle: lead -> qualification -> client conversion -> project -> task -> handoff -> gate -> RACI -> scope change -> cleanup", async () => {
@@ -214,5 +217,142 @@ describe("E2E CRM Workflow: Complete User Journey", () => {
 
 		const remainingClients = await clientsRepository.list();
 		expect(remainingClients.some((c) => c.id === createdClient.id)).toBe(false);
+	});
+
+	it("manages commercial opportunities with sequence generation, idempotency, and cross-department references", async () => {
+		const testSuffix = Date.now().toString();
+
+		// 1. Inbound Lead creation
+		const lead = await leadsRepository.create({
+			name: `Omni Dynamics ${testSuffix}`,
+			contact: "Rachel Green",
+			email: `rachel-${testSuffix}@omni.example`,
+			service: "Headless E-Commerce & ERP Integration",
+			value: 650000,
+			stage: "Proposal",
+			owner: "Abhishek",
+			followup: "2026-12-10",
+			notes: "Enterprise multichannel platform overhaul",
+		});
+
+		// 2. Atomic lead to Opportunity & Client conversion
+		const conversion = await leadsRepository.convertToOpportunityAndClient(lead.id, "Abhishek");
+		expect(conversion.opportunity).toBeDefined();
+		expect(conversion.opportunity.opportunityNo).toMatch(/^KW-OPP-\d{6}$/);
+		expect(conversion.client.name).toBe(`Omni Dynamics ${testSuffix}`);
+		expect(conversion.lead.stage).toBe("Won");
+		expect(conversion.lead.convertedOpportunityId).toBe(conversion.opportunity.id);
+		expect(conversion.lead.convertedOpportunityNo).toBe(conversion.opportunity.opportunityNo);
+
+		const opp1No = conversion.opportunity.opportunityNo;
+
+		// 3. Idempotency Verification: Repeated conversion must return the same opportunity and NOT increment sequence
+		const repeatConversion = await leadsRepository.convertToOpportunityAndClient(lead.id, "Abhishek");
+		expect(repeatConversion.opportunity.id).toBe(conversion.opportunity.id);
+		expect(repeatConversion.opportunity.opportunityNo).toBe(opp1No);
+		expect(repeatConversion.alreadyConverted).toBe(true);
+
+		// 4. One Client may have Multiple Opportunities
+		const opp2 = await opportunitiesRepository.create(
+			{
+				clientId: conversion.client.id,
+				title: `Omni Dynamics / Native Mobile App ${testSuffix}`,
+				service: "React Native Mobile App",
+				description: "Phase 2 mobile consumer experience",
+				value: 350000,
+				stage: "Qualified",
+				owner: "Shradha",
+				expectedCloseDate: "2027-02-28",
+			},
+			"Abhishek",
+		);
+
+		expect(opp2.id).toBeDefined();
+		expect(opp2.opportunityNo).toMatch(/^KW-OPP-\d{6}$/);
+		expect(opp2.opportunityNo).not.toBe(opp1No); // Distinct sequential numbering
+		expect(opp2.clientId).toBe(conversion.client.id);
+
+		// Verify client has both opportunities
+		const clientOpps = await opportunitiesRepository.list(conversion.client.id);
+		expect(clientOpps.length).toBeGreaterThanOrEqual(2);
+
+		// 5. Cross-Department Linking: Project references Opportunity
+		const project = await projectsRepository.create({
+			clientId: conversion.client.id,
+			opportunityId: conversion.opportunity.id,
+			opportunityNo: conversion.opportunity.opportunityNo,
+			name: `Omni Commerce Engine ${testSuffix}`,
+			phase: "Discovery",
+			budget: 650000,
+			due: "2027-03-31",
+			stackNeeded: "Next.js, Shopify Plus, Node.js",
+			assignedTeam: ["ansul"],
+			owner: "Ansul",
+			scope: "Full-scale store implementation",
+			progress: 10,
+		});
+
+		expect(project.opportunityId).toBe(conversion.opportunity.id);
+		expect(project.opportunityNo).toBe(conversion.opportunity.opportunityNo);
+
+		// 6. Cross-Department Linking: Finance Item references Opportunity
+		const invoice = await financeRepository.create({
+			title: `Deposit Milestone - ${opp1No}`,
+			type: "invoice",
+			clientId: conversion.client.id,
+			projectId: project.id,
+			opportunityId: conversion.opportunity.id,
+			opportunityNo: conversion.opportunity.opportunityNo,
+			amount: 200000,
+			status: "Sent",
+			issueDate: "2026-11-02",
+		});
+
+		expect(invoice.opportunityId).toBe(conversion.opportunity.id);
+		expect(invoice.opportunityNo).toBe(conversion.opportunity.opportunityNo);
+
+		// 7. Internal Opportunity Notes & Collaboration
+		const note = await notesRepository.create({
+			targetType: "opportunity",
+			targetId: conversion.opportunity.id,
+			content: "Client confirmed legal terms and NDA execution.",
+			author: "Abhishek",
+		});
+
+		expect(note.id).toBeDefined();
+		const oppNotes = await notesRepository.list("opportunity", conversion.opportunity.id);
+		expect(oppNotes.some((n) => n.id === note.id)).toBe(true);
+
+		// 8. Opportunity Stage Updates
+		const updatedOpp = await opportunitiesRepository.update(conversion.opportunity.id, {
+			stage: "Proposal",
+			value: 700000,
+		});
+		expect(updatedOpp.stage).toBe("Proposal");
+		expect(updatedOpp.value).toBe(700000);
+
+		// 9. Universal Archive & Restore Lifecycle for Opportunity
+		await opportunitiesRepository.archive(conversion.opportunity.id);
+		const archivedOpps = await opportunitiesRepository.listArchived();
+		expect(archivedOpps.some((o) => o.id === conversion.opportunity.id)).toBe(true);
+
+		// Excluded from active list
+		const activeOpps = await opportunitiesRepository.list();
+		expect(activeOpps.some((o) => o.id === conversion.opportunity.id)).toBe(false);
+
+		// Restore opportunity
+		await opportunitiesRepository.restore(conversion.opportunity.id);
+		const restoredOpps = await opportunitiesRepository.list();
+		expect(restoredOpps.some((o) => o.id === conversion.opportunity.id)).toBe(true);
+
+		// 10. Isolated Test Cleanup
+		await notesRepository.delete(note.id);
+		await financeRepository.delete(invoice.id);
+		await projectsRepository.archive(project.id);
+		await projectsRepository.deletePermanently(project.id);
+		await opportunitiesRepository.deletePermanently(conversion.opportunity.id);
+		await opportunitiesRepository.deletePermanently(opp2.id);
+		await leadsRepository.deletePermanently(lead.id);
+		await clientsRepository.deletePermanently(conversion.client.id);
 	});
 });

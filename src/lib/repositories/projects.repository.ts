@@ -8,9 +8,9 @@ import { activityRepository } from "./activity.repository";
 import { loadLocalState, saveLocalState } from "./store";
 
 export const projectsRepository = {
-	async list(): Promise<Project[]> {
+	async list(clientId?: string, opportunityId?: string): Promise<Project[]> {
 		if (isSupabaseConfigured()) {
-			const { data, error } = await supabase
+			let query = supabase
 				.from("projects")
 				.select(`
           *,
@@ -21,9 +21,13 @@ export const projectsRepository = {
 				.eq("status", "active")
 				.order("created_at", { ascending: false });
 
+			if (clientId) query = query.eq("client_id", clientId);
+			if (opportunityId) query = query.eq("opportunity_id", opportunityId);
+
+			const { data, error } = await query;
 			if (error) {
 				console.error("Supabase list projects error:", error);
-				throw error;
+				throw new Error(`Failed to list projects: ${error.message}`);
 			}
 
 			return (data || []).map((row) => ({
@@ -31,6 +35,8 @@ export const projectsRepository = {
 				legacyId: row.legacy_id || undefined,
 				name: row.name,
 				clientId: row.client_id,
+				opportunityId: row.opportunity_id || undefined,
+				opportunityNo: row.opportunity_no || undefined,
 				phase: row.phase as ProjectPhase,
 				stackNeeded: row.stack_needed || "",
 				budget: Number(row.budget) || 0,
@@ -41,16 +47,102 @@ export const projectsRepository = {
 					(m: any) => m.team_member_id,
 				),
 				progress: row.progress || 0,
+				status: (row.status as "active" | "completed" | "archived") || "active",
 			}));
 		}
 
 		const state = loadLocalState();
-		return state.projects;
+		let projects = state.projects.filter((p) => p.status !== "archived");
+		if (clientId) projects = projects.filter((p) => p.clientId === clientId);
+		if (opportunityId) projects = projects.filter((p) => p.opportunityId === opportunityId);
+		return projects;
+	},
+
+	async listArchived(): Promise<Project[]> {
+		if (isSupabaseConfigured()) {
+			const { data, error } = await supabase
+				.from("projects")
+				.select(`
+          *,
+          project_members (
+            team_member_id
+          )
+        `)
+				.eq("status", "archived")
+				.order("created_at", { ascending: false });
+
+			if (error) {
+				console.error("Supabase list archived projects error:", error);
+				throw new Error(`Failed to list archived projects: ${error.message}`);
+			}
+
+			return (data || []).map((row) => ({
+				id: row.id,
+				legacyId: row.legacy_id || undefined,
+				name: row.name,
+				clientId: row.client_id,
+				opportunityId: row.opportunity_id || undefined,
+				opportunityNo: row.opportunity_no || undefined,
+				phase: row.phase as ProjectPhase,
+				stackNeeded: row.stack_needed || "",
+				budget: Number(row.budget) || 0,
+				due: row.due_date || "",
+				owner: row.owner_name || "Unassigned",
+				scope: row.scope || "",
+				assignedTeam: ((row as any).project_members || []).map(
+					(m: any) => m.team_member_id,
+				),
+				progress: row.progress || 0,
+				status: "archived" as const,
+			}));
+		}
+
+		const state = loadLocalState();
+		return state.projects.filter((p) => p.status === "archived");
 	},
 
 	async getById(id: string): Promise<Project | null> {
-		const all = await this.list();
-		return all.find((p) => p.id === id) || null;
+		if (isSupabaseConfigured()) {
+			const { data, error } = await supabase
+				.from("projects")
+				.select(`
+          *,
+          project_members (
+            team_member_id
+          )
+        `)
+				.eq("id", id)
+				.maybeSingle();
+
+			if (error) {
+				console.error("Supabase get project error:", error);
+				throw new Error(`Failed to get project: ${error.message}`);
+			}
+			if (!data) return null;
+
+			return {
+				id: data.id,
+				legacyId: data.legacy_id || undefined,
+				name: data.name,
+				clientId: data.client_id,
+				opportunityId: data.opportunity_id || undefined,
+				opportunityNo: data.opportunity_no || undefined,
+				phase: data.phase as ProjectPhase,
+				stackNeeded: data.stack_needed || "",
+				budget: Number(data.budget) || 0,
+				due: data.due_date || "",
+				owner: data.owner_name || "Unassigned",
+				scope: data.scope || "",
+				assignedTeam: ((data as any).project_members || []).map(
+					(m: any) => m.team_member_id,
+				),
+				progress: data.progress || 0,
+				status: (data.status as "active" | "completed" | "archived") || "active",
+			};
+		}
+
+		const state = loadLocalState();
+		return state.projects.find((p) => p.id === id) || null;
 	},
 
 	async create(
@@ -61,6 +153,7 @@ export const projectsRepository = {
 		const newProject: Project = {
 			...payload,
 			id,
+			status: "active",
 		};
 
 		if (isSupabaseConfigured()) {
@@ -70,6 +163,8 @@ export const projectsRepository = {
 					organization_id: DEFAULT_ORG_ID,
 					legacy_id: id,
 					client_id: newProject.clientId,
+					opportunity_id: newProject.opportunityId || null,
+					opportunity_no: newProject.opportunityNo || null,
 					name: newProject.name,
 					phase: newProject.phase,
 					stack_needed: newProject.stackNeeded,
@@ -78,16 +173,16 @@ export const projectsRepository = {
 					owner_name: newProject.owner,
 					scope: newProject.scope,
 					progress: newProject.progress,
+					status: "active",
 				})
 				.select()
 				.single();
 
 			if (error) {
 				console.error("Supabase create project error:", error);
-				throw error;
+				throw new Error(`Failed to create project in database: ${error.message}`);
 			}
 
-			// Add project members
 			if (newProject.assignedTeam?.length) {
 				await supabase.from("project_members").insert(
 					newProject.assignedTeam.map((memberId) => ({
@@ -130,6 +225,10 @@ export const projectsRepository = {
 			if (updates.name !== undefined) dbUpdates.name = updates.name;
 			if (updates.clientId !== undefined)
 				dbUpdates.client_id = updates.clientId;
+			if (updates.opportunityId !== undefined)
+				dbUpdates.opportunity_id = updates.opportunityId || null;
+			if (updates.opportunityNo !== undefined)
+				dbUpdates.opportunity_no = updates.opportunityNo || null;
 			if (updates.phase !== undefined) dbUpdates.phase = updates.phase;
 			if (updates.stackNeeded !== undefined)
 				dbUpdates.stack_needed = updates.stackNeeded;
@@ -138,6 +237,7 @@ export const projectsRepository = {
 			if (updates.owner !== undefined) dbUpdates.owner_name = updates.owner;
 			if (updates.scope !== undefined) dbUpdates.scope = updates.scope;
 			if (updates.progress !== undefined) dbUpdates.progress = updates.progress;
+			if (updates.status !== undefined) dbUpdates.status = updates.status;
 
 			const { data, error } = await supabase
 				.from("projects")
@@ -146,13 +246,18 @@ export const projectsRepository = {
 				.select()
 				.single();
 
-			if (error) throw error;
+			if (error) {
+				console.error("Supabase update project error:", error);
+				throw new Error(`Failed to update project: ${error.message}`);
+			}
 
 			return {
 				id: data.id,
 				legacyId: data.legacy_id || undefined,
 				name: data.name,
 				clientId: data.client_id,
+				opportunityId: data.opportunity_id || undefined,
+				opportunityNo: data.opportunity_no || undefined,
 				phase: data.phase as ProjectPhase,
 				stackNeeded: data.stack_needed || "",
 				budget: Number(data.budget) || 0,
@@ -161,6 +266,7 @@ export const projectsRepository = {
 				scope: data.scope || "",
 				assignedTeam: updates.assignedTeam || [],
 				progress: data.progress,
+				status: (data.status as "active" | "completed" | "archived") || "active",
 			};
 		}
 
@@ -177,10 +283,42 @@ export const projectsRepository = {
 
 	async archive(id: string): Promise<void> {
 		if (isSupabaseConfigured()) {
-			await supabase
+			const { error } = await supabase
 				.from("projects")
 				.update({ status: "archived" })
 				.eq("id", id);
+			if (error) throw new Error(`Failed to archive project: ${error.message}`);
+			return;
+		}
+		const state = loadLocalState();
+		const proj = state.projects.find((p) => p.id === id);
+		if (proj) {
+			proj.status = "archived";
+			saveLocalState(state);
+		}
+	},
+
+	async restore(id: string): Promise<void> {
+		if (isSupabaseConfigured()) {
+			const { error } = await supabase
+				.from("projects")
+				.update({ status: "active" })
+				.eq("id", id);
+			if (error) throw new Error(`Failed to restore project: ${error.message}`);
+			return;
+		}
+		const state = loadLocalState();
+		const proj = state.projects.find((p) => p.id === id);
+		if (proj) {
+			proj.status = "active";
+			saveLocalState(state);
+		}
+	},
+
+	async deletePermanently(id: string): Promise<void> {
+		if (isSupabaseConfigured()) {
+			const { error } = await supabase.from("projects").delete().eq("id", id);
+			if (error) throw new Error(`Failed to delete project permanently: ${error.message}`);
 			return;
 		}
 		const state = loadLocalState();

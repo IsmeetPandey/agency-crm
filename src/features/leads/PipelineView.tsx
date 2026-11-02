@@ -1,5 +1,6 @@
 import type React from "react";
 import { useMemo, useState } from "react";
+import { OpportunityChip } from "../../components/ui/OpportunityChip";
 import { STAGE_META, STAGES } from "../../lib/constants/agency";
 import { useToast } from "../../lib/feedback/toast.context";
 import { leadsRepository } from "../../lib/repositories/leads.repository";
@@ -9,6 +10,7 @@ interface PipelineViewProps {
 	leads: Lead[];
 	onRefresh: () => void;
 	onOpenModal: (type: string, data?: any) => void;
+	onNavigate?: (view: string, id?: string) => void;
 	search: string;
 }
 
@@ -16,6 +18,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 	leads,
 	onRefresh,
 	onOpenModal,
+	onNavigate,
 	search,
 }) => {
 	const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
@@ -83,11 +86,12 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 	const handleConvert = async (leadId: string) => {
 		setConvertingId(leadId);
 		try {
-			const { lead, client } = await leadsRepository.convertToClient(leadId);
+			const { lead, client, opportunity } =
+				await leadsRepository.convertToOpportunityAndClient(leadId);
 			showToast({
 				type: "success",
-				title: "Client Converted",
-				message: `Converted "${lead.name}" to Client "${client.name}" successfully!`,
+				title: "Deal & Client Converted",
+				message: `Created ${opportunity.opportunityNo} and Client "${client.name}" successfully!`,
 			});
 			onRefresh();
 		} catch (e: any) {
@@ -257,6 +261,16 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 											</div>
 										)}
 
+										{lead.convertedOpportunityNo && (
+											<div className="pt-0.5">
+												<OpportunityChip
+													opportunityNo={lead.convertedOpportunityNo}
+													opportunityId={lead.convertedOpportunityId}
+													onNavigate={(id) => onNavigate?.("opportunity", id)}
+												/>
+											</div>
+										)}
+
 										{/* Quick actions */}
 										<div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-1">
 											{stage !== "Won" ? (
@@ -271,8 +285,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 														: "Convert →"}
 												</button>
 											) : (
-												<span className="text-[10px] font-semibold text-emerald-600 font-mono">
-													✓ Client
+												<span className="text-[10px] font-semibold text-emerald-600 font-mono flex items-center gap-1">
+													<span>✓ Client & Deal</span>
 												</span>
 											)}
 

@@ -1,5 +1,6 @@
 import type React from "react";
 import { useEffect, useState } from "react";
+import { OpportunityChip } from "../../components/ui/OpportunityChip";
 import { useAuth } from "../../lib/auth/auth.context";
 import { useToast } from "../../lib/feedback/toast.context";
 import { tasksRepository } from "../../lib/repositories/tasks.repository";
@@ -25,6 +26,7 @@ interface ProjectDetailViewProps {
 	departments: Department[];
 	onBack: () => void;
 	onOpenModal: (type: string, data?: any) => void;
+	onNavigateToOpportunity?: (id: string) => void;
 	onRefresh: () => void;
 }
 
@@ -37,6 +39,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 	departments,
 	onBack,
 	onOpenModal,
+	onNavigateToOpportunity,
 	onRefresh,
 }) => {
 	const [tab, setTab] = useState<
@@ -143,8 +146,17 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 						← Back to Projects
 					</button>
 					<div className="min-w-0">
-						<div className="text-[11px] font-mono font-semibold uppercase tracking-wider text-blue-600 mb-0.5">
-							{client?.name || "Client Account"} • {project.phase}
+						<div className="flex items-center gap-2 mb-0.5 flex-wrap">
+							<span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-blue-600">
+								{client?.name || "Client Account"} • {project.phase}
+							</span>
+							{project.opportunityNo && (
+								<OpportunityChip
+									opportunityNo={project.opportunityNo}
+									opportunityId={project.opportunityId}
+									onNavigate={onNavigateToOpportunity}
+								/>
+							)}
 						</div>
 						<h2 className="text-[20px] font-bold text-slate-900 tracking-tight truncate">
 							{project.name}

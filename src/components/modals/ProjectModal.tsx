@@ -3,11 +3,13 @@ import { useState } from "react";
 import { PHASES } from "../../lib/constants/agency";
 import { projectsRepository } from "../../lib/repositories/projects.repository";
 import { suggestTeamForProject } from "../../lib/utils/team-match";
-import type { Client, TeamMemberDetail } from "../../types";
+import type { Client, Opportunity, TeamMemberDetail } from "../../types";
 
 interface ProjectModalProps {
 	clients: Client[];
 	team: TeamMemberDetail[];
+	opportunities?: Opportunity[];
+	initialOpportunityId?: string;
 	onClose: () => void;
 	onSuccess: () => void;
 }
@@ -15,6 +17,8 @@ interface ProjectModalProps {
 export const ProjectModal: React.FC<ProjectModalProps> = ({
 	clients,
 	team,
+	opportunities = [],
+	initialOpportunityId,
 	onClose,
 	onSuccess,
 }) => {
@@ -33,25 +37,46 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 		}
 	};
 
+	const [selectedOppId, setSelectedOppId] = useState<string>(
+		initialOpportunityId || "",
+	);
+
+	const initialOpp = opportunities.find((o) => o.id === selectedOppId);
+	const [selectedClientId, setSelectedClientId] = useState<string>(
+		initialOpp ? initialOpp.clientId : "",
+	);
+
+	const handleOppChange = (oppId: string) => {
+		setSelectedOppId(oppId);
+		const opp = opportunities.find((o) => o.id === oppId);
+		if (opp && opp.clientId) {
+			setSelectedClientId(opp.clientId);
+		}
+	};
+
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setError(null);
 		const fd = new FormData(e.currentTarget);
 		const name = String(fd.get("name") || "").trim();
-		const clientId = String(fd.get("clientId") || "").trim();
+		const clientId = String(fd.get("clientId") || selectedClientId).trim();
 
 		if (!name || !clientId) {
 			setError("Project name and client are required");
 			return;
 		}
 
+		const linkedOpp = opportunities.find((o) => o.id === selectedOppId);
+
 		setIsSubmitting(true);
 		try {
 			await projectsRepository.create({
 				name,
 				clientId,
+				opportunityId: linkedOpp ? linkedOpp.id : undefined,
+				opportunityNo: linkedOpp ? linkedOpp.opportunityNo : undefined,
 				phase: String(fd.get("phase") || "Discovery"),
-				budget: Number(fd.get("budget") || 0),
+				budget: Number(fd.get("budget") || (linkedOpp ? linkedOpp.value : 0)),
 				due: String(fd.get("deadline") || "2026-12-31"),
 				deadline: String(fd.get("deadline") || "2026-12-31"),
 				stackNeeded: techQuery,
@@ -60,7 +85,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 						? assigned
 						: suggested.slice(0, 3).map((s) => s.member.id),
 				owner: String(fd.get("owner") || "Shradha"),
-				scope: String(fd.get("scope") || ""),
+				scope: String(fd.get("scope") || (linkedOpp?.description || "")),
 				progress: 0,
 			});
 			onSuccess();
@@ -96,6 +121,26 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 				)}
 
 				<form onSubmit={handleSubmit} className="space-y-3">
+					{opportunities.length > 0 && (
+						<div>
+							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
+								Linked Commercial Deal (Optional)
+							</label>
+							<select
+								value={selectedOppId}
+								onChange={(e) => handleOppChange(e.target.value)}
+								className="studio-input font-medium"
+							>
+								<option value="">No linked commercial deal</option>
+								{opportunities.map((o) => (
+									<option key={o.id} value={o.id}>
+										{o.opportunityNo} • {o.title} (₹{(o.value / 1000).toFixed(0)}k)
+									</option>
+								))}
+							</select>
+						</div>
+					)}
+
 					<div className="grid grid-cols-2 gap-3">
 						<div>
 							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
@@ -115,6 +160,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 							<select
 								name="clientId"
 								required
+								value={selectedClientId}
+								onChange={(e) => setSelectedClientId(e.target.value)}
 								className="studio-input font-medium"
 							>
 								<option value="">Select client...</option>

@@ -1,7 +1,7 @@
 import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 import type { UserRole } from "../permissions/permissions";
-import { isSupabaseConfigured, supabase } from "../supabase/client";
+import { DEFAULT_ORG_ID, isSupabaseConfigured, supabase } from "../supabase/client";
 
 export interface AuthUser {
 	id: string;
@@ -13,234 +13,246 @@ export interface AuthUser {
 export interface AuthContextType {
 	isAuthenticated: boolean;
 	isLoading: boolean;
+	isCloudConfigured: boolean;
 	user: AuthUser | null;
 	role: UserRole;
-	setRole: (role: UserRole) => void;
 	signIn: (email: string, pass: string) => Promise<{ error?: string }>;
 	signUp: (
 		name: string,
 		email: string,
 		pass: string,
-	) => Promise<{ error?: string }>;
+	) => Promise<{ error?: string; message?: string }>;
+	resetPassword: (email: string) => Promise<{ error?: string; message?: string }>;
 	signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const LOCAL_SESSION_KEY = "kreatiwit_auth_session";
-const LOCAL_USERS_KEY = "kreatiwit_registered_users";
-
-const PRESET_USERS: Array<AuthUser & { pass: string }> = [
-	{
-		id: "usr_abhishek",
-		name: "Abhishek",
-		email: "abhishek@kreatiwit.io",
-		role: "owner",
-		pass: "kreatiwit2025",
-	},
-	{
-		id: "usr_shradha",
-		name: "Shradha",
-		email: "shradha@kreatiwit.io",
-		role: "pm",
-		pass: "kreatiwit2025",
-	},
-	{
-		id: "usr_ansul",
-		name: "Ansul",
-		email: "ansul@kreatiwit.io",
-		role: "designer",
-		pass: "kreatiwit2025",
-	},
-];
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
 	const [isLoading, setIsLoading] = useState(true);
-	const [role, setRole] = useState<UserRole>("owner");
+	const [role, setRole] = useState<UserRole>("member");
 	const [user, setUser] = useState<AuthUser | null>(null);
+	const isCloudConfigured = isSupabaseConfigured();
+
+	const loadAuthoritativeRole = async (userId: string, metadataRole?: string): Promise<UserRole> => {
+		try {
+			if (isCloudConfigured) {
+				const { data, error } = await supabase
+					.from("organization_memberships")
+					.select("role")
+					.eq("user_id", userId)
+					.eq("organization_id", DEFAULT_ORG_ID)
+					.maybeSingle();
+
+				if (!error && data?.role) {
+					return data.role as UserRole;
+				}
+			}
+		} catch (e) {
+			console.warn("Could not load organization membership role:", e);
+		}
+
+		if (
+			metadataRole &&
+			["owner", "admin", "manager", "member"].includes(metadataRole)
+		) {
+			return metadataRole as UserRole;
+		}
+
+		// Secure default: standard member, never owner
+		return "member";
+	};
 
 	useEffect(() => {
 		async function checkAuth() {
-			if (isSupabaseConfigured()) {
-				try {
-					const { data } = await supabase.auth.getSession();
-					if (data?.session?.user) {
+			if (!isCloudConfigured) {
+				setUser(null);
+				setIsLoading(false);
+				return;
+			}
+
+			try {
+				const { data } = await supabase.auth.getSession();
+				if (data?.session?.user) {
+					const authRole = await loadAuthoritativeRole(
+						data.session.user.id,
+						data.session.user.user_metadata?.role,
+					);
+					const u: AuthUser = {
+						id: data.session.user.id,
+						email: data.session.user.email || "",
+						name:
+							data.session.user.user_metadata?.full_name ||
+							data.session.user.email?.split("@")[0] ||
+							"Agency Member",
+						role: authRole,
+					};
+					setUser(u);
+					setRole(authRole);
+				}
+			} catch (e) {
+				console.error("Auth session check error:", e);
+			} finally {
+				setIsLoading(false);
+			}
+		}
+
+		checkAuth();
+
+		if (isCloudConfigured) {
+			const { data: authListener } = supabase.auth.onAuthStateChange(
+				async (_event, session) => {
+					if (session?.user) {
+						const authRole = await loadAuthoritativeRole(
+							session.user.id,
+							session.user.user_metadata?.role,
+						);
 						const u: AuthUser = {
-							id: data.session.user.id,
-							email: data.session.user.email || "",
+							id: session.user.id,
+							email: session.user.email || "",
 							name:
-								data.session.user.user_metadata?.full_name || "Agency Member",
+								session.user.user_metadata?.full_name ||
+								session.user.email?.split("@")[0] ||
+								"Agency Member",
+							role: authRole,
 						};
 						setUser(u);
-						setIsLoading(false);
-						return;
+						setRole(authRole);
+					} else {
+						setUser(null);
+						setRole("member");
 					}
-				} catch (e) {
-					console.error("Auth session check error:", e);
-				}
-			}
+				},
+			);
 
-			// Check local storage session
-			if (typeof window !== "undefined") {
-				try {
-					const saved = localStorage.getItem(LOCAL_SESSION_KEY);
-					if (saved) {
-						const parsed = JSON.parse(saved) as AuthUser;
-						setUser(parsed);
-						if (parsed.role) {
-							setRole(parsed.role);
-						}
-					}
-				} catch (err) {
-					console.error("Failed to parse local session:", err);
-				}
-			}
-			setIsLoading(false);
+			return () => {
+				authListener.subscription.unsubscribe();
+			};
 		}
-		checkAuth();
-	}, []);
+	}, [isCloudConfigured]);
 
 	const signIn = async (email: string, pass: string) => {
-		if (isSupabaseConfigured()) {
-			const { data, error } = await supabase.auth.signInWithPassword({
-				email,
-				password: pass,
-			});
-			if (error) return { error: error.message };
-			if (data.user) {
-				const u: AuthUser = {
-					id: data.user.id,
-					email: data.user.email || "",
-					name: data.user.user_metadata?.full_name || "Agency Member",
-				};
-				setUser(u);
-			}
-			return {};
-		}
-
-		// Local authentication flow
-		const trimmedEmail = email.trim().toLowerCase();
-		let allUsers = [...PRESET_USERS];
-
-		if (typeof window !== "undefined") {
-			try {
-				const stored = localStorage.getItem(LOCAL_USERS_KEY);
-				if (stored) {
-					allUsers = [...allUsers, ...JSON.parse(stored)];
-				}
-			} catch {
-				// ignore
-			}
-		}
-
-		const match = allUsers.find(
-			(u) =>
-				u.email.toLowerCase() === trimmedEmail &&
-				(!u.pass || u.pass === pass || pass === "demo"),
-		);
-
-		if (
-			!match &&
-			pass !== "demo" &&
-			pass !== "kreatiwit2025" &&
-			pass.length < 4
-		) {
+		if (!isCloudConfigured) {
 			return {
 				error:
-					"Invalid credentials. Minimum 4 characters required or try Quick Demo.",
+					"Database credentials not configured. Please supply VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment to authenticate.",
 			};
 		}
 
-		const loggedInUser: AuthUser = match
-			? {
-					id: match.id,
-					name: match.name,
-					email: match.email,
-					role: match.role || "owner",
-				}
-			: {
-					id: `usr_${Date.now()}`,
-					name: email.split("@")[0].replace(/[._-]/g, " ") || "Agency Member",
-					email: trimmedEmail,
-					role: "owner",
-				};
-
-		setUser(loggedInUser);
-		if (loggedInUser.role) {
-			setRole(loggedInUser.role);
-		}
-
-		if (typeof window !== "undefined") {
-			localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify(loggedInUser));
-		}
-
-		return {};
-	};
-
-	const signUp = async (name: string, email: string, pass: string) => {
-		if (isSupabaseConfigured()) {
-			const { data, error } = await supabase.auth.signUp({
-				email,
+		try {
+			const { data, error } = await supabase.auth.signInWithPassword({
+				email: email.trim(),
 				password: pass,
-				options: {
-					data: { full_name: name },
-				},
 			});
-			if (error) return { error: error.message };
+
+			if (error) {
+				return { error: error.message };
+			}
+
 			if (data.user) {
+				const authRole = await loadAuthoritativeRole(
+					data.user.id,
+					data.user.user_metadata?.role,
+				);
 				const u: AuthUser = {
 					id: data.user.id,
 					email: data.user.email || "",
-					name,
+					name:
+						data.user.user_metadata?.full_name ||
+						data.user.email?.split("@")[0] ||
+						"Agency Member",
+					role: authRole,
 				};
 				setUser(u);
+				setRole(authRole);
 			}
+
 			return {};
+		} catch (err: any) {
+			return { error: err?.message || "Failed to sign in. Please verify credentials." };
+		}
+	};
+
+	const signUp = async (name: string, email: string, pass: string) => {
+		if (!isCloudConfigured) {
+			return {
+				error:
+					"Database credentials not configured. Please supply VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment to create an account.",
+			};
 		}
 
-		// Local registration
-		const trimmedEmail = email.trim().toLowerCase();
-		const newUser = {
-			id: `usr_${Date.now()}`,
-			name: name.trim() || trimmedEmail.split("@")[0],
-			email: trimmedEmail,
-			role: "owner" as UserRole,
-			pass,
-		};
+		try {
+			const { data, error } = await supabase.auth.signUp({
+				email: email.trim(),
+				password: pass,
+				options: {
+					data: {
+						full_name: name.trim(),
+						role: "member", // Authoritative default registration role
+					},
+				},
+			});
 
-		if (typeof window !== "undefined") {
-			try {
-				const stored = localStorage.getItem(LOCAL_USERS_KEY);
-				const existing = stored ? JSON.parse(stored) : [];
-				localStorage.setItem(
-					LOCAL_USERS_KEY,
-					JSON.stringify([...existing, newUser]),
-				);
-				localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify(newUser));
-			} catch (err) {
-				console.error("Local storage error:", err);
+			if (error) {
+				return { error: error.message };
 			}
+
+			if (data.session?.user) {
+				const authRole = await loadAuthoritativeRole(
+					data.session.user.id,
+					data.session.user.user_metadata?.role,
+				);
+				const u: AuthUser = {
+					id: data.session.user.id,
+					email: data.session.user.email || "",
+					name: name.trim() || "Agency Member",
+					role: authRole,
+				};
+				setUser(u);
+				setRole(authRole);
+				return { message: "Account created successfully." };
+			}
+
+			return {
+				message:
+					"Account registered. Please verify your email address to complete authentication.",
+			};
+		} catch (err: any) {
+			return { error: err?.message || "Registration failed." };
+		}
+	};
+
+	const resetPassword = async (email: string) => {
+		if (!isCloudConfigured) {
+			return {
+				error: "Cannot reset password: Cloud database is not configured.",
+			};
 		}
 
-		setUser({
-			id: newUser.id,
-			name: newUser.name,
-			email: newUser.email,
-			role: newUser.role,
-		});
-		setRole(newUser.role);
-
-		return {};
+		try {
+			const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+				redirectTo: window.location.origin,
+			});
+			if (error) return { error: error.message };
+			return {
+				message:
+					"Password recovery email dispatched. Please check your inbox for instructions.",
+			};
+		} catch (err: any) {
+			return { error: err?.message || "Password reset failed." };
+		}
 	};
 
 	const signOut = async () => {
-		if (isSupabaseConfigured()) {
-			await supabase.auth.signOut();
-		}
-		if (typeof window !== "undefined") {
-			localStorage.removeItem(LOCAL_SESSION_KEY);
+		if (isCloudConfigured) {
+			try {
+				await supabase.auth.signOut();
+			} catch (e) {
+				console.error("Sign out error:", e);
+			}
 		}
 		setUser(null);
+		setRole("member");
 	};
 
 	return (
@@ -248,11 +260,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			value={{
 				isAuthenticated: !!user,
 				isLoading,
+				isCloudConfigured,
 				user,
 				role,
-				setRole,
 				signIn,
 				signUp,
+				resetPassword,
 				signOut,
 			}}
 		>

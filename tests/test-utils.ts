@@ -29,5 +29,16 @@ export function expect(actual: any) {
 		toBeFalsy() {
 			assert.ok(!actual);
 		},
+		toMatch(pattern: RegExp) {
+			assert.match(String(actual), pattern);
+		},
+		not: {
+			toBe(expected: any) {
+				assert.notStrictEqual(actual, expected);
+			},
+			toEqual(expected: any) {
+				assert.notDeepStrictEqual(actual, expected);
+			},
+		},
 	};
 }

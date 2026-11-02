@@ -57,9 +57,39 @@ export interface Lead {
 	notes: string;
 	projectId?: string;
 	convertedClientId?: string;
+	convertedOpportunityId?: string;
+	convertedOpportunityNo?: string;
 	convertedAt?: string;
 	status?: "active" | "archived";
 	createdAt?: string;
+}
+
+export type OpportunityStage =
+	| "Open"
+	| "Qualified"
+	| "Proposal"
+	| "Negotiation"
+	| "Won"
+	| "Lost"
+	| "Hold";
+
+export interface Opportunity {
+	id: string;
+	legacyId?: string;
+	opportunityNo: string; // Permanent, unique, e.g. "KW-OPP-000001"
+	clientId: string;
+	sourceLeadId?: string;
+	title: string;
+	service: string;
+	description?: string;
+	value: number;
+	currency: string;
+	stage: OpportunityStage;
+	owner: string;
+	expectedCloseDate?: string;
+	status?: "active" | "archived";
+	createdAt?: string;
+	updatedAt?: string;
 }
 
 export interface Contact {
@@ -97,14 +127,18 @@ export type FinanceStatus =
 
 export interface FinanceItem {
 	id: string;
+	legacyId?: string;
 	clientId: string;
 	projectId?: string;
+	opportunityId?: string;
+	opportunityNo?: string;
 	type: FinanceType;
 	title: string;
 	amount: number;
 	status: FinanceStatus;
-	issuedDate: string;
-	dueDate: string;
+	issuedDate: string; // Canonical contract
+	issueDate?: string; // Backward compatibility alias
+	dueDate?: string;
 	paidDate?: string;
 	notes?: string;
 	createdAt?: string;
@@ -112,7 +146,7 @@ export interface FinanceItem {
 
 export interface Note {
 	id: string;
-	entityType: "lead" | "client" | "project" | "task";
+	entityType: "lead" | "client" | "opportunity" | "project" | "task";
 	entityId: string;
 	author: string;
 	content: string;
@@ -135,6 +169,8 @@ export interface Project {
 	legacyId?: string;
 	name: string;
 	clientId: string;
+	opportunityId?: string;
+	opportunityNo?: string;
 	phase: ProjectPhase;
 	stackNeeded: string;
 	budget: number;
@@ -145,6 +181,7 @@ export interface Project {
 	progress: number;
 	status?: "active" | "completed" | "archived";
 }
+
 
 export type TaskStatus = "Todo" | "In progress" | "Blocked" | "Completed";
 export type TaskPriority = "Low" | "Medium" | "High" | "Urgent";

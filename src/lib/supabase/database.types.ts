@@ -216,6 +216,8 @@ export interface Database {
 					next_followup: string | null;
 					notes: string | null;
 					converted_to_client_id: string | null;
+					converted_to_opportunity_id?: string | null;
+					converted_opportunity_no?: string | null;
 					converted_at: string | null;
 					status: "active" | "archived";
 					created_at: string;
@@ -242,6 +244,8 @@ export interface Database {
 					next_followup?: string | null;
 					notes?: string | null;
 					converted_to_client_id?: string | null;
+					converted_to_opportunity_id?: string | null;
+					converted_opportunity_no?: string | null;
 					converted_at?: string | null;
 					status?: "active" | "archived";
 					created_at?: string;
@@ -265,6 +269,8 @@ export interface Database {
 					next_followup?: string | null;
 					notes?: string | null;
 					converted_to_client_id?: string | null;
+					converted_to_opportunity_id?: string | null;
+					converted_opportunity_no?: string | null;
 					converted_at?: string | null;
 					status?: "active" | "archived";
 					updated_at?: string;
@@ -276,6 +282,8 @@ export interface Database {
 					legacy_id: string | null;
 					organization_id: string;
 					client_id: string;
+					opportunity_id?: string | null;
+					opportunity_no?: string | null;
 					name: string;
 					phase:
 						| "Kickoff"
@@ -303,6 +311,8 @@ export interface Database {
 					legacy_id?: string | null;
 					organization_id: string;
 					client_id: string;
+					opportunity_id?: string | null;
+					opportunity_no?: string | null;
 					name: string;
 					phase?:
 						| "Kickoff"
@@ -327,6 +337,8 @@ export interface Database {
 				};
 				Update: {
 					client_id?: string;
+					opportunity_id?: string | null;
+					opportunity_no?: string | null;
 					name?: string;
 					phase?:
 						| "Kickoff"
@@ -606,6 +618,212 @@ export interface Database {
 					summary?: string;
 				};
 			};
+			opportunities: {
+				Row: {
+					id: string;
+					organization_id: string;
+					opportunity_no: string;
+					client_id: string;
+					source_lead_id: string | null;
+					title: string;
+					service: string;
+					description: string | null;
+					estimated_value: number;
+					currency: string;
+					stage:
+						| "Open"
+						| "Qualified"
+						| "Proposal"
+						| "Negotiation"
+						| "Won"
+						| "Lost"
+						| "Hold";
+					owner_name: string;
+					expected_close_date: string | null;
+					status: "active" | "archived";
+					created_at: string;
+					updated_at: string;
+				};
+				Insert: {
+					id?: string;
+					organization_id: string;
+					opportunity_no?: string;
+					client_id: string;
+					source_lead_id?: string | null;
+					title: string;
+					service: string;
+					description?: string | null;
+					estimated_value?: number;
+					currency?: string;
+					stage?:
+						| "Open"
+						| "Qualified"
+						| "Proposal"
+						| "Negotiation"
+						| "Won"
+						| "Lost"
+						| "Hold";
+					owner_name?: string;
+					expected_close_date?: string | null;
+					status?: "active" | "archived";
+					created_at?: string;
+					updated_at?: string;
+				};
+				Update: {
+					client_id?: string;
+					source_lead_id?: string | null;
+					title?: string;
+					service?: string;
+					description?: string | null;
+					estimated_value?: number;
+					currency?: string;
+					stage?:
+						| "Open"
+						| "Qualified"
+						| "Proposal"
+						| "Negotiation"
+						| "Won"
+						| "Lost"
+						| "Hold";
+					owner_name?: string;
+					expected_close_date?: string | null;
+					status?: "active" | "archived";
+					updated_at?: string;
+				};
+			};
+			contacts: {
+				Row: {
+					id: string;
+					organization_id: string;
+					client_id: string;
+					name: string;
+					role: string;
+					email: string | null;
+					phone: string | null;
+					is_primary: boolean;
+					notes: string | null;
+					created_at: string;
+					updated_at: string;
+				};
+				Insert: {
+					id?: string;
+					organization_id: string;
+					client_id: string;
+					name: string;
+					role?: string;
+					email?: string | null;
+					phone?: string | null;
+					is_primary?: boolean;
+					notes?: string | null;
+					created_at?: string;
+					updated_at?: string;
+				};
+				Update: {
+					client_id?: string;
+					name?: string;
+					role?: string;
+					email?: string | null;
+					phone?: string | null;
+					is_primary?: boolean;
+					notes?: string | null;
+					updated_at?: string;
+				};
+			};
+			finance_records: {
+				Row: {
+					id: string;
+					organization_id: string;
+					client_id: string;
+					project_id: string | null;
+					opportunity_id: string | null;
+					opportunity_no: string | null;
+					type: "proposal" | "quotation" | "invoice";
+					title: string;
+					amount: number;
+					status:
+						| "Draft"
+						| "Sent"
+						| "Accepted"
+						| "Paid"
+						| "Overdue"
+						| "Declined";
+					issued_date: string;
+					due_date: string | null;
+					paid_date: string | null;
+					notes: string | null;
+					created_at: string;
+					updated_at: string;
+				};
+				Insert: {
+					id?: string;
+					organization_id: string;
+					client_id: string;
+					project_id?: string | null;
+					opportunity_id?: string | null;
+					opportunity_no?: string | null;
+					type: "proposal" | "quotation" | "invoice";
+					title: string;
+					amount?: number;
+					status?:
+						| "Draft"
+						| "Sent"
+						| "Accepted"
+						| "Paid"
+						| "Overdue"
+						| "Declined";
+					issued_date?: string;
+					due_date?: string | null;
+					paid_date?: string | null;
+					notes?: string | null;
+					created_at?: string;
+					updated_at?: string;
+				};
+				Update: {
+					client_id?: string;
+					project_id?: string | null;
+					opportunity_id?: string | null;
+					opportunity_no?: string | null;
+					type?: "proposal" | "quotation" | "invoice";
+					title?: string;
+					amount?: number;
+					status?:
+						| "Draft"
+						| "Sent"
+						| "Accepted"
+						| "Paid"
+						| "Overdue"
+						| "Declined";
+					issued_date?: string;
+					due_date?: string | null;
+					paid_date?: string | null;
+					notes?: string | null;
+					updated_at?: string;
+				};
+			};
+			notes: {
+				Row: {
+					id: string;
+					organization_id: string;
+					entity_type: "lead" | "client" | "opportunity" | "project" | "task";
+					entity_id: string;
+					author_name: string;
+					content: string;
+					created_at: string;
+				};
+				Insert: {
+					id?: string;
+					organization_id: string;
+					entity_type: "lead" | "client" | "opportunity" | "project" | "task";
+					entity_id: string;
+					author_name: string;
+					content: string;
+					created_at?: string;
+				};
+				Update: {
+					content?: string;
+				};
+			};
 		};
 	};
 }
+

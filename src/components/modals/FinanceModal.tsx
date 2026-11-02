@@ -7,12 +7,15 @@ import type {
 	FinanceItem,
 	FinanceStatus,
 	FinanceType,
+	Opportunity,
 	Project,
 } from "../../types";
 
 interface FinanceModalProps {
 	clients: Client[];
 	projects: Project[];
+	opportunities?: Opportunity[];
+	initialOpportunityId?: string;
 	initialItem?: FinanceItem | null;
 	initialClientId?: string;
 	initialProjectId?: string;
@@ -23,6 +26,8 @@ interface FinanceModalProps {
 export const FinanceModal: React.FC<FinanceModalProps> = ({
 	clients,
 	projects,
+	opportunities = [],
+	initialOpportunityId,
 	initialItem,
 	initialClientId,
 	initialProjectId,
@@ -41,6 +46,25 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({
 		.toISOString()
 		.split("T")[0];
 
+	const [selectedOppId, setSelectedOppId] = useState<string>(
+		initialItem?.opportunityId || initialOpportunityId || "",
+	);
+
+	const linkedOpportunity = opportunities.find((o) => o.id === selectedOppId);
+	const [selectedClientId, setSelectedClientId] = useState<string>(
+		initialItem?.clientId ||
+			initialClientId ||
+			(linkedOpportunity ? linkedOpportunity.clientId : clients[0]?.id || ""),
+	);
+
+	const handleOppChange = (oppId: string) => {
+		setSelectedOppId(oppId);
+		const opp = opportunities.find((o) => o.id === oppId);
+		if (opp && opp.clientId) {
+			setSelectedClientId(opp.clientId);
+		}
+	};
+
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setError(null);
@@ -48,7 +72,7 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({
 
 		const title = String(fd.get("title") || "").trim();
 		const type = String(fd.get("type") || "invoice") as FinanceType;
-		const clientId = String(fd.get("clientId") || "").trim();
+		const clientId = String(fd.get("clientId") || selectedClientId).trim();
 		const projectId = String(fd.get("projectId") || "").trim() || undefined;
 		const amount = Number(fd.get("amount")) || 0;
 		const status = String(fd.get("status") || "Draft") as FinanceStatus;
@@ -69,6 +93,8 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({
 			return;
 		}
 
+		const opp = opportunities.find((o) => o.id === selectedOppId);
+
 		setIsSubmitting(true);
 		try {
 			if (isEditing && initialItem) {
@@ -77,6 +103,8 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({
 					type,
 					clientId,
 					projectId,
+					opportunityId: opp ? opp.id : undefined,
+					opportunityNo: opp ? opp.opportunityNo : undefined,
 					amount,
 					status,
 					issueDate,
@@ -94,6 +122,8 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({
 					type,
 					clientId,
 					projectId,
+					opportunityId: opp ? opp.id : undefined,
+					opportunityNo: opp ? opp.opportunityNo : undefined,
 					amount,
 					status,
 					issueDate,
@@ -200,6 +230,26 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({
 						</div>
 					</div>
 
+					{opportunities.length > 0 && (
+						<div>
+							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
+								Linked Commercial Deal (Optional)
+							</label>
+							<select
+								value={selectedOppId}
+								onChange={(e) => handleOppChange(e.target.value)}
+								className="studio-input font-medium"
+							>
+								<option value="">No linked commercial deal</option>
+								{opportunities.map((o) => (
+									<option key={o.id} value={o.id}>
+										{o.opportunityNo} • {o.title} (₹{(o.value / 1000).toFixed(0)}k)
+									</option>
+								))}
+							</select>
+						</div>
+					)}
+
 					<div>
 						<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
 							Title / Deliverable Description *
@@ -221,12 +271,8 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({
 							<select
 								name="clientId"
 								required
-								defaultValue={
-									initialItem?.clientId ||
-									initialClientId ||
-									clients[0]?.id ||
-									""
-								}
+								value={selectedClientId}
+								onChange={(e) => setSelectedClientId(e.target.value)}
 								className="studio-input"
 							>
 								{clients.map((c) => (

@@ -15,6 +15,7 @@ interface SidebarProps {
 	istHour: number;
 	departments: Department[];
 	tasksCount?: number;
+	opportunitiesCount?: number;
 	contactsCount?: number;
 	financeCount?: number;
 	archiveCount?: number;
@@ -44,6 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 	onlineCount,
 	istHour,
 	tasksCount,
+	opportunitiesCount,
 	contactsCount,
 	financeCount,
 	archiveCount,
@@ -63,6 +65,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
 					label: "Sales Pipeline",
 					icon: "⚑",
 					badge: leadsCount,
+				},
+				{
+					id: "opportunities",
+					label: "Commercial Deals",
+					icon: "⚡",
+					badge: opportunitiesCount || null,
 				},
 				{ id: "clients", label: "Client Accounts", icon: "◈" },
 				{

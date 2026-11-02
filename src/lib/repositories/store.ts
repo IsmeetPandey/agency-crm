@@ -7,6 +7,7 @@ import type {
 	Handoff,
 	Lead,
 	Note,
+	Opportunity,
 	Project,
 	ProjectGate,
 	RACIAssignment,
@@ -20,6 +21,55 @@ import {
 	RACI_ROLES,
 	TEAM,
 } from "../constants/agency";
+
+export const INITIAL_OPPORTUNITIES: Opportunity[] = [
+	{
+		id: "opp1",
+		opportunityNo: "KW-OPP-000001",
+		clientId: "c1",
+		title: "Orbit / Global Digital Experience & Commerce",
+		service: "Next.js & Design System",
+		description: "Enterprise multi-region digital experience platform with unified design system.",
+		value: 240000,
+		currency: "INR",
+		stage: "Won",
+		owner: "Shradha",
+		expectedCloseDate: "2025-10-20",
+		status: "active",
+		createdAt: "2025-08-01T10:00:00.000Z",
+	},
+	{
+		id: "opp2",
+		opportunityNo: "KW-OPP-000002",
+		clientId: "c2",
+		title: "Serein / Commerce Brand & Interactive Storefront",
+		service: "Brand & Commerce",
+		description: "Rebranding, three.js 3D catalog, and headless commerce implementation.",
+		value: 180000,
+		currency: "INR",
+		stage: "Won",
+		owner: "Ansul",
+		expectedCloseDate: "2025-09-01",
+		status: "active",
+		createdAt: "2025-08-10T12:00:00.000Z",
+	},
+	{
+		id: "opp3",
+		opportunityNo: "KW-OPP-000003",
+		clientId: "c3",
+		sourceLeadId: "l5",
+		title: "Northpeak / Brand Identity & Growth SEO",
+		service: "Brand + SEO",
+		description: "Corporate rebranding, design collateral, and comprehensive search engine optimization.",
+		value: 125000,
+		currency: "INR",
+		stage: "Won",
+		owner: "Abhishek",
+		expectedCloseDate: "2025-09-09",
+		status: "active",
+		createdAt: "2025-09-09T09:30:00.000Z",
+	},
+];
 
 // Canonical seed data matching original prototype exactly
 const INITIAL_LEADS: Lead[] = [
@@ -87,6 +137,10 @@ const INITIAL_LEADS: Lead[] = [
 		owner: "Abhishek",
 		followup: "2025-09-09",
 		notes: "Won!",
+		convertedClientId: "c3",
+		convertedOpportunityId: "opp3",
+		convertedOpportunityNo: "KW-OPP-000003",
+		convertedAt: "2025-09-09T10:00:00.000Z",
 	},
 ];
 
@@ -123,6 +177,8 @@ const INITIAL_PROJECTS: Project[] = [
 		legacyId: "p1",
 		name: "Orbit / Digital Experience",
 		clientId: "c1",
+		opportunityId: "opp1",
+		opportunityNo: "KW-OPP-000001",
 		phase: "Design",
 		stackNeeded: "React, Next.js, Figma",
 		budget: 240000,
@@ -137,6 +193,8 @@ const INITIAL_PROJECTS: Project[] = [
 		legacyId: "p2",
 		name: "Serein / Brand & commerce",
 		clientId: "c2",
+		opportunityId: "opp2",
+		opportunityNo: "KW-OPP-000002",
 		phase: "Build",
 		stackNeeded: "Next.js, Shopify, three.js",
 		budget: 180000,
@@ -147,6 +205,7 @@ const INITIAL_PROJECTS: Project[] = [
 		progress: 68,
 	},
 ];
+
 
 const INITIAL_TASKS: Task[] = [
 	{
@@ -289,6 +348,8 @@ const INITIAL_FINANCE: FinanceItem[] = [
 		id: "fin1",
 		clientId: "c1",
 		projectId: "p1",
+		opportunityId: "opp1",
+		opportunityNo: "KW-OPP-000001",
 		type: "invoice",
 		title: "Orbit / Milestone 1 - Architecture & UX Discovery",
 		amount: 120000,
@@ -302,6 +363,8 @@ const INITIAL_FINANCE: FinanceItem[] = [
 		id: "fin2",
 		clientId: "c1",
 		projectId: "p1",
+		opportunityId: "opp1",
+		opportunityNo: "KW-OPP-000001",
 		type: "invoice",
 		title: "Orbit / Milestone 2 - Design System & Component Library",
 		amount: 120000,
@@ -314,6 +377,8 @@ const INITIAL_FINANCE: FinanceItem[] = [
 		id: "fin3",
 		clientId: "c2",
 		projectId: "p2",
+		opportunityId: "opp2",
+		opportunityNo: "KW-OPP-000002",
 		type: "proposal",
 		title: "Serein / Brand Identity & Next.js Storefront Scope",
 		amount: 180000,
@@ -326,6 +391,8 @@ const INITIAL_FINANCE: FinanceItem[] = [
 		id: "fin4",
 		clientId: "c2",
 		projectId: "p2",
+		opportunityId: "opp2",
+		opportunityNo: "KW-OPP-000002",
 		type: "invoice",
 		title: "Serein / Retainer Advance 50%",
 		amount: 90000,
@@ -383,6 +450,8 @@ const STORAGE_KEY = "kreatiwit_agencyos_v3_state";
 export interface AppStateData {
 	leads: Lead[];
 	clients: Client[];
+	opportunities: Opportunity[];
+	opportunitySeq: number;
 	contacts: Contact[];
 	projects: Project[];
 	tasks: Task[];
@@ -396,6 +465,12 @@ export interface AppStateData {
 	raci: Record<string, RACIAssignment[]>; // projectId -> assignments
 	finance: FinanceItem[];
 	notes: Note[];
+}
+
+export function allocateNextOpportunityNumber(state: AppStateData): string {
+	state.opportunitySeq = (state.opportunitySeq || 3) + 1;
+	const numStr = state.opportunitySeq.toString().padStart(6, "0");
+	return `KW-OPP-${numStr}`;
 }
 
 function initDefaultGates(projects: Project[]): Record<string, ProjectGate[]> {
@@ -449,6 +524,10 @@ export function loadLocalState(): AppStateData {
 					if (!parsed.contacts) parsed.contacts = INITIAL_CONTACTS;
 					if (!parsed.finance) parsed.finance = INITIAL_FINANCE;
 					if (!parsed.notes) parsed.notes = INITIAL_NOTES;
+					if (!parsed.opportunities) {
+						parsed.opportunities = INITIAL_OPPORTUNITIES;
+						parsed.opportunitySeq = 3;
+					}
 					inMemoryState = parsed;
 					return parsed;
 				}
@@ -459,6 +538,8 @@ export function loadLocalState(): AppStateData {
 	const defaultState: AppStateData = {
 		leads: INITIAL_LEADS,
 		clients: INITIAL_CLIENTS,
+		opportunities: INITIAL_OPPORTUNITIES,
+		opportunitySeq: 3,
 		contacts: INITIAL_CONTACTS,
 		projects: INITIAL_PROJECTS,
 		tasks: INITIAL_TASKS,
@@ -491,6 +572,7 @@ export function loadLocalState(): AppStateData {
 	saveLocalState(defaultState);
 	return defaultState;
 }
+
 
 export function saveLocalState(state: AppStateData) {
 	inMemoryState = state;

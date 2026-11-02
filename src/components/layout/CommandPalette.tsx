@@ -5,6 +5,7 @@ import type {
 	Contact,
 	FinanceItem,
 	Lead,
+	Opportunity,
 	Project,
 	Task,
 	TeamMemberDetail,
@@ -18,9 +19,10 @@ interface CommandPaletteProps {
 	projects: Project[];
 	tasks: Task[];
 	team: TeamMemberDetail[];
+	opportunities?: Opportunity[];
 	contacts?: Contact[];
 	finance?: FinanceItem[];
-	onNavigate: (view: string, projectId?: string) => void;
+	onNavigate: (view: string, entityId?: string) => void;
 	onOpenModal: (type: string) => void;
 }
 
@@ -42,6 +44,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 	projects,
 	tasks,
 	team,
+	opportunities = [],
 	contacts = [],
 	finance = [],
 	onNavigate,
@@ -66,11 +69,23 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
 	if (!q) {
 		items.push({
+			id: "action-opp",
+			title: "Create Commercial Deal",
+			subtitle: "Record opportunity with sequential KW-OPP- number",
+			badge: "+Deal",
+			icon: "⚡",
+			section: "Quick Actions",
+			perform: () => {
+				onOpenModal("opportunity");
+				onClose();
+			},
+		});
+		items.push({
 			id: "action-lead",
-			title: "Create New Opportunity",
-			subtitle: "Log pipeline lead with value and owner",
+			title: "Create Pipeline Lead",
+			subtitle: "Log new inbound prospect with stage and owner",
 			badge: "+Lead",
-			icon: "❖",
+			icon: "⚑",
 			section: "Quick Actions",
 			perform: () => {
 				onOpenModal("lead");
@@ -138,6 +153,31 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 			},
 		});
 	} else {
+		// Commercial Opportunities
+		const matchingOpportunities = opportunities
+			.filter(
+				(o) =>
+					o.opportunityNo.toLowerCase().includes(q) ||
+					o.title.toLowerCase().includes(q) ||
+					o.service.toLowerCase().includes(q) ||
+					o.owner.toLowerCase().includes(q),
+			)
+			.slice(0, 4);
+		for (const o of matchingOpportunities) {
+			items.push({
+				id: `opp-${o.id}`,
+				title: `${o.opportunityNo} • ${o.title}`,
+				subtitle: `Stage: ${o.stage} • Value: ₹${(o.value / 1000).toFixed(0)}k • Owner: ${o.owner}`,
+				badge: o.stage,
+				icon: "⚡",
+				section: "Commercial Deals",
+				perform: () => {
+					onNavigate("opportunity", o.id);
+					onClose();
+				},
+			});
+		}
+
 		// Projects
 		const matchingProjects = projects
 			.filter(
