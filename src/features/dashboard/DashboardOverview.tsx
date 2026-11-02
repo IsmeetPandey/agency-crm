@@ -161,10 +161,17 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 				<div className="flex items-center gap-2">
 					<button
 						type="button"
-						onClick={() => onOpenModal("lead")}
+						onClick={() => onOpenModal("opportunity")}
 						className="btn-primary !h-[34px] !text-[12px] !px-3"
 					>
-						+ Opportunity
+						+ Commercial Deal
+					</button>
+					<button
+						type="button"
+						onClick={() => onOpenModal("lead")}
+						className="btn-secondary !h-[34px] !text-[12px] !px-3 !bg-white/10 !text-white !border-white/20 hover:!bg-white/20"
+					>
+						+ Lead
 					</button>
 					<button
 						type="button"
@@ -195,14 +202,24 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 						₹{(pipelineValue / 1000).toFixed(0)}k
 					</div>
 					<div className="text-[12px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
-						<span>{activeLeads.length} Opportunities</span>
-						<button
-							type="button"
-							onClick={() => onNavigate("pipeline")}
-							className="text-blue-600 font-semibold hover:underline"
-						>
-							View Board →
-						</button>
+						<span>{activeLeads.length} Inbound Prospects</span>
+						<div className="flex items-center gap-2">
+							<button
+								type="button"
+								onClick={() => onNavigate("opportunities")}
+								className="text-blue-600 font-semibold hover:underline"
+							>
+								Deals ⚡
+							</button>
+							<span className="text-slate-300">•</span>
+							<button
+								type="button"
+								onClick={() => onNavigate("pipeline")}
+								className="text-blue-600 font-semibold hover:underline"
+							>
+								Board →
+							</button>
+						</div>
 					</div>
 				</div>
 

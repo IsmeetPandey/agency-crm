@@ -9,6 +9,7 @@ import type {
 	Client,
 	Handoff,
 	Lead,
+	Opportunity,
 	Project,
 	Task,
 	TeamMemberDetail,
@@ -16,6 +17,7 @@ import type {
 
 interface SettingsViewProps {
 	leads: Lead[];
+	opportunities?: Opportunity[];
 	clients: Client[];
 	projects: Project[];
 	tasks: Task[];
@@ -26,6 +28,7 @@ interface SettingsViewProps {
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
 	leads,
+	opportunities = [],
 	clients,
 	projects,
 	tasks,
@@ -57,6 +60,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 			role,
 			data: {
 				leads,
+				opportunities,
 				clients,
 				projects,
 				tasks,

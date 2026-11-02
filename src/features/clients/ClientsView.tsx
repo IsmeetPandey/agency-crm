@@ -1,19 +1,24 @@
 import type React from "react";
-import type { Client, Project } from "../../types";
+import { OpportunityChip } from "../../components/ui/OpportunityChip";
+import type { Client, Opportunity, Project } from "../../types";
 
 interface ClientsViewProps {
 	clients: Client[];
 	projects: Project[];
+	opportunities?: Opportunity[];
 	onOpenModal: (type: string, data?: any) => void;
 	onNavigate: (view: string, projectId?: string) => void;
+	onNavigateToOpportunity?: (opportunityId: string) => void;
 	search: string;
 }
 
 export const ClientsView: React.FC<ClientsViewProps> = ({
 	clients,
 	projects,
+	opportunities = [],
 	onOpenModal,
 	onNavigate,
+	onNavigateToOpportunity,
 	search,
 }) => {
 	const filteredClients = clients.filter((c) => {
@@ -55,6 +60,8 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 					const clientProjects = projects.filter(
 						(p) => p.clientId === client.id,
 					);
+
+					const clientOpps = opportunities.filter((o) => o.clientId === client.id);
 
 					return (
 						<div key={client.id} className="studio-card p-5 space-y-4 bg-white">
@@ -111,6 +118,52 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 									&quot;{client.notes}&quot;
 								</p>
 							)}
+
+							{/* Linked Opportunities Section */}
+							<div className="pt-3 border-t border-slate-100">
+								<div className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center justify-between">
+									<span>Commercial Opportunities</span>
+									<div className="flex items-center gap-1.5">
+										<button
+											type="button"
+											onClick={() => onOpenModal("opportunity", { clientId: client.id })}
+											className="text-[10px] text-blue-600 hover:underline font-sans font-semibold"
+										>
+											+ Deal
+										</button>
+										<span className="font-semibold text-slate-700">
+											{clientOpps.length}
+										</span>
+									</div>
+								</div>
+
+								{clientOpps.length > 0 ? (
+									<div className="space-y-1.5">
+										{clientOpps.map((o) => (
+											<div
+												key={o.id}
+												className="text-[12px] p-2 rounded-md hover:bg-slate-50 border border-slate-100 flex items-center justify-between transition"
+											>
+												<div className="flex items-center gap-2 min-w-0">
+													<OpportunityChip
+														opportunityNo={o.opportunityNo}
+														opportunityId={o.id}
+														onNavigate={onNavigateToOpportunity}
+													/>
+													<span className="truncate text-slate-800 font-medium">{o.title}</span>
+												</div>
+												<span className="font-mono text-[11px] font-bold text-slate-700 shrink-0">
+													₹{(o.value / 1000).toFixed(0)}k
+												</span>
+											</div>
+										))}
+									</div>
+								) : (
+									<div className="text-[11px] text-slate-400 italic py-1">
+										No commercial deals logged
+									</div>
+								)}
+							</div>
 
 							{/* Linked Projects Section */}
 							<div className="pt-3 border-t border-slate-100">

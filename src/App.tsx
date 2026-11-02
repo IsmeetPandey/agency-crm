@@ -346,11 +346,13 @@ function AgencyOSApp() {
 						<ClientsView
 							clients={clients}
 							projects={projects}
+							opportunities={opportunities}
 							onOpenModal={(t, data) => setModal({ type: t, data })}
 							onNavigate={(v, pId) => {
 								if (pId) openProject(pId);
 								else setView(v);
 							}}
+							onNavigateToOpportunity={openOpportunity}
 							search={search}
 						/>
 					)}
@@ -448,6 +450,7 @@ function AgencyOSApp() {
 					{view === "settings" && (
 						<SettingsView
 							leads={leads}
+							opportunities={opportunities}
 							clients={clients}
 							projects={projects}
 							tasks={tasks}
