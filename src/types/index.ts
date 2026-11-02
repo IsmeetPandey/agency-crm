@@ -182,7 +182,6 @@ export interface Project {
 	status?: "active" | "completed" | "archived";
 }
 
-
 export type TaskStatus = "Todo" | "In progress" | "Blocked" | "Completed";
 export type TaskPriority = "Low" | "Medium" | "High" | "Urgent";
 

@@ -2,7 +2,12 @@ import type React from "react";
 import { useState } from "react";
 import { useToast } from "../../lib/feedback/toast.context";
 import { opportunitiesRepository } from "../../lib/repositories/opportunities.repository";
-import type { Client, Opportunity, OpportunityStage, TeamMemberDetail } from "../../types";
+import type {
+	Client,
+	Opportunity,
+	OpportunityStage,
+	TeamMemberDetail,
+} from "../../types";
 import { OpportunityChip } from "../ui/OpportunityChip";
 
 interface OpportunityModalProps {
@@ -24,6 +29,15 @@ const STAGES: OpportunityStage[] = [
 	"Hold",
 ];
 
+const DEFAULT_OWNERS = [
+	"Abhishek",
+	"Shradha",
+	"Ansul",
+	"Riya Kapoor",
+	"Arnav",
+	"Darshan",
+];
+
 export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 	clients,
 	team,
@@ -38,10 +52,25 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 	const [isDeleting, setIsDeleting] = useState(false);
 
 	const isEditing = !!initialOpportunity;
-	const defaultCloseDate = new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0];
+	const defaultCloseDate = new Date(Date.now() + 30 * 86400000)
+		.toISOString()
+		.split("T")[0];
+
+	// Combine team member names with defaults
+	const ownerOptions = Array.from(
+		new Set(
+			[
+				...team.map((m) => m.name).filter(Boolean),
+				...DEFAULT_OWNERS,
+				initialOpportunity?.owner,
+			].filter((n): n is string => Boolean(n)),
+		),
+	);
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		if (isSubmitting) return;
+
 		setError(null);
 		const fd = new FormData(e.currentTarget);
 
@@ -50,7 +79,9 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 		const service = String(fd.get("service") || "").trim();
 		const value = Number(fd.get("value")) || 0;
 		const stage = String(fd.get("stage") || "Open") as OpportunityStage;
-		const owner = String(fd.get("owner") || "Abhishek").trim();
+		const owner = String(
+			fd.get("owner") || ownerOptions[0] || "Abhishek",
+		).trim();
 		const expectedCloseDate = String(fd.get("expectedCloseDate") || "");
 		const description = String(fd.get("description") || "").trim();
 
@@ -74,15 +105,18 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 		setIsSubmitting(true);
 		try {
 			if (isEditing && initialOpportunity) {
-				const updated = await opportunitiesRepository.update(initialOpportunity.id, {
-					title,
-					service,
-					description,
-					value,
-					stage,
-					owner,
-					expectedCloseDate,
-				});
+				const updated = await opportunitiesRepository.update(
+					initialOpportunity.id,
+					{
+						title,
+						service,
+						description,
+						value,
+						stage,
+						owner,
+						expectedCloseDate,
+					},
+				);
 				toast({
 					title: "Opportunity Saved",
 					description: `${updated.opportunityNo} • ${updated.title} updated.`,
@@ -109,15 +143,17 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 				onSuccess(created);
 			}
 			onClose();
-		} catch (err: any) {
-			setError(err?.message || "Failed to save opportunity.");
+		} catch (err: unknown) {
+			const msg =
+				err instanceof Error ? err.message : "Failed to save opportunity.";
+			setError(msg);
 		} finally {
 			setIsSubmitting(false);
 		}
 	};
 
 	const handleDelete = async () => {
-		if (!initialOpportunity) return;
+		if (!initialOpportunity || isDeleting) return;
 		if (
 			!window.confirm(
 				`Archive opportunity ${initialOpportunity.opportunityNo} (${initialOpportunity.title})?`,
@@ -136,8 +172,10 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 			});
 			onSuccess();
 			onClose();
-		} catch (err: any) {
-			setError(err?.message || "Failed to archive opportunity.");
+		} catch (err: unknown) {
+			const msg =
+				err instanceof Error ? err.message : "Failed to archive opportunity.";
+			setError(msg);
 		} finally {
 			setIsDeleting(false);
 		}
@@ -149,7 +187,9 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 				<div className="flex items-center justify-between pb-3 border-b border-[#EDEDED]">
 					<div className="flex items-center gap-2.5">
 						<h3 className="text-[16px] font-bold text-[#111111]">
-							{isEditing ? "Edit Commercial Opportunity" : "New Opportunity Creator"}
+							{isEditing
+								? "Edit Commercial Opportunity"
+								: "New Opportunity Creator"}
 						</h3>
 						{initialOpportunity && (
 							<OpportunityChip
@@ -184,7 +224,12 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 								name="clientId"
 								required
 								disabled={isEditing}
-								defaultValue={initialOpportunity?.clientId || initialClientId || clients[0]?.id || ""}
+								defaultValue={
+									initialOpportunity?.clientId ||
+									initialClientId ||
+									clients[0]?.id ||
+									""
+								}
 								className="studio-input"
 							>
 								{clients.map((c) => (
@@ -262,12 +307,14 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 							</label>
 							<select
 								name="owner"
-								defaultValue={initialOpportunity?.owner || "Abhishek"}
-								className="studio-input"
+								defaultValue={
+									initialOpportunity?.owner || ownerOptions[0] || "Abhishek"
+								}
+								className="studio-input font-medium"
 							>
-								{team.map((m) => (
-									<option key={m.id} value={m.name}>
-										{m.name}
+								{ownerOptions.map((name) => (
+									<option key={name} value={name}>
+										{name}
 									</option>
 								))}
 							</select>
@@ -281,7 +328,9 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 						<input
 							name="expectedCloseDate"
 							type="date"
-							defaultValue={initialOpportunity?.expectedCloseDate || defaultCloseDate}
+							defaultValue={
+								initialOpportunity?.expectedCloseDate || defaultCloseDate
+							}
 							className="studio-input"
 						/>
 					</div>
@@ -331,8 +380,8 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 								{isSubmitting
 									? "Saving..."
 									: isEditing
-									? "Save Changes"
-									: "Generate Opportunity"}
+										? "Save Changes"
+										: "Generate Opportunity"}
 							</button>
 						</div>
 					</div>

@@ -22,7 +22,9 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 	const { toast } = useToast();
 	const [activeTab, setActiveTab] = useState<ArchiveTab>("leads");
 	const [archivedLeads, setArchivedLeads] = useState<Lead[]>([]);
-	const [archivedOpportunities, setArchivedOpportunities] = useState<Opportunity[]>([]);
+	const [archivedOpportunities, setArchivedOpportunities] = useState<
+		Opportunity[]
+	>([]);
 	const [archivedClients, setArchivedClients] = useState<Client[]>([]);
 	const [archivedProjects, setArchivedProjects] = useState<Project[]>([]);
 	const [localSearch, setLocalSearch] = useState("");
@@ -98,7 +100,8 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 				p.name.toLowerCase().includes(searchQuery) ||
 				p.phase.toLowerCase().includes(searchQuery) ||
 				p.owner.toLowerCase().includes(searchQuery) ||
-				(p.opportunityNo && p.opportunityNo.toLowerCase().includes(searchQuery)),
+				(p.opportunityNo &&
+					p.opportunityNo.toLowerCase().includes(searchQuery)),
 		);
 	}, [archivedProjects, searchQuery]);
 
@@ -188,7 +191,8 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 		} catch (err: any) {
 			toast({
 				title: "Purge Failed",
-				description: err?.message || "Could not permanently delete opportunity.",
+				description:
+					err?.message || "Could not permanently delete opportunity.",
 				type: "error",
 			});
 		}
@@ -306,7 +310,8 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 						</span>
 					</div>
 					<p className="text-[13px] text-[#666666] mt-1">
-						Protected multi-entity holding bin for leads, commercial opportunities, clients, and projects.
+						Protected multi-entity holding bin for leads, commercial
+						opportunities, clients, and projects.
 					</p>
 				</div>
 
@@ -406,8 +411,8 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 			) : (
 				<>
 					{/* Leads Tab */}
-					{activeTab === "leads" && (
-						filteredLeads.length === 0 ? (
+					{activeTab === "leads" &&
+						(filteredLeads.length === 0 ? (
 							<div className="text-center py-16 bg-white border border-[#EDEDED] rounded-xl">
 								<div className="text-3xl mb-2">⚑</div>
 								<h3 className="text-[14px] font-bold text-[#222222]">
@@ -434,7 +439,10 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 									</thead>
 									<tbody className="divide-y divide-[#F0F0F0]">
 										{filteredLeads.map((lead) => (
-											<tr key={lead.id} className="hover:bg-[#F9F9F9] transition">
+											<tr
+												key={lead.id}
+												className="hover:bg-[#F9F9F9] transition"
+											>
 												<td className="py-3 px-4">
 													<div className="font-semibold text-[#111111]">
 														{lead.name}
@@ -443,7 +451,9 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 														{lead.contact} {lead.email && `• ${lead.email}`}
 													</div>
 												</td>
-												<td className="py-3 px-4 text-[#444444]">{lead.service}</td>
+												<td className="py-3 px-4 text-[#444444]">
+													{lead.service}
+												</td>
 												<td className="py-3 px-4">
 													<span className="px-2 py-0.5 rounded text-[11px] font-mono bg-[#EDEDED] text-[#444444]">
 														{lead.stage}
@@ -452,7 +462,9 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 												<td className="py-3 px-4 font-mono font-medium text-[#222222]">
 													₹{lead.value.toLocaleString()}
 												</td>
-												<td className="py-3 px-4 text-[#555555]">{lead.owner}</td>
+												<td className="py-3 px-4 text-[#555555]">
+													{lead.owner}
+												</td>
 												<td className="py-3 px-4 text-right whitespace-nowrap">
 													<div className="inline-flex items-center gap-2">
 														<button
@@ -476,12 +488,11 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 									</tbody>
 								</table>
 							</div>
-						)
-					)}
+						))}
 
 					{/* Opportunities Tab */}
-					{activeTab === "opportunities" && (
-						filteredOpportunities.length === 0 ? (
+					{activeTab === "opportunities" &&
+						(filteredOpportunities.length === 0 ? (
 							<div className="text-center py-16 bg-white border border-[#EDEDED] rounded-xl">
 								<div className="text-3xl mb-2">⚡</div>
 								<h3 className="text-[14px] font-bold text-[#222222]">
@@ -509,7 +520,10 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 									</thead>
 									<tbody className="divide-y divide-[#F0F0F0]">
 										{filteredOpportunities.map((opp) => (
-											<tr key={opp.id} className="hover:bg-[#F9F9F9] transition">
+											<tr
+												key={opp.id}
+												className="hover:bg-[#F9F9F9] transition"
+											>
 												<td className="py-3 px-4">
 													<OpportunityChip opportunityNo={opp.opportunityNo} />
 												</td>
@@ -523,7 +537,9 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 														</div>
 													)}
 												</td>
-												<td className="py-3 px-4 text-[#444444]">{opp.service}</td>
+												<td className="py-3 px-4 text-[#444444]">
+													{opp.service}
+												</td>
 												<td className="py-3 px-4">
 													<span className="px-2 py-0.5 rounded text-[11px] font-mono bg-[#EDEDED] text-[#444444]">
 														{opp.stage}
@@ -532,7 +548,9 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 												<td className="py-3 px-4 font-mono font-medium text-[#222222]">
 													₹{opp.value.toLocaleString()}
 												</td>
-												<td className="py-3 px-4 text-[#555555]">{opp.owner}</td>
+												<td className="py-3 px-4 text-[#555555]">
+													{opp.owner}
+												</td>
 												<td className="py-3 px-4 text-right whitespace-nowrap">
 													<div className="inline-flex items-center gap-2">
 														<button
@@ -544,7 +562,9 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 														</button>
 														<button
 															type="button"
-															onClick={() => handleDeleteOpportunityPermanently(opp)}
+															onClick={() =>
+																handleDeleteOpportunityPermanently(opp)
+															}
 															className="px-2 py-1 rounded text-[11px] font-medium text-rose-600 hover:bg-rose-50"
 														>
 															Purge
@@ -556,12 +576,11 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 									</tbody>
 								</table>
 							</div>
-						)
-					)}
+						))}
 
 					{/* Clients Tab */}
-					{activeTab === "clients" && (
-						filteredClients.length === 0 ? (
+					{activeTab === "clients" &&
+						(filteredClients.length === 0 ? (
 							<div className="text-center py-16 bg-white border border-[#EDEDED] rounded-xl">
 								<div className="text-3xl mb-2">◈</div>
 								<h3 className="text-[14px] font-bold text-[#222222]">
@@ -587,13 +606,18 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 									</thead>
 									<tbody className="divide-y divide-[#F0F0F0]">
 										{filteredClients.map((client) => (
-											<tr key={client.id} className="hover:bg-[#F9F9F9] transition">
+											<tr
+												key={client.id}
+												className="hover:bg-[#F9F9F9] transition"
+											>
 												<td className="py-3 px-4">
 													<div className="font-semibold text-[#111111]">
 														{client.name}
 													</div>
 												</td>
-												<td className="py-3 px-4 text-[#444444]">{client.contact}</td>
+												<td className="py-3 px-4 text-[#444444]">
+													{client.contact}
+												</td>
 												<td className="py-3 px-4 font-mono text-[11px] text-[#555555]">
 													{client.email || "—"}
 												</td>
@@ -611,7 +635,9 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 														</button>
 														<button
 															type="button"
-															onClick={() => handleDeleteClientPermanently(client)}
+															onClick={() =>
+																handleDeleteClientPermanently(client)
+															}
 															className="px-2 py-1 rounded text-[11px] font-medium text-rose-600 hover:bg-rose-50"
 														>
 															Purge
@@ -623,12 +649,11 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 									</tbody>
 								</table>
 							</div>
-						)
-					)}
+						))}
 
 					{/* Projects Tab */}
-					{activeTab === "projects" && (
-						filteredProjects.length === 0 ? (
+					{activeTab === "projects" &&
+						(filteredProjects.length === 0 ? (
 							<div className="text-center py-16 bg-white border border-[#EDEDED] rounded-xl">
 								<div className="text-3xl mb-2">◼</div>
 								<h3 className="text-[14px] font-bold text-[#222222]">
@@ -655,7 +680,10 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 									</thead>
 									<tbody className="divide-y divide-[#F0F0F0]">
 										{filteredProjects.map((project) => (
-											<tr key={project.id} className="hover:bg-[#F9F9F9] transition">
+											<tr
+												key={project.id}
+												className="hover:bg-[#F9F9F9] transition"
+											>
 												<td className="py-3 px-4">
 													<div className="font-semibold text-[#111111]">
 														{project.name}
@@ -666,9 +694,13 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 												</td>
 												<td className="py-3 px-4">
 													{project.opportunityNo ? (
-														<OpportunityChip opportunityNo={project.opportunityNo} />
+														<OpportunityChip
+															opportunityNo={project.opportunityNo}
+														/>
 													) : (
-														<span className="text-[#999999] text-[11px] font-mono">—</span>
+														<span className="text-[#999999] text-[11px] font-mono">
+															—
+														</span>
 													)}
 												</td>
 												<td className="py-3 px-4">
@@ -679,7 +711,9 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 												<td className="py-3 px-4 font-mono font-medium text-[#222222]">
 													₹{project.budget.toLocaleString()}
 												</td>
-												<td className="py-3 px-4 text-[#555555]">{project.owner}</td>
+												<td className="py-3 px-4 text-[#555555]">
+													{project.owner}
+												</td>
 												<td className="py-3 px-4 text-right whitespace-nowrap">
 													<div className="inline-flex items-center gap-2">
 														<button
@@ -691,7 +725,9 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 														</button>
 														<button
 															type="button"
-															onClick={() => handleDeleteProjectPermanently(project)}
+															onClick={() =>
+																handleDeleteProjectPermanently(project)
+															}
 															className="px-2 py-1 rounded text-[11px] font-medium text-rose-600 hover:bg-rose-50"
 														>
 															Purge
@@ -703,8 +739,7 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
 									</tbody>
 								</table>
 							</div>
-						)
-					)}
+						))}
 				</>
 			)}
 		</div>

@@ -29,7 +29,8 @@ export const INITIAL_OPPORTUNITIES: Opportunity[] = [
 		clientId: "c1",
 		title: "Orbit / Global Digital Experience & Commerce",
 		service: "Next.js & Design System",
-		description: "Enterprise multi-region digital experience platform with unified design system.",
+		description:
+			"Enterprise multi-region digital experience platform with unified design system.",
 		value: 240000,
 		currency: "INR",
 		stage: "Won",
@@ -44,7 +45,8 @@ export const INITIAL_OPPORTUNITIES: Opportunity[] = [
 		clientId: "c2",
 		title: "Serein / Commerce Brand & Interactive Storefront",
 		service: "Brand & Commerce",
-		description: "Rebranding, three.js 3D catalog, and headless commerce implementation.",
+		description:
+			"Rebranding, three.js 3D catalog, and headless commerce implementation.",
 		value: 180000,
 		currency: "INR",
 		stage: "Won",
@@ -60,7 +62,8 @@ export const INITIAL_OPPORTUNITIES: Opportunity[] = [
 		sourceLeadId: "l5",
 		title: "Northpeak / Brand Identity & Growth SEO",
 		service: "Brand + SEO",
-		description: "Corporate rebranding, design collateral, and comprehensive search engine optimization.",
+		description:
+			"Corporate rebranding, design collateral, and comprehensive search engine optimization.",
 		value: 125000,
 		currency: "INR",
 		stage: "Won",
@@ -205,7 +208,6 @@ const INITIAL_PROJECTS: Project[] = [
 		progress: 68,
 	},
 ];
-
 
 const INITIAL_TASKS: Task[] = [
 	{
@@ -572,7 +574,6 @@ export function loadLocalState(): AppStateData {
 	saveLocalState(defaultState);
 	return defaultState;
 }
-
 
 export function saveLocalState(state: AppStateData) {
 	inMemoryState = state;

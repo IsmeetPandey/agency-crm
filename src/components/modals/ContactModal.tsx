@@ -28,6 +28,8 @@ export const ContactModal: React.FC<ContactModalProps> = ({
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		if (isSubmitting) return;
+
 		setError(null);
 		const fd = new FormData(e.currentTarget);
 
@@ -83,15 +85,16 @@ export const ContactModal: React.FC<ContactModalProps> = ({
 			}
 			onSuccess();
 			onClose();
-		} catch (err: any) {
-			setError(err.message || "Failed to save contact");
+		} catch (err: unknown) {
+			const msg = err instanceof Error ? err.message : "Failed to save contact";
+			setError(msg);
 		} finally {
 			setIsSubmitting(false);
 		}
 	};
 
 	const handleDelete = async () => {
-		if (!initialContact) return;
+		if (!initialContact || isDeleting) return;
 		if (
 			!window.confirm(
 				`Are you sure you want to remove contact ${initialContact.name}?`,
@@ -110,8 +113,10 @@ export const ContactModal: React.FC<ContactModalProps> = ({
 			});
 			onSuccess();
 			onClose();
-		} catch (err: any) {
-			setError(err.message || "Failed to remove contact");
+		} catch (err: unknown) {
+			const msg =
+				err instanceof Error ? err.message : "Failed to remove contact";
+			setError(msg);
 		} finally {
 			setIsDeleting(false);
 		}

@@ -1,5 +1,6 @@
 import type React from "react";
 import { OpportunityChip } from "../../components/ui/OpportunityChip";
+import { formatCompactCurrency } from "../../lib/utils/format";
 import type { Client, Opportunity, Project } from "../../types";
 
 interface ClientsViewProps {
@@ -24,11 +25,20 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 	const filteredClients = clients.filter((c) => {
 		if (!search) return true;
 		const s = search.toLowerCase();
+		const clientOpps = opportunities.filter((o) => o.clientId === c.id);
+		const hasMatchingOpp = clientOpps.some(
+			(o) =>
+				o.title.toLowerCase().includes(s) ||
+				o.opportunityNo.toLowerCase().includes(s) ||
+				o.service.toLowerCase().includes(s),
+		);
+
 		return (
 			c.name.toLowerCase().includes(s) ||
 			c.contact.toLowerCase().includes(s) ||
 			c.email.toLowerCase().includes(s) ||
-			(c.phone && c.phone.includes(s))
+			(c.phone && c.phone.includes(s)) ||
+			hasMatchingOpp
 		);
 	});
 
@@ -42,7 +52,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 					</h2>
 					<p className="text-[12px] text-slate-500">
 						B2B enterprise client directory, key contacts, and connected active
-						projects
+						projects & opportunities
 					</p>
 				</div>
 				<button
@@ -61,10 +71,15 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 						(p) => p.clientId === client.id,
 					);
 
-					const clientOpps = opportunities.filter((o) => o.clientId === client.id);
+					const clientOpps = opportunities.filter(
+						(o) => o.clientId === client.id,
+					);
 
 					return (
-						<div key={client.id} className="studio-card p-5 space-y-4 bg-white">
+						<div
+							key={client.id}
+							className="studio-card p-5 space-y-4 bg-white border border-slate-200 rounded-xl shadow-xs"
+						>
 							{/* Client Title & Actions */}
 							<div className="flex items-start justify-between gap-2">
 								<div className="min-w-0">
@@ -126,7 +141,9 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 									<div className="flex items-center gap-1.5">
 										<button
 											type="button"
-											onClick={() => onOpenModal("opportunity", { clientId: client.id })}
+											onClick={() =>
+												onOpenModal("opportunity", { clientId: client.id })
+											}
 											className="text-[10px] text-blue-600 hover:underline font-sans font-semibold"
 										>
 											+ Deal
@@ -150,10 +167,12 @@ export const ClientsView: React.FC<ClientsViewProps> = ({
 														opportunityId={o.id}
 														onNavigate={onNavigateToOpportunity}
 													/>
-													<span className="truncate text-slate-800 font-medium">{o.title}</span>
+													<span className="truncate text-slate-800 font-medium">
+														{o.title}
+													</span>
 												</div>
 												<span className="font-mono text-[11px] font-bold text-slate-700 shrink-0">
-													₹{(o.value / 1000).toFixed(0)}k
+													{formatCompactCurrency(o.value, o.currency)}
 												</span>
 											</div>
 										))}

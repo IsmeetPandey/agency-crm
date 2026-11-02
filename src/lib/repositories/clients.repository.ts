@@ -244,7 +244,10 @@ export const clientsRepository = {
 	async deletePermanently(id: string): Promise<void> {
 		if (isSupabaseConfigured()) {
 			const { error } = await supabase.from("clients").delete().eq("id", id);
-			if (error) throw new Error(`Failed to delete client permanently: ${error.message}`);
+			if (error)
+				throw new Error(
+					`Failed to delete client permanently: ${error.message}`,
+				);
 			return;
 		}
 		const state = loadLocalState();

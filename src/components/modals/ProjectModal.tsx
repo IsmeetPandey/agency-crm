@@ -14,6 +14,8 @@ interface ProjectModalProps {
 	onSuccess: () => void;
 }
 
+const DEFAULT_LEADS = ["Shradha", "Ansul", "Abhishek", "Riya Kapoor", "Arnav"];
+
 export const ProjectModal: React.FC<ProjectModalProps> = ({
 	clients,
 	team,
@@ -29,6 +31,10 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 
 	const suggested = suggestTeamForProject(techQuery, team);
 
+	const ownerOptions = Array.from(
+		new Set([...team.map((m) => m.name).filter(Boolean), ...DEFAULT_LEADS]),
+	);
+
 	const toggleAssign = (memberId: string) => {
 		if (assigned.includes(memberId)) {
 			setAssigned(assigned.filter((id) => id !== memberId));
@@ -43,7 +49,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 
 	const initialOpp = opportunities.find((o) => o.id === selectedOppId);
 	const [selectedClientId, setSelectedClientId] = useState<string>(
-		initialOpp ? initialOpp.clientId : "",
+		initialOpp ? initialOpp.clientId : clients[0]?.id || "",
 	);
 
 	const handleOppChange = (oppId: string) => {
@@ -56,6 +62,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		if (isSubmitting) return;
+
 		setError(null);
 		const fd = new FormData(e.currentTarget);
 		const name = String(fd.get("name") || "").trim();
@@ -84,14 +92,16 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 					assigned.length > 0
 						? assigned
 						: suggested.slice(0, 3).map((s) => s.member.id),
-				owner: String(fd.get("owner") || "Shradha"),
-				scope: String(fd.get("scope") || (linkedOpp?.description || "")),
+				owner: String(fd.get("owner") || ownerOptions[0] || "Shradha").trim(),
+				scope: String(fd.get("scope") || linkedOpp?.description || ""),
 				progress: 0,
 			});
 			onSuccess();
 			onClose();
-		} catch (err: any) {
-			setError(err.message || "Failed to create project");
+		} catch (err: unknown) {
+			const msg =
+				err instanceof Error ? err.message : "Failed to create project";
+			setError(msg);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -134,7 +144,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 								<option value="">No linked commercial deal</option>
 								{opportunities.map((o) => (
 									<option key={o.id} value={o.id}>
-										{o.opportunityNo} • {o.title} (₹{(o.value / 1000).toFixed(0)}k)
+										{o.opportunityNo} • {o.title} (₹
+										{(o.value / 1000).toFixed(0)}k)
 									</option>
 								))}
 							</select>
@@ -267,11 +278,17 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 						<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
 							Project Lead
 						</label>
-						<input
+						<select
 							name="owner"
-							defaultValue="Shradha"
+							defaultValue={ownerOptions[0] || "Shradha"}
 							className="studio-input font-medium"
-						/>
+						>
+							{ownerOptions.map((name) => (
+								<option key={name} value={name}>
+									{name}
+								</option>
+							))}
+						</select>
 					</div>
 
 					<div>
@@ -297,7 +314,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 						<button
 							type="submit"
 							disabled={isSubmitting}
-							className="btn-primary !h-[34px]"
+							className="btn-primary !h-[34px] disabled:opacity-50"
 						>
 							{isSubmitting ? "Creating..." : "Create Project"}
 						</button>

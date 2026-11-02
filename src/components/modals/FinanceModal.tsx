@@ -65,8 +65,18 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({
 		}
 	};
 
+	const filteredProjects = selectedClientId
+		? projects.filter((p) => p.clientId === selectedClientId)
+		: projects;
+
+	const filteredOpportunities = selectedClientId
+		? opportunities.filter((o) => o.clientId === selectedClientId)
+		: opportunities;
+
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		if (isSubmitting) return;
+
 		setError(null);
 		const fd = new FormData(e.currentTarget);
 
@@ -138,15 +148,17 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({
 			}
 			onSuccess();
 			onClose();
-		} catch (err: any) {
-			setError(err.message || "Failed to save finance record");
+		} catch (err: unknown) {
+			const msg =
+				err instanceof Error ? err.message : "Failed to save finance record";
+			setError(msg);
 		} finally {
 			setIsSubmitting(false);
 		}
 	};
 
 	const handleDelete = async () => {
-		if (!initialItem) return;
+		if (!initialItem || isDeleting) return;
 		if (!window.confirm(`Delete ${initialItem.type} "${initialItem.title}"?`))
 			return;
 
@@ -160,8 +172,10 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({
 			});
 			onSuccess();
 			onClose();
-		} catch (err: any) {
-			setError(err.message || "Failed to delete record");
+		} catch (err: unknown) {
+			const msg =
+				err instanceof Error ? err.message : "Failed to delete record";
+			setError(msg);
 		} finally {
 			setIsDeleting(false);
 		}
@@ -230,7 +244,7 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({
 						</div>
 					</div>
 
-					{opportunities.length > 0 && (
+					{filteredOpportunities.length > 0 && (
 						<div>
 							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
 								Linked Commercial Deal (Optional)
@@ -241,9 +255,10 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({
 								className="studio-input font-medium"
 							>
 								<option value="">No linked commercial deal</option>
-								{opportunities.map((o) => (
+								{filteredOpportunities.map((o) => (
 									<option key={o.id} value={o.id}>
-										{o.opportunityNo} • {o.title} (₹{(o.value / 1000).toFixed(0)}k)
+										{o.opportunityNo} • {o.title} (₹
+										{(o.value / 1000).toFixed(0)}k)
 									</option>
 								))}
 							</select>
@@ -293,7 +308,7 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({
 								className="studio-input"
 							>
 								<option value="">None / General Retainer</option>
-								{projects.map((p) => (
+								{filteredProjects.map((p) => (
 									<option key={p.id} value={p.id}>
 										{p.name}
 									</option>

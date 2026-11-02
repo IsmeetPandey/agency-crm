@@ -452,11 +452,13 @@ function AgencyOSApp() {
 							leads={leads}
 							opportunities={opportunities}
 							clients={clients}
+							contacts={contacts}
 							projects={projects}
 							tasks={tasks}
 							handoffs={handoffs}
 							team={team}
 							activity={activity}
+							finance={finance}
 						/>
 					)}
 				</main>

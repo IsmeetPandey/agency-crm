@@ -826,4 +826,3 @@ export interface Database {
 		};
 	};
 }
-

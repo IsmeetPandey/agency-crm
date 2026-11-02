@@ -1,7 +1,11 @@
 import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 import type { UserRole } from "../permissions/permissions";
-import { DEFAULT_ORG_ID, isSupabaseConfigured, supabase } from "../supabase/client";
+import {
+	DEFAULT_ORG_ID,
+	isSupabaseConfigured,
+	supabase,
+} from "../supabase/client";
 
 export interface AuthUser {
 	id: string;
@@ -22,7 +26,9 @@ export interface AuthContextType {
 		email: string,
 		pass: string,
 	) => Promise<{ error?: string; message?: string }>;
-	resetPassword: (email: string) => Promise<{ error?: string; message?: string }>;
+	resetPassword: (
+		email: string,
+	) => Promise<{ error?: string; message?: string }>;
 	signOut: () => Promise<void>;
 }
 
@@ -34,7 +40,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	const [user, setUser] = useState<AuthUser | null>(null);
 	const isCloudConfigured = isSupabaseConfigured();
 
-	const loadAuthoritativeRole = async (userId: string, metadataRole?: string): Promise<UserRole> => {
+	const loadAuthoritativeRole = async (
+		userId: string,
+		metadataRole?: string,
+	): Promise<UserRole> => {
 		try {
 			if (isCloudConfigured) {
 				const { data, error } = await supabase
@@ -169,7 +178,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 			return {};
 		} catch (err: any) {
-			return { error: err?.message || "Failed to sign in. Please verify credentials." };
+			return {
+				error: err?.message || "Failed to sign in. Please verify credentials.",
+			};
 		}
 	};
 
@@ -230,9 +241,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 		}
 
 		try {
-			const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-				redirectTo: window.location.origin,
-			});
+			const { error } = await supabase.auth.resetPasswordForEmail(
+				email.trim(),
+				{
+					redirectTo: window.location.origin,
+				},
+			);
 			if (error) return { error: error.message };
 			return {
 				message:

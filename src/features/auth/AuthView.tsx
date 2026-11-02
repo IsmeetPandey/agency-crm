@@ -60,7 +60,9 @@ export const AuthView: React.FC = () => {
 					<div className="inline-flex items-center gap-3 px-3 py-1.5 rounded-full bg-white/[0.05] border border-white/[0.08] backdrop-blur-md mb-4">
 						<span
 							className={`w-2 h-2 rounded-full ${
-								isCloudConfigured ? "bg-emerald-400 animate-pulse" : "bg-amber-400"
+								isCloudConfigured
+									? "bg-emerald-400 animate-pulse"
+									: "bg-amber-400"
 							}`}
 						/>
 						<span className="text-[11px] font-mono tracking-wider uppercase text-slate-300">
@@ -75,11 +77,13 @@ export const AuthView: React.FC = () => {
 							K
 						</div>
 						<h1 className="text-2xl font-bold tracking-tight text-white">
-							KREATIWIT <span className="text-slate-400 font-light">AgencyOS</span>
+							KREATIWIT{" "}
+							<span className="text-slate-400 font-light">AgencyOS</span>
 						</h1>
 					</div>
 					<p className="text-[13px] text-slate-400 max-w-sm mx-auto">
-						High-velocity studio operations, opportunities, client delivery, and team capacity command.
+						High-velocity studio operations, opportunities, client delivery, and
+						team capacity command.
 					</p>
 				</div>
 
@@ -91,7 +95,8 @@ export const AuthView: React.FC = () => {
 							<span>Supabase Cloud Credentials Required</span>
 						</div>
 						<p className="text-[13px] text-slate-300 leading-relaxed">
-							In accordance with production security standards, simulated authentication and plaintext credentials have been disabled.
+							In accordance with production security standards, simulated
+							authentication and plaintext credentials have been disabled.
 						</p>
 						<div className="p-3.5 rounded-lg bg-black/40 border border-white/[0.06] text-[11px] font-mono text-slate-400 space-y-1.5">
 							<div className="text-slate-200 font-semibold mb-1">
@@ -101,7 +106,9 @@ export const AuthView: React.FC = () => {
 							<div>VITE_SUPABASE_ANON_KEY=your-anon-key</div>
 						</div>
 						<p className="text-[12px] text-slate-400 leading-relaxed">
-							Provide valid credentials in your environment or <code className="text-slate-200">.env</code> file to enable genuine authentication and cloud persistence.
+							Provide valid credentials in your environment or{" "}
+							<code className="text-slate-200">.env</code> file to enable
+							genuine authentication and cloud persistence.
 						</p>
 					</div>
 				) : (

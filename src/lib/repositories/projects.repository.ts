@@ -54,7 +54,8 @@ export const projectsRepository = {
 		const state = loadLocalState();
 		let projects = state.projects.filter((p) => p.status !== "archived");
 		if (clientId) projects = projects.filter((p) => p.clientId === clientId);
-		if (opportunityId) projects = projects.filter((p) => p.opportunityId === opportunityId);
+		if (opportunityId)
+			projects = projects.filter((p) => p.opportunityId === opportunityId);
 		return projects;
 	},
 
@@ -137,7 +138,8 @@ export const projectsRepository = {
 					(m: any) => m.team_member_id,
 				),
 				progress: data.progress || 0,
-				status: (data.status as "active" | "completed" | "archived") || "active",
+				status:
+					(data.status as "active" | "completed" | "archived") || "active",
 			};
 		}
 
@@ -180,7 +182,9 @@ export const projectsRepository = {
 
 			if (error) {
 				console.error("Supabase create project error:", error);
-				throw new Error(`Failed to create project in database: ${error.message}`);
+				throw new Error(
+					`Failed to create project in database: ${error.message}`,
+				);
 			}
 
 			if (newProject.assignedTeam?.length) {
@@ -266,7 +270,8 @@ export const projectsRepository = {
 				scope: data.scope || "",
 				assignedTeam: updates.assignedTeam || [],
 				progress: data.progress,
-				status: (data.status as "active" | "completed" | "archived") || "active",
+				status:
+					(data.status as "active" | "completed" | "archived") || "active",
 			};
 		}
 
@@ -318,7 +323,10 @@ export const projectsRepository = {
 	async deletePermanently(id: string): Promise<void> {
 		if (isSupabaseConfigured()) {
 			const { error } = await supabase.from("projects").delete().eq("id", id);
-			if (error) throw new Error(`Failed to delete project permanently: ${error.message}`);
+			if (error)
+				throw new Error(
+					`Failed to delete project permanently: ${error.message}`,
+				);
 			return;
 		}
 		const state = loadLocalState();

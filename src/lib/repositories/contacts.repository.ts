@@ -108,7 +108,9 @@ export const contactsRepository = {
 
 			if (error) {
 				console.error("Supabase create contact error:", error);
-				throw new Error(`Failed to create contact in database: ${error.message}`);
+				throw new Error(
+					`Failed to create contact in database: ${error.message}`,
+				);
 			}
 
 			const created: Contact = {
@@ -182,7 +184,8 @@ export const contactsRepository = {
 			if (updates.isPrimary !== undefined)
 				dbUpdates.is_primary = Boolean(updates.isPrimary);
 			if (updates.notes !== undefined) dbUpdates.notes = updates.notes || null;
-			if (updates.clientId !== undefined) dbUpdates.client_id = updates.clientId;
+			if (updates.clientId !== undefined)
+				dbUpdates.client_id = updates.clientId;
 
 			const { data, error } = await supabase
 				.from("contacts")

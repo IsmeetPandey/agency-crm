@@ -21,9 +21,12 @@ export const ClientModal: React.FC<ClientModalProps> = ({
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		if (isSubmitting) return;
+
 		setError(null);
 		const fd = new FormData(e.currentTarget);
 		const name = String(fd.get("name") || "").trim();
+
 		if (!name) {
 			setError("Client company name is required");
 			return;
@@ -34,24 +37,25 @@ export const ClientModal: React.FC<ClientModalProps> = ({
 			if (isEditing && initialClient) {
 				await clientsRepository.update(initialClient.id, {
 					name,
-					contact: String(fd.get("contact") || ""),
-					email: String(fd.get("email") || ""),
-					phone: String(fd.get("phone") || ""),
-					notes: String(fd.get("notes") || ""),
+					contact: String(fd.get("contact") || "").trim(),
+					email: String(fd.get("email") || "").trim(),
+					phone: String(fd.get("phone") || "").trim(),
+					notes: String(fd.get("notes") || "").trim(),
 				});
 			} else {
 				await clientsRepository.create({
 					name,
-					contact: String(fd.get("contact") || ""),
-					email: String(fd.get("email") || ""),
-					phone: String(fd.get("phone") || ""),
-					notes: String(fd.get("notes") || ""),
+					contact: String(fd.get("contact") || "").trim(),
+					email: String(fd.get("email") || "").trim(),
+					phone: String(fd.get("phone") || "").trim(),
+					notes: String(fd.get("notes") || "").trim(),
 				});
 			}
 			onSuccess();
 			onClose();
-		} catch (err: any) {
-			setError(err.message || "Failed to save client");
+		} catch (err: unknown) {
+			const msg = err instanceof Error ? err.message : "Failed to save client";
+			setError(msg);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -146,7 +150,7 @@ export const ClientModal: React.FC<ClientModalProps> = ({
 					</div>
 
 					<div className="flex items-center justify-between gap-2.5 pt-3 border-t border-[#EDEDED]">
-						{isEditing && (
+						{isEditing && initialClient && (
 							<button
 								type="button"
 								disabled={isSubmitting}
@@ -157,13 +161,17 @@ export const ClientModal: React.FC<ClientModalProps> = ({
 											await clientsRepository.archive(initialClient.id);
 											onSuccess();
 											onClose();
-										} catch (err: any) {
-											setError(err.message || "Failed to archive client");
+										} catch (err: unknown) {
+											const msg =
+												err instanceof Error
+													? err.message
+													: "Failed to archive client";
+											setError(msg);
 											setIsSubmitting(false);
 										}
 									}
 								}}
-								className="text-[12px] text-rose-600 hover:text-rose-700 font-semibold px-2 py-1 mr-auto transition"
+								className="text-[12px] text-rose-600 hover:text-rose-700 font-semibold px-2 py-1 mr-auto transition cursor-pointer"
 							>
 								Archive
 							</button>
@@ -179,7 +187,7 @@ export const ClientModal: React.FC<ClientModalProps> = ({
 							<button
 								type="submit"
 								disabled={isSubmitting}
-								className="btn-primary !h-[34px]"
+								className="btn-primary !h-[34px] disabled:opacity-50"
 							>
 								{isSubmitting
 									? "Saving..."

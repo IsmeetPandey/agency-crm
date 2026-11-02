@@ -51,13 +51,17 @@ export const financeRepository = {
 		const state = loadLocalState();
 		let items = state.finance.map((f) => ({
 			...f,
-			issuedDate: f.issuedDate || (f as any).issueDate || new Date().toISOString().split("T")[0],
+			issuedDate:
+				f.issuedDate ||
+				(f as any).issueDate ||
+				new Date().toISOString().split("T")[0],
 			issueDate: f.issuedDate || (f as any).issueDate,
 		}));
 
 		if (clientId) items = items.filter((f) => f.clientId === clientId);
 		if (projectId) items = items.filter((f) => f.projectId === projectId);
-		if (opportunityId) items = items.filter((f) => f.opportunityId === opportunityId);
+		if (opportunityId)
+			items = items.filter((f) => f.opportunityId === opportunityId);
 
 		return items;
 	},
@@ -98,7 +102,10 @@ export const financeRepository = {
 		const state = loadLocalState();
 		const item = state.finance.find((f) => f.id === id);
 		if (!item) return null;
-		const canonicalDate = item.issuedDate || (item as any).issueDate || new Date().toISOString().split("T")[0];
+		const canonicalDate =
+			item.issuedDate ||
+			(item as any).issueDate ||
+			new Date().toISOString().split("T")[0];
 		return {
 			...item,
 			issuedDate: canonicalDate,
@@ -112,7 +119,9 @@ export const financeRepository = {
 	): Promise<FinanceItem> {
 		const id = payload.id || `fin_${Date.now()}`;
 		const canonicalIssuedDate =
-			payload.issuedDate || (payload as any).issueDate || new Date().toISOString().split("T")[0];
+			payload.issuedDate ||
+			(payload as any).issueDate ||
+			new Date().toISOString().split("T")[0];
 
 		if (isSupabaseConfigured()) {
 			const { data, error } = await supabase
@@ -200,15 +209,24 @@ export const financeRepository = {
 			if (updates.type !== undefined) dbUpdates.type = updates.type;
 			if (updates.amount !== undefined) dbUpdates.amount = updates.amount;
 			if (updates.status !== undefined) dbUpdates.status = updates.status;
-			if (updates.issuedDate !== undefined || (updates as any).issueDate !== undefined) {
-				dbUpdates.issued_date = updates.issuedDate || (updates as any).issueDate;
+			if (
+				updates.issuedDate !== undefined ||
+				(updates as any).issueDate !== undefined
+			) {
+				dbUpdates.issued_date =
+					updates.issuedDate || (updates as any).issueDate;
 			}
-			if (updates.dueDate !== undefined) dbUpdates.due_date = updates.dueDate || null;
-			if (updates.paidDate !== undefined) dbUpdates.paid_date = updates.paidDate || null;
+			if (updates.dueDate !== undefined)
+				dbUpdates.due_date = updates.dueDate || null;
+			if (updates.paidDate !== undefined)
+				dbUpdates.paid_date = updates.paidDate || null;
 			if (updates.notes !== undefined) dbUpdates.notes = updates.notes || null;
-			if (updates.projectId !== undefined) dbUpdates.project_id = updates.projectId || null;
-			if (updates.opportunityId !== undefined) dbUpdates.opportunity_id = updates.opportunityId || null;
-			if (updates.opportunityNo !== undefined) dbUpdates.opportunity_no = updates.opportunityNo || null;
+			if (updates.projectId !== undefined)
+				dbUpdates.project_id = updates.projectId || null;
+			if (updates.opportunityId !== undefined)
+				dbUpdates.opportunity_id = updates.opportunityId || null;
+			if (updates.opportunityNo !== undefined)
+				dbUpdates.opportunity_no = updates.opportunityNo || null;
 
 			const { data, error } = await supabase
 				.from("finance_records")
@@ -248,8 +266,14 @@ export const financeRepository = {
 		const updatedCanonical = {
 			...state.finance[idx],
 			...updates,
-			issuedDate: updates.issuedDate || (updates as any).issueDate || state.finance[idx].issuedDate,
-			issueDate: updates.issuedDate || (updates as any).issueDate || state.finance[idx].issuedDate,
+			issuedDate:
+				updates.issuedDate ||
+				(updates as any).issueDate ||
+				state.finance[idx].issuedDate,
+			issueDate:
+				updates.issuedDate ||
+				(updates as any).issueDate ||
+				state.finance[idx].issuedDate,
 		};
 		state.finance[idx] = updatedCanonical;
 		saveLocalState(state);

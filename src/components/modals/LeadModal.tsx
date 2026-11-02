@@ -2,7 +2,7 @@ import type React from "react";
 import { useState } from "react";
 import { STAGES } from "../../lib/constants/agency";
 import { leadsRepository } from "../../lib/repositories/leads.repository";
-import type { Lead } from "../../types";
+import type { Lead, LeadStage } from "../../types";
 
 interface LeadModalProps {
 	initialLead?: Lead | null;
@@ -22,6 +22,8 @@ export const LeadModal: React.FC<LeadModalProps> = ({
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		if (isSubmitting) return;
+
 		setError(null);
 		const fd = new FormData(e.currentTarget);
 		const name = String(fd.get("name") || "").trim();
@@ -35,32 +37,33 @@ export const LeadModal: React.FC<LeadModalProps> = ({
 			if (isEditing && initialLead) {
 				await leadsRepository.update(initialLead.id, {
 					name,
-					contact: String(fd.get("contact") || ""),
-					email: String(fd.get("email") || ""),
-					service: String(fd.get("service") || ""),
+					contact: String(fd.get("contact") || "").trim(),
+					email: String(fd.get("email") || "").trim(),
+					service: String(fd.get("service") || "").trim(),
 					value: Number(fd.get("value") || 0),
-					stage: String(fd.get("stage") || "New") as any,
-					owner: String(fd.get("owner") || "Abhishek"),
+					stage: String(fd.get("stage") || "New") as LeadStage,
+					owner: String(fd.get("owner") || "Abhishek").trim(),
 					followup: String(fd.get("followup") || ""),
-					notes: String(fd.get("notes") || ""),
+					notes: String(fd.get("notes") || "").trim(),
 				});
 			} else {
 				await leadsRepository.create({
 					name,
-					contact: String(fd.get("contact") || ""),
-					email: String(fd.get("email") || ""),
-					service: String(fd.get("service") || ""),
+					contact: String(fd.get("contact") || "").trim(),
+					email: String(fd.get("email") || "").trim(),
+					service: String(fd.get("service") || "").trim(),
 					value: Number(fd.get("value") || 0),
-					stage: String(fd.get("stage") || "New") as any,
-					owner: String(fd.get("owner") || "Abhishek"),
+					stage: String(fd.get("stage") || "New") as LeadStage,
+					owner: String(fd.get("owner") || "Abhishek").trim(),
 					followup: String(fd.get("followup") || ""),
-					notes: String(fd.get("notes") || ""),
+					notes: String(fd.get("notes") || "").trim(),
 				});
 			}
 			onSuccess();
 			onClose();
-		} catch (err: any) {
-			setError(err.message || "Failed to save lead");
+		} catch (err: unknown) {
+			const msg = err instanceof Error ? err.message : "Failed to save lead";
+			setError(msg);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -211,7 +214,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({
 					</div>
 
 					<div className="flex items-center justify-between gap-2.5 pt-3 border-t border-[#EDEDED]">
-						{isEditing && (
+						{isEditing && initialLead && (
 							<button
 								type="button"
 								disabled={isSubmitting}
@@ -222,13 +225,17 @@ export const LeadModal: React.FC<LeadModalProps> = ({
 											await leadsRepository.archive(initialLead.id);
 											onSuccess();
 											onClose();
-										} catch (err: any) {
-											setError(err.message || "Failed to archive opportunity");
+										} catch (err: unknown) {
+											const msg =
+												err instanceof Error
+													? err.message
+													: "Failed to archive opportunity";
+											setError(msg);
 											setIsSubmitting(false);
 										}
 									}
 								}}
-								className="text-[12px] text-rose-600 hover:text-rose-700 font-semibold px-2 py-1 mr-auto transition"
+								className="text-[12px] text-rose-600 hover:text-rose-700 font-semibold px-2 py-1 mr-auto transition cursor-pointer"
 							>
 								Archive
 							</button>
@@ -244,7 +251,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({
 							<button
 								type="submit"
 								disabled={isSubmitting}
-								className="btn-primary !h-[34px]"
+								className="btn-primary !h-[34px] disabled:opacity-50"
 							>
 								{isSubmitting
 									? "Saving..."

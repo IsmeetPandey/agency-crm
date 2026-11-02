@@ -23,6 +23,8 @@ export const HandoffModal: React.FC<HandoffModalProps> = ({
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		if (isSubmitting) return;
+
 		setError(null);
 		const fd = new FormData(e.currentTarget);
 		const title = String(fd.get("title") || "").trim();
@@ -46,8 +48,10 @@ export const HandoffModal: React.FC<HandoffModalProps> = ({
 			});
 			onSuccess();
 			onClose();
-		} catch (err: any) {
-			setError(err.message || "Failed to create handoff");
+		} catch (err: unknown) {
+			const msg =
+				err instanceof Error ? err.message : "Failed to create handoff";
+			setError(msg);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -171,7 +175,7 @@ export const HandoffModal: React.FC<HandoffModalProps> = ({
 						<button
 							type="submit"
 							disabled={isSubmitting}
-							className="btn-primary !h-[34px]"
+							className="btn-primary !h-[34px] disabled:opacity-50"
 						>
 							{isSubmitting ? "Submitting..." : "Initiate Handoff"}
 						</button>

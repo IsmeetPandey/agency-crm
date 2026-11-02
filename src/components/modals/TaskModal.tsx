@@ -1,7 +1,13 @@
 import type React from "react";
 import { useState } from "react";
 import { tasksRepository } from "../../lib/repositories/tasks.repository";
-import type { Department, Project, TeamMemberDetail } from "../../types";
+import type {
+	Department,
+	Project,
+	TaskPriority,
+	TaskStatus,
+	TeamMemberDetail,
+} from "../../types";
 
 interface TaskModalProps {
 	projects: Project[];
@@ -25,6 +31,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		if (isSubmitting) return;
+
 		setError(null);
 		const fd = new FormData(e.currentTarget);
 		const name = String(fd.get("name") || "").trim();
@@ -43,16 +51,17 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 				projectId,
 				name,
 				dept: String(fd.get("dept") || "Frontend"),
-				owner: String(fd.get("owner") || "Ansul"),
-				status: String(fd.get("status") || "In progress") as any,
-				priority: String(fd.get("priority") || "Medium") as any,
+				owner: String(fd.get("owner") || team[0]?.name || "Ansul"),
+				status: String(fd.get("status") || "In progress") as TaskStatus,
+				priority: String(fd.get("priority") || "Medium") as TaskPriority,
 				due: String(fd.get("due") || ""),
 				description: String(fd.get("description") || ""),
 			});
 			onSuccess();
 			onClose();
-		} catch (err: any) {
-			setError(err.message || "Failed to create task");
+		} catch (err: unknown) {
+			const msg = err instanceof Error ? err.message : "Failed to create task";
+			setError(msg);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -120,7 +129,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 							<select name="dept" className="studio-input font-medium">
 								{departments.map((d) => (
 									<option key={d.code} value={d.code}>
-										{d.label || (d as any).name || d.code}
+										{d.label || d.code}
 									</option>
 								))}
 							</select>
@@ -159,7 +168,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 								<option value="Low">Low</option>
 								<option value="Medium">Medium</option>
 								<option value="High">High</option>
-								<option value="Critical">Critical</option>
+								<option value="Urgent">Urgent</option>
 							</select>
 						</div>
 						<div>
@@ -197,7 +206,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 						<button
 							type="submit"
 							disabled={isSubmitting}
-							className="btn-primary !h-[34px]"
+							className="btn-primary !h-[34px] disabled:opacity-50"
 						>
 							{isSubmitting ? "Creating..." : "Create Deliverable"}
 						</button>

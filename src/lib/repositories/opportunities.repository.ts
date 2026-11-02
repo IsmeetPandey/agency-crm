@@ -67,7 +67,9 @@ export const opportunitiesRepository = {
 
 			if (error) {
 				console.error("Supabase list archived opportunities error:", error);
-				throw new Error(`Failed to load archived opportunities: ${error.message}`);
+				throw new Error(
+					`Failed to load archived opportunities: ${error.message}`,
+				);
 			}
 
 			return (data || []).map((row) => ({
@@ -166,7 +168,8 @@ export const opportunitiesRepository = {
 		const state = loadLocalState();
 		return (
 			state.opportunities.find(
-				(o) => o.opportunityNo.toLowerCase() === opportunityNo.trim().toLowerCase(),
+				(o) =>
+					o.opportunityNo.toLowerCase() === opportunityNo.trim().toLowerCase(),
 			) || null
 		);
 	},
@@ -208,7 +211,9 @@ export const opportunitiesRepository = {
 
 			if (error) {
 				console.error("Supabase create opportunity error:", error);
-				throw new Error(`Failed to create opportunity in database: ${error.message}`);
+				throw new Error(
+					`Failed to create opportunity in database: ${error.message}`,
+				);
 			}
 
 			const created: Opportunity = {
@@ -287,7 +292,8 @@ export const opportunitiesRepository = {
 			if (updates.service !== undefined) dbUpdates.service = updates.service;
 			if (updates.description !== undefined)
 				dbUpdates.description = updates.description;
-			if (updates.value !== undefined) dbUpdates.estimated_value = updates.value;
+			if (updates.value !== undefined)
+				dbUpdates.estimated_value = updates.value;
 			if (updates.stage !== undefined) dbUpdates.stage = updates.stage;
 			if (updates.owner !== undefined) dbUpdates.owner_name = updates.owner;
 			if (updates.expectedCloseDate !== undefined)
@@ -412,7 +418,9 @@ export const opportunitiesRepository = {
 				.delete()
 				.eq("id", id);
 			if (error) {
-				throw new Error(`Failed to delete opportunity permanently: ${error.message}`);
+				throw new Error(
+					`Failed to delete opportunity permanently: ${error.message}`,
+				);
 			}
 			return;
 		}

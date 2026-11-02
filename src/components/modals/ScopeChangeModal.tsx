@@ -21,6 +21,8 @@ export const ScopeChangeModal: React.FC<ScopeChangeModalProps> = ({
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		if (isSubmitting) return;
+
 		setError(null);
 		const fd = new FormData(e.currentTarget);
 		const title = String(fd.get("title") || "").trim();
@@ -36,7 +38,12 @@ export const ScopeChangeModal: React.FC<ScopeChangeModalProps> = ({
 			await workflowRepository.createScopeChange({
 				projectId,
 				title,
-				category: String(fd.get("category") || "Scope") as any,
+				category: String(fd.get("category") || "Scope") as
+					| "Scope"
+					| "Timeline"
+					| "Budget"
+					| "Stack"
+					| "Other",
 				description: String(fd.get("description") || ""),
 				costDelta: Number(fd.get("costDelta") || 0),
 				daysDelta: Number(fd.get("daysDelta") || 0),
@@ -45,8 +52,10 @@ export const ScopeChangeModal: React.FC<ScopeChangeModalProps> = ({
 			});
 			onSuccess();
 			onClose();
-		} catch (err: any) {
-			setError(err.message || "Failed to log scope change");
+		} catch (err: unknown) {
+			const msg =
+				err instanceof Error ? err.message : "Failed to log scope change";
+			setError(msg);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -191,7 +200,7 @@ export const ScopeChangeModal: React.FC<ScopeChangeModalProps> = ({
 						<button
 							type="submit"
 							disabled={isSubmitting}
-							className="btn-primary !h-[34px]"
+							className="btn-primary !h-[34px] disabled:opacity-50"
 						>
 							{isSubmitting ? "Logging..." : "Log Scope Change"}
 						</button>

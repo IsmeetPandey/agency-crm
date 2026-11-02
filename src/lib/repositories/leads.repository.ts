@@ -344,7 +344,10 @@ export const leadsRepository = {
 					};
 				}
 			} catch (rpcErr) {
-				console.warn("RPC conversion failed or not yet deployed, using client fallback:", rpcErr);
+				console.warn(
+					"RPC conversion failed or not yet deployed, using client fallback:",
+					rpcErr,
+				);
 			}
 		}
 
@@ -354,7 +357,9 @@ export const leadsRepository = {
 
 		// Idempotency: If already converted, return the exact linked opportunity and client
 		if (lead.convertedOpportunityId) {
-			const existingOpp = await opportunitiesRepository.getById(lead.convertedOpportunityId);
+			const existingOpp = await opportunitiesRepository.getById(
+				lead.convertedOpportunityId,
+			);
 			const existingClient = lead.convertedClientId
 				? await clientsRepository.getById(lead.convertedClientId)
 				: null;
@@ -373,7 +378,9 @@ export const leadsRepository = {
 		const existingClients = await clientsRepository.list();
 		let client = existingClients.find(
 			(c) =>
-				(lead.email && lead.email.trim() && c.email?.toLowerCase() === lead.email.toLowerCase().trim()) ||
+				(lead.email &&
+					lead.email.trim() &&
+					c.email?.toLowerCase() === lead.email.toLowerCase().trim()) ||
 				c.name.toLowerCase().trim() === lead.name.toLowerCase().trim(),
 		);
 
@@ -499,7 +506,8 @@ export const leadsRepository = {
 				.from("leads")
 				.update({ stage })
 				.in("id", ids);
-			if (error) throw new Error(`Failed to bulk update stage: ${error.message}`);
+			if (error)
+				throw new Error(`Failed to bulk update stage: ${error.message}`);
 			return;
 		}
 		const state = loadLocalState();

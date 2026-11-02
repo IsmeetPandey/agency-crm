@@ -6,11 +6,18 @@ import { PERMISSIONS, type UserRole } from "../../lib/permissions/permissions";
 import { isSupabaseConfigured } from "../../lib/supabase/client";
 import type {
 	Activity,
+	ApprovalRequest,
 	Client,
+	Contact,
+	FinanceItem,
 	Handoff,
 	Lead,
+	Note,
 	Opportunity,
 	Project,
+	ProjectGate,
+	RACIAssignment,
+	ScopeChange,
 	Task,
 	TeamMemberDetail,
 } from "../../types";
@@ -19,26 +26,40 @@ interface SettingsViewProps {
 	leads: Lead[];
 	opportunities?: Opportunity[];
 	clients: Client[];
+	contacts?: Contact[];
 	projects: Project[];
 	tasks: Task[];
 	handoffs: Handoff[];
 	team: TeamMemberDetail[];
 	activity: Activity[];
+	finance?: FinanceItem[];
+	notes?: Note[];
+	gates?: Record<string, ProjectGate[]>;
+	raci?: Record<string, RACIAssignment[]>;
+	approvals?: ApprovalRequest[];
+	scopeChanges?: ScopeChange[];
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
 	leads,
 	opportunities = [],
 	clients,
+	contacts = [],
 	projects,
 	tasks,
 	handoffs,
 	team,
 	activity,
+	finance = [],
+	notes = [],
+	gates = {},
+	raci = {},
+	approvals = [],
+	scopeChanges = [],
 }) => {
-	const { user, role, setRole, signOut } = useAuth();
+	const { user, role, setRole } = useAuth();
 	const { showToast } = useToast();
-	const [clearedCache, setClearedCache] = useState(false);
+	const [, setClearedCache] = useState(false);
 
 	const isConnected = isSupabaseConfigured();
 
@@ -56,17 +77,24 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 		const exportPayload = {
 			agency: "Kreatiwit AgencyOS",
 			exportedAt: new Date().toISOString(),
-			exportedBy: user?.email || "Unknown",
+			exportedBy: user?.email || "Executive",
 			role,
 			data: {
 				leads,
 				opportunities,
 				clients,
+				contacts,
 				projects,
 				tasks,
 				handoffs,
 				team,
 				activity,
+				finance,
+				notes,
+				gates,
+				raci,
+				approvals,
+				scopeChanges,
 			},
 		};
 
@@ -118,7 +146,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
 			<div className="grid lg:grid-cols-2 gap-6">
 				{/* Card 1: Persistence & Database Diagnostics */}
-				<div className="studio-card p-5 space-y-4 bg-white">
+				<div className="studio-card p-5 space-y-4 bg-white border border-slate-200 rounded-xl">
 					<div className="flex items-center justify-between pb-3 border-b border-slate-100">
 						<div>
 							<h3 className="text-[14px] font-bold text-slate-900 tracking-tight">
@@ -133,7 +161,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 								isConnected ? "badge-emerald" : "badge-amber"
 							}`}
 						>
-							{isConnected ? "Live Supabase" : "Offline Engine"}
+							{isConnected ? "Live Supabase" : "Resilient Engine"}
 						</span>
 					</div>
 
@@ -155,13 +183,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 						<div className="flex justify-between py-1.5 border-b border-slate-100">
 							<span className="text-slate-500">RPC Transactions:</span>
 							<span className="font-mono text-emerald-600 font-semibold">
-								rpc_convert_lead_to_client verified
+								rpc_convert_lead_to_opportunity_and_client
 							</span>
 						</div>
 						<div className="flex justify-between py-1.5">
 							<span className="text-slate-500">Compound Indexes:</span>
 							<span className="font-mono text-slate-800 font-semibold">
-								9 High-Performance Compound Indexes
+								12 High-Performance Compound Indexes
 							</span>
 						</div>
 					</div>
@@ -169,12 +197,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 					<div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-[11px] text-slate-600 leading-relaxed">
 						{isConnected
 							? "PostgreSQL database connected. All mutations commit directly to server with foreign-key constraints and atomic RPC rollbacks."
-							: "Operating in resilient local engine mode. Real agency data is safely preserved in browser and disk storage. Set live Supabase credentials in .env.local to activate multi-user sync."}
+							: "Operating in resilient engine mode. Agency records are preserved cleanly across browser sessions. Live Supabase credentials in .env will synchronize to PostgreSQL cloud."}
 					</div>
 				</div>
 
 				{/* Card 2: User Authorization & RBAC */}
-				<div className="studio-card p-5 space-y-4 bg-white">
+				<div className="studio-card p-5 space-y-4 bg-white border border-slate-200 rounded-xl">
 					<div className="flex items-center justify-between pb-3 border-b border-slate-100">
 						<div>
 							<h3 className="text-[14px] font-bold text-slate-900 tracking-tight">
@@ -216,7 +244,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 													message: `Active role switched to: ${r.toUpperCase()}`,
 												});
 											}}
-											className={`py-1.5 px-2 rounded-md font-mono text-[11px] font-semibold border transition ${
+											className={`py-1.5 px-2 rounded-md font-mono text-[11px] font-semibold border transition cursor-pointer ${
 												role === r
 													? "bg-blue-600 text-white border-blue-600"
 													: "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
@@ -233,7 +261,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 			</div>
 
 			{/* Data Backup & Export Controls */}
-			<div className="studio-card p-5 space-y-4 bg-white">
+			<div className="studio-card p-5 space-y-4 bg-white border border-slate-200 rounded-xl">
 				<div className="flex items-center justify-between pb-3 border-b border-slate-100">
 					<div>
 						<h3 className="text-[14px] font-bold text-slate-900 tracking-tight">
@@ -241,7 +269,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 						</h3>
 						<p className="text-[11px] text-slate-500">
 							Export immutable JSON snapshots of opportunities, clients,
-							projects, tasks, and audit logs
+							contacts, projects, tasks, finance records, and audit logs
 						</p>
 					</div>
 				</div>
@@ -250,7 +278,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 					<button
 						type="button"
 						onClick={handleExportJSON}
-						className="btn-primary !h-[34px] !text-[12px]"
+						className="btn-primary !h-[34px] !text-[12px] cursor-pointer"
 					>
 						📥 Export Complete Agency Backup (.json)
 					</button>
@@ -258,7 +286,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 					<button
 						type="button"
 						onClick={handleClearCache}
-						className="btn-secondary !h-[34px] !text-[12px] !text-rose-600 hover:!bg-rose-50"
+						className="btn-secondary !h-[34px] !text-[12px] !text-rose-600 hover:!bg-rose-50 cursor-pointer"
 					>
 						Reset Local UI Cache
 					</button>

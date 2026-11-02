@@ -3,7 +3,13 @@ import { useMemo, useState } from "react";
 import { OpportunityChip } from "../../components/ui/OpportunityChip";
 import { useToast } from "../../lib/feedback/toast.context";
 import { opportunitiesRepository } from "../../lib/repositories/opportunities.repository";
-import type { Client, Opportunity, OpportunityStage, TeamMemberDetail } from "../../types";
+import { formatCompactCurrency, formatCurrency } from "../../lib/utils/format";
+import type {
+	Client,
+	Opportunity,
+	OpportunityStage,
+	TeamMemberDetail,
+} from "../../types";
 
 interface OpportunitiesViewProps {
 	opportunities: Opportunity[];
@@ -25,14 +31,37 @@ const STAGES: OpportunityStage[] = [
 	"Hold",
 ];
 
-const STAGE_COLORS: Record<OpportunityStage, { bg: string; text: string; border: string }> = {
+const STAGE_COLORS: Record<
+	OpportunityStage,
+	{ bg: string; text: string; border: string }
+> = {
 	Open: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200" },
-	Qualified: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200" },
-	Proposal: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
-	Negotiation: { bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-200" },
-	Won: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" },
+	Qualified: {
+		bg: "bg-purple-50",
+		text: "text-purple-700",
+		border: "border-purple-200",
+	},
+	Proposal: {
+		bg: "bg-amber-50",
+		text: "text-amber-700",
+		border: "border-amber-200",
+	},
+	Negotiation: {
+		bg: "bg-orange-50",
+		text: "text-orange-700",
+		border: "border-orange-200",
+	},
+	Won: {
+		bg: "bg-emerald-50",
+		text: "text-emerald-700",
+		border: "border-emerald-200",
+	},
 	Lost: { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-200" },
-	Hold: { bg: "bg-slate-100", text: "text-slate-700", border: "border-slate-300" },
+	Hold: {
+		bg: "bg-slate-100",
+		text: "text-slate-700",
+		border: "border-slate-300",
+	},
 };
 
 export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
@@ -66,7 +95,8 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 	const filteredOpportunities = useMemo(() => {
 		return opportunities.filter((opp) => {
 			if (selectedStage !== "All" && opp.stage !== selectedStage) return false;
-			if (selectedClient !== "All" && opp.clientId !== selectedClient) return false;
+			if (selectedClient !== "All" && opp.clientId !== selectedClient)
+				return false;
 			if (selectedOwner !== "All" && opp.owner !== selectedOwner) return false;
 
 			if (!searchQuery) return true;
@@ -80,16 +110,29 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 				clientName.toLowerCase().includes(searchQuery)
 			);
 		});
-	}, [opportunities, selectedStage, selectedClient, selectedOwner, searchQuery, clientMap]);
+	}, [
+		opportunities,
+		selectedStage,
+		selectedClient,
+		selectedOwner,
+		searchQuery,
+		clientMap,
+	]);
 
 	// Metrics
 	const metrics = useMemo(() => {
-		const activeDeals = opportunities.filter((o) => o.stage !== "Won" && o.stage !== "Lost");
+		const activeDeals = opportunities.filter(
+			(o) => o.stage !== "Won" && o.stage !== "Lost",
+		);
 		const wonDeals = opportunities.filter((o) => o.stage === "Won");
 
-		const totalActiveValue = activeDeals.reduce((sum, o) => sum + (o.value || 0), 0);
+		const totalActiveValue = activeDeals.reduce(
+			(sum, o) => sum + (o.value || 0),
+			0,
+		);
 		const totalWonValue = wonDeals.reduce((sum, o) => sum + (o.value || 0), 0);
-		const avgActiveDeal = activeDeals.length > 0 ? totalActiveValue / activeDeals.length : 0;
+		const avgActiveDeal =
+			activeDeals.length > 0 ? totalActiveValue / activeDeals.length : 0;
 
 		return {
 			activeCount: activeDeals.length,
@@ -112,7 +155,10 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 		return ["All", ...Array.from(set).sort()];
 	}, [opportunities, team]);
 
-	const handleStageChange = async (oppId: string, newStage: OpportunityStage) => {
+	const handleStageChange = async (
+		oppId: string,
+		newStage: OpportunityStage,
+	) => {
 		try {
 			await opportunitiesRepository.update(oppId, { stage: newStage });
 			toast({
@@ -121,17 +167,24 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 				type: "success",
 			});
 			onRefresh();
-		} catch (err: any) {
+		} catch (err: unknown) {
+			const msg =
+				err instanceof Error ? err.message : "Could not update stage.";
 			toast({
 				title: "Update Failed",
-				description: err?.message || "Could not update opportunity stage.",
+				description: msg,
 				type: "error",
 			});
 		}
 	};
 
 	const handleArchive = async (opp: Opportunity) => {
-		if (!window.confirm(`Archive opportunity ${opp.opportunityNo} - "${opp.title}"?`)) return;
+		if (
+			!window.confirm(
+				`Archive opportunity ${opp.opportunityNo} - "${opp.title}"?`,
+			)
+		)
+			return;
 		try {
 			await opportunitiesRepository.archive(opp.id);
 			toast({
@@ -140,10 +193,12 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 				type: "info",
 			});
 			onRefresh();
-		} catch (err: any) {
+		} catch (err: unknown) {
+			const msg =
+				err instanceof Error ? err.message : "Could not archive opportunity.";
 			toast({
 				title: "Archive Failed",
-				description: err?.message || "Could not archive opportunity.",
+				description: msg,
 				type: "error",
 			});
 		}
@@ -163,10 +218,11 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 				type: "info",
 			});
 			onRefresh();
-		} catch (e: any) {
+		} catch (err: unknown) {
+			const msg = err instanceof Error ? err.message : "Could not move deal";
 			toast({
 				title: "Update Failed",
-				description: e?.message || "Could not move deal",
+				description: msg,
 				type: "error",
 			});
 		} finally {
@@ -188,7 +244,8 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 						</span>
 					</div>
 					<p className="text-[12px] text-slate-500 mt-0.5">
-						Track multi-opportunity client portfolios with permanent sequential tracking (KW-OPP-00000X)
+						Track multi-opportunity client portfolios with permanent sequential
+						tracking (KW-OPP-00000X)
 					</p>
 				</div>
 
@@ -198,8 +255,10 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 						<button
 							type="button"
 							onClick={() => setViewMode("table")}
-							className={`px-3 py-1 rounded transition ${
-								viewMode === "table" ? "bg-white text-slate-900 shadow-xs font-semibold" : "hover:text-slate-900"
+							className={`px-3 py-1 rounded transition cursor-pointer ${
+								viewMode === "table"
+									? "bg-white text-slate-900 shadow-xs font-semibold"
+									: "hover:text-slate-900"
 							}`}
 						>
 							☰ List
@@ -207,8 +266,10 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 						<button
 							type="button"
 							onClick={() => setViewMode("kanban")}
-							className={`px-3 py-1 rounded transition ${
-								viewMode === "kanban" ? "bg-white text-slate-900 shadow-xs font-semibold" : "hover:text-slate-900"
+							className={`px-3 py-1 rounded transition cursor-pointer ${
+								viewMode === "kanban"
+									? "bg-white text-slate-900 shadow-xs font-semibold"
+									: "hover:text-slate-900"
 							}`}
 						>
 							☷ Pipeline
@@ -245,10 +306,10 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 						Active Pipeline Value
 					</div>
 					<div className="text-[22px] font-bold text-blue-600 mt-1">
-						₹{(metrics.totalActiveValue / 100000).toFixed(2)}L
+						{formatCompactCurrency(metrics.totalActiveValue)}
 					</div>
 					<div className="text-[11px] text-slate-500 mt-0.5 font-mono">
-						₹{metrics.totalActiveValue.toLocaleString("en-IN")} total
+						{formatCurrency(metrics.totalActiveValue)} total
 					</div>
 				</div>
 
@@ -257,7 +318,7 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 						Closed Won Revenue
 					</div>
 					<div className="text-[22px] font-bold text-emerald-600 mt-1">
-						₹{(metrics.totalWonValue / 100000).toFixed(2)}L
+						{formatCompactCurrency(metrics.totalWonValue)}
 					</div>
 					<div className="text-[11px] text-slate-500 mt-0.5 font-mono">
 						{metrics.wonCount} won contracts
@@ -269,7 +330,7 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 						Avg Active Deal
 					</div>
 					<div className="text-[22px] font-bold text-purple-600 mt-1">
-						₹{(metrics.avgActiveDeal / 1000).toFixed(0)}k
+						{formatCompactCurrency(metrics.avgActiveDeal)}
 					</div>
 					<div className="text-[11px] text-slate-500 mt-0.5 font-mono">
 						Commercial deal size
@@ -288,7 +349,9 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 							onChange={(e) => setLocalSearch(e.target.value)}
 							className="w-full h-8 pl-8 pr-3 text-[12px] bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500"
 						/>
-						<span className="absolute left-2.5 top-2 text-[12px] text-slate-400">🔍</span>
+						<span className="absolute left-2.5 top-2 text-[12px] text-slate-400">
+							🔍
+						</span>
 					</div>
 
 					{/* Stage Filter */}
@@ -342,7 +405,10 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 					</div>
 				</div>
 
-				{(selectedStage !== "All" || selectedClient !== "All" || selectedOwner !== "All" || searchQuery) && (
+				{(selectedStage !== "All" ||
+					selectedClient !== "All" ||
+					selectedOwner !== "All" ||
+					searchQuery) && (
 					<button
 						type="button"
 						onClick={() => {
@@ -351,7 +417,7 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 							setSelectedOwner("All");
 							setLocalSearch("");
 						}}
-						className="text-[11px] font-semibold text-blue-600 hover:text-blue-800"
+						className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 cursor-pointer"
 					>
 						Clear Filters
 					</button>
@@ -375,7 +441,7 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 							<button
 								type="button"
 								onClick={() => onOpenModal("opportunity")}
-								className="btn-primary !h-[32px] mt-2 text-[12px]"
+								className="btn-primary !h-[32px] mt-2 text-[12px] cursor-pointer"
 							>
 								+ Create Opportunity
 							</button>
@@ -410,7 +476,10 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 												className="hover:bg-slate-50/80 transition-colors group cursor-pointer"
 												onClick={() => onSelectOpportunity(opp.id)}
 											>
-												<td className="py-3 px-4" onClick={(e) => e.stopPropagation()}>
+												<td
+													className="py-3 px-4"
+													onClick={(e) => e.stopPropagation()}
+												>
 													<OpportunityChip
 														opportunityNo={opp.opportunityNo}
 														opportunityId={opp.id}
@@ -439,14 +508,20 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 												</td>
 
 												<td className="py-3 px-4 font-mono font-bold text-slate-900">
-													₹{opp.value.toLocaleString("en-IN")}
+													{formatCurrency(opp.value, opp.currency)}
 												</td>
 
-												<td className="py-3 px-4" onClick={(e) => e.stopPropagation()}>
+												<td
+													className="py-3 px-4"
+													onClick={(e) => e.stopPropagation()}
+												>
 													<select
 														value={opp.stage}
 														onChange={(e) =>
-															handleStageChange(opp.id, e.target.value as OpportunityStage)
+															handleStageChange(
+																opp.id,
+																e.target.value as OpportunityStage,
+															)
 														}
 														className={`text-[11px] font-semibold font-mono rounded-md px-2 py-1 border transition ${stageStyle.bg} ${stageStyle.text} ${stageStyle.border} cursor-pointer`}
 													>
@@ -466,12 +541,17 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 													{opp.expectedCloseDate || "—"}
 												</td>
 
-												<td className="py-3 px-4 text-right" onClick={(e) => e.stopPropagation()}>
+												<td
+													className="py-3 px-4 text-right"
+													onClick={(e) => e.stopPropagation()}
+												>
 													<div className="flex items-center justify-end gap-1">
 														<button
 															type="button"
-															onClick={() => onOpenModal("opportunity", { opportunity: opp })}
-															className="p-1.5 rounded-md text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition"
+															onClick={() =>
+																onOpenModal("opportunity", { opportunity: opp })
+															}
+															className="p-1.5 rounded-md text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition cursor-pointer"
 															title="Edit Opportunity"
 															aria-label="Edit Opportunity"
 														>
@@ -480,7 +560,7 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 														<button
 															type="button"
 															onClick={() => handleArchive(opp)}
-															className="p-1.5 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
+															className="p-1.5 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
 															title="Archive Opportunity"
 															aria-label="Archive Opportunity"
 														>
@@ -489,7 +569,7 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 														<button
 															type="button"
 															onClick={() => onSelectOpportunity(opp.id)}
-															className="px-2 py-1 rounded-md text-[11px] font-semibold text-blue-600 hover:bg-blue-50 transition"
+															className="px-2 py-1 rounded-md text-[11px] font-semibold text-blue-600 hover:bg-blue-50 transition cursor-pointer"
 														>
 															View →
 														</button>
@@ -507,8 +587,13 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 				/* Kanban Pipeline View */
 				<div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-3.5 items-start">
 					{STAGES.map((stage) => {
-						const stageOpps = filteredOpportunities.filter((o) => o.stage === stage);
-						const stageTotal = stageOpps.reduce((sum, o) => sum + (o.value || 0), 0);
+						const stageOpps = filteredOpportunities.filter(
+							(o) => o.stage === stage,
+						);
+						const stageTotal = stageOpps.reduce(
+							(sum, o) => sum + (o.value || 0),
+							0,
+						);
 						const style = STAGE_COLORS[stage];
 
 						return (
@@ -521,14 +606,18 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 								{/* Column Header */}
 								<div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-slate-200">
 									<div className="flex items-center gap-1.5">
-										<span className={`w-2 h-2 rounded-full ${style.bg.replace("50", "500")}`} />
-										<span className="text-[12px] font-bold text-slate-900">{stage}</span>
+										<span
+											className={`w-2 h-2 rounded-full ${style.bg.replace("50", "500")}`}
+										/>
+										<span className="text-[12px] font-bold text-slate-900">
+											{stage}
+										</span>
 										<span className="text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded bg-slate-200 text-slate-700">
 											{stageOpps.length}
 										</span>
 									</div>
 									<span className="text-[10px] font-mono font-bold text-slate-600">
-										₹{(stageTotal / 1000).toFixed(0)}k
+										{formatCompactCurrency(stageTotal)}
 									</span>
 								</div>
 
@@ -556,7 +645,7 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 															onNavigate={() => onSelectOpportunity(opp.id)}
 														/>
 														<span className="text-[11px] font-mono font-bold text-blue-600">
-															₹{(opp.value / 1000).toFixed(0)}k
+															{formatCompactCurrency(opp.value, opp.currency)}
 														</span>
 													</div>
 
@@ -568,7 +657,9 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 														<div className="truncate text-slate-700 font-sans font-medium">
 															{client?.name || "Client"}
 														</div>
-														<div className="truncate">Service: {opp.service}</div>
+														<div className="truncate">
+															Service: {opp.service}
+														</div>
 														<div>Owner: {opp.owner}</div>
 													</div>
 
@@ -581,8 +672,10 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 														</span>
 														<button
 															type="button"
-															onClick={() => onOpenModal("opportunity", { opportunity: opp })}
-															className="text-[10px] p-1 rounded text-slate-400 hover:text-slate-800 transition"
+															onClick={() =>
+																onOpenModal("opportunity", { opportunity: opp })
+															}
+															className="text-[10px] p-1 rounded text-slate-400 hover:text-slate-800 transition cursor-pointer"
 															title="Edit"
 														>
 															✎

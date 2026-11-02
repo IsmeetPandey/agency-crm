@@ -41,19 +41,18 @@ export const notesRepository = {
 		);
 	},
 
-	async create(
-		payload: {
-			entityType?: "lead" | "client" | "opportunity" | "project" | "task";
-			targetType?: "lead" | "client" | "opportunity" | "project" | "task";
-			entityId?: string;
-			targetId?: string;
-			author: string;
-			content: string;
-			id?: string;
-		},
-	): Promise<Note> {
+	async create(payload: {
+		entityType?: "lead" | "client" | "opportunity" | "project" | "task";
+		targetType?: "lead" | "client" | "opportunity" | "project" | "task";
+		entityId?: string;
+		targetId?: string;
+		author: string;
+		content: string;
+		id?: string;
+	}): Promise<Note> {
 		const id = payload.id || `n_${Date.now()}`;
-		const entityType = payload.entityType || payload.targetType || "opportunity";
+		const entityType =
+			payload.entityType || payload.targetType || "opportunity";
 		const entityId = payload.entityId || payload.targetId || "";
 
 		if (isSupabaseConfigured()) {

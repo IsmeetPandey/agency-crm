@@ -4,6 +4,7 @@ import { OpportunityChip } from "../../components/ui/OpportunityChip";
 import { useToast } from "../../lib/feedback/toast.context";
 import { notesRepository } from "../../lib/repositories/notes.repository";
 import { opportunitiesRepository } from "../../lib/repositories/opportunities.repository";
+import { formatCurrency } from "../../lib/utils/format";
 import type {
 	Client,
 	Contact,
@@ -93,7 +94,9 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
 	}, [finance, opportunity]);
 
 	const primaryContact = useMemo(() => {
-		const clientContacts = contacts.filter((c) => c.clientId === opportunity.clientId);
+		const clientContacts = contacts.filter(
+			(c) => c.clientId === opportunity.clientId,
+		);
 		return clientContacts.find((c) => c.isPrimary) || clientContacts[0];
 	}, [contacts, opportunity.clientId]);
 
@@ -109,10 +112,12 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
 				type: "success",
 			});
 			onRefresh();
-		} catch (err: any) {
+		} catch (err: unknown) {
+			const msg =
+				err instanceof Error ? err.message : "Could not update stage.";
 			toast({
 				title: "Update Failed",
-				description: err?.message || "Could not update stage.",
+				description: msg,
 				type: "error",
 			});
 		}
@@ -120,7 +125,7 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
 
 	const handleAddNote = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!newNoteContent.trim()) return;
+		if (!newNoteContent.trim() || isAddingNote) return;
 
 		setIsAddingNote(true);
 		try {
@@ -137,10 +142,11 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
 				description: "Internal note added to opportunity audit trail.",
 				type: "success",
 			});
-		} catch (err: any) {
+		} catch (err: unknown) {
+			const msg = err instanceof Error ? err.message : "Could not save note.";
 			toast({
 				title: "Note Failed",
-				description: err?.message || "Could not save note.",
+				description: msg,
 				type: "error",
 			});
 		} finally {
@@ -196,7 +202,9 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
 				<div className="flex items-center gap-2.5">
 					{/* Stage Transition Dropdown */}
 					<div className="flex items-center gap-2">
-						<span className="text-[12px] font-mono text-[#777777] uppercase">Stage:</span>
+						<span className="text-[12px] font-mono text-[#777777] uppercase">
+							Stage:
+						</span>
 						<select
 							value={currentStage}
 							onChange={(e) =>
@@ -216,9 +224,7 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
 
 					<button
 						type="button"
-						onClick={() =>
-							onOpenModal("opportunity", { opportunity })
-						}
+						onClick={() => onOpenModal("opportunity", { opportunity })}
 						className="px-3.5 py-1.5 rounded-lg bg-[#222222] hover:bg-[#111111] text-white text-[13px] font-medium transition cursor-pointer"
 					>
 						Edit Opportunity
@@ -248,10 +254,7 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
 							Estimated Value
 						</div>
 						<div className="text-2xl font-bold font-mono text-[#111111] mt-0.5">
-							₹{opportunity.value.toLocaleString()}{" "}
-							<span className="text-[12px] text-[#888888] font-normal">
-								{opportunity.currency}
-							</span>
+							{formatCurrency(opportunity.value, opportunity.currency)}
 						</div>
 					</div>
 
@@ -371,7 +374,7 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
 							onClick={() =>
 								onOpenModal("contact", { clientId: opportunity.clientId })
 							}
-							className="text-[12px] text-[#0070BA] hover:underline font-medium"
+							className="text-[12px] text-[#0070BA] hover:underline font-medium cursor-pointer"
 						>
 							+ Add Client Contact
 						</button>
@@ -420,7 +423,8 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
 								Direct Commercial Engagement
 							</div>
 							<p className="text-[12px] text-[#777777]">
-								Created directly for client account without prior lead conversion.
+								Created directly for client account without prior lead
+								conversion.
 							</p>
 						</div>
 					)}
@@ -472,7 +476,7 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
 											{p.name}
 										</h4>
 										<div className="text-[11px] text-[#666666] font-mono mt-0.5">
-											Phase: {p.phase} • Budget: ₹{p.budget.toLocaleString()}
+											Phase: {p.phase} • Budget: {formatCurrency(p.budget)}
 										</div>
 									</div>
 									<OpportunityChip
@@ -502,7 +506,7 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
 									<button
 										type="button"
 										onClick={() => onOpenProject?.(p.id)}
-										className="text-[12px] font-semibold text-[#0070BA] hover:underline"
+										className="text-[12px] font-semibold text-[#0070BA] hover:underline cursor-pointer"
 									>
 										Open Project Cockpit →
 									</button>
@@ -568,7 +572,7 @@ export const OpportunityDetailView: React.FC<OpportunityDetailViewProps> = ({
 											{item.type}
 										</td>
 										<td className="py-2.5 px-3 font-mono font-bold text-[#222222]">
-											₹{item.amount.toLocaleString()}
+											{formatCurrency(item.amount)}
 										</td>
 										<td className="py-2.5 px-3">
 											<span className="px-2 py-0.5 rounded text-[11px] font-mono bg-[#EDEDED] text-[#333333]">
