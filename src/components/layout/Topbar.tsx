@@ -164,25 +164,25 @@ export const Topbar: React.FC<TopbarProps> = ({
 					)}
 				</div>
 
-				{/* Quick Actions (Responsive) */}
+				{/* Quick Actions (Responsive & Cohesive) */}
 				<button
 					type="button"
 					onClick={() => openModal("lead")}
-					className="hidden sm:inline-flex btn-primary !h-[28px] !text-[12px] !px-2.5"
+					className="hidden sm:inline-flex btn-secondary !h-[28px] !text-[12px] !px-2.5 cursor-pointer"
 				>
 					+ Lead
 				</button>
 				<button
 					type="button"
 					onClick={() => openModal("opportunity")}
-					className="hidden md:inline-flex btn-primary !bg-[var(--accent-secondary)] !h-[28px] !text-[12px] !px-2.5"
+					className="hidden md:inline-flex btn-primary !h-[28px] !text-[12px] !px-3 !bg-[#1A253C] hover:!bg-[#263554] !text-white cursor-pointer shadow-xs"
 				>
 					+ Deal
 				</button>
 				<button
 					type="button"
 					onClick={() => openModal("project")}
-					className="hidden lg:inline-flex btn-secondary !h-[28px] !text-[12px] !px-2.5"
+					className="hidden lg:inline-flex btn-secondary !h-[28px] !text-[12px] !px-2.5 cursor-pointer"
 				>
 					+ Project
 				</button>

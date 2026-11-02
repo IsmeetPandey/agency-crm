@@ -573,7 +573,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 									className="p-2.5 rounded-lg border border-slate-100 bg-slate-50/60 flex items-center justify-between text-[12px]"
 								>
 									<div className="flex items-center gap-2.5 min-w-0">
-										<div className="w-7 h-7 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-[10px] font-mono shrink-0">
+										<div className="w-7 h-7 rounded-full bg-slate-800 dark:bg-slate-700 text-white border border-slate-700/40 dark:border-slate-600/50 flex items-center justify-center font-bold text-[10px] font-mono shrink-0">
 											{member.initials}
 										</div>
 										<div className="min-w-0">

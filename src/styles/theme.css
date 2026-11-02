@@ -728,3 +728,40 @@ h6 {
 		scroll-behavior: auto !important;
 	}
 }
+
+/* Tactile Button Micro-interactions */
+.btn-primary:active,
+.btn-secondary:active,
+button:active:not(:disabled) {
+	transform: scale(0.98);
+}
+
+/* Dedicated Accounting Print Stylesheet */
+@media print {
+	.studio-sidebar,
+	.studio-topbar,
+	header,
+	nav,
+	aside,
+	button,
+	.no-print {
+		display: none !important;
+	}
+
+	body,
+	main,
+	.studio-canvas {
+		background: #ffffff !important;
+		color: #000000 !important;
+		padding: 0 !important;
+		margin: 0 !important;
+	}
+
+	.studio-card,
+	.erp-table-container {
+		border: 1px solid #cccccc !important;
+		box-shadow: none !important;
+		break-inside: avoid;
+	}
+}
+
