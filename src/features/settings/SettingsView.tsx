@@ -5,6 +5,7 @@ import { useToast } from "../../lib/feedback/toast.context";
 import { PERMISSIONS, type UserRole } from "../../lib/permissions/permissions";
 import { backupService } from "../../lib/services/backup.service";
 import { isSupabaseConfigured, supabase } from "../../lib/supabase/client";
+import { useTheme } from "../../lib/theme/theme.context";
 import type {
 	Activity,
 	ApprovalRequest,
@@ -60,6 +61,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 }) => {
 	const { user, role } = useAuth();
 	const { toast } = useToast();
+	const { theme, setTheme, resolvedTheme } = useTheme();
 	const [previewRole, setPreviewRole] = useState<UserRole>(role);
 	const [isExporting, setIsExporting] = useState(false);
 	const [pingStatus, setPingStatus] = useState<
@@ -148,13 +150,108 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 		<div className="space-y-6">
 			{/* Header */}
 			<div>
-				<h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
+				<h2 className="text-[18px] font-bold text-[var(--ink-strong)] tracking-tight">
 					Settings & Infrastructure Governance
 				</h2>
-				<p className="text-[12px] text-slate-500">
-					PostgreSQL connection diagnostics, role-based access control, data
-					backup, and session state
+				<p className="text-[12px] text-[var(--ink-muted)]">
+					PostgreSQL connection diagnostics, role-based access control, theme
+					preference, data backup, and session state
 				</p>
+			</div>
+
+			{/* Theme & Visual Identity Setting */}
+			<div className="studio-card p-5 space-y-4">
+				<div className="flex items-center justify-between pb-3 border-b border-[var(--border)]">
+					<div>
+						<h3 className="text-[14px] font-bold text-[var(--ink-strong)] tracking-tight">
+							Studio Visual Theme & Interface Mode
+						</h3>
+						<p className="text-[11px] text-[var(--ink-muted)]">
+							Choose your preferred workspace aesthetic. Supports light, dark,
+							and system preference with zero flash.
+						</p>
+					</div>
+					<span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[var(--accent-tint)] text-[var(--accent-text)] border border-[var(--accent-border)] font-semibold">
+						Active: {theme} ({resolvedTheme})
+					</span>
+				</div>
+
+				<div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+					<button
+						type="button"
+						onClick={() => setTheme("light")}
+						className={`p-3.5 rounded-lg border text-left transition space-y-1.5 cursor-pointer ${
+							theme === "light"
+								? "border-[var(--accent)] bg-[var(--accent-tint)] shadow-xs"
+								: "border-[var(--border)] bg-[var(--surface-sunken)] hover:border-[var(--border-strong)]"
+						}`}
+					>
+						<div className="flex items-center justify-between">
+							<span className="text-[13px] font-bold text-[var(--ink)]">
+								☀️ Light Theme
+							</span>
+							{theme === "light" && (
+								<span className="text-[var(--accent)] font-bold text-[12px]">
+									✓ Active
+								</span>
+							)}
+						</div>
+						<p className="text-[11px] text-[var(--ink-muted)]">
+							Warm neutral canvas (#F8F9F8), pure white surfaces, and refined
+							Jade accents.
+						</p>
+					</button>
+
+					<button
+						type="button"
+						onClick={() => setTheme("dark")}
+						className={`p-3.5 rounded-lg border text-left transition space-y-1.5 cursor-pointer ${
+							theme === "dark"
+								? "border-[var(--accent)] bg-[var(--accent-tint)] shadow-xs"
+								: "border-[var(--border)] bg-[var(--surface-sunken)] hover:border-[var(--border-strong)]"
+						}`}
+					>
+						<div className="flex items-center justify-between">
+							<span className="text-[13px] font-bold text-[var(--ink)]">
+								🌙 Dark Obsidian
+							</span>
+							{theme === "dark" && (
+								<span className="text-[var(--accent)] font-bold text-[12px]">
+									✓ Active
+								</span>
+							)}
+						</div>
+						<p className="text-[11px] text-[var(--ink-muted)]">
+							Deep obsidian canvas (#0C100F), layered dark surfaces, and
+							luminous Jade highlights.
+						</p>
+					</button>
+
+					<button
+						type="button"
+						onClick={() => setTheme("system")}
+						className={`p-3.5 rounded-lg border text-left transition space-y-1.5 cursor-pointer ${
+							theme === "system"
+								? "border-[var(--accent)] bg-[var(--accent-tint)] shadow-xs"
+								: "border-[var(--border)] bg-[var(--surface-sunken)] hover:border-[var(--border-strong)]"
+						}`}
+					>
+						<div className="flex items-center justify-between">
+							<span className="text-[13px] font-bold text-[var(--ink)]">
+								💻 Device Preference
+							</span>
+							{theme === "system" && (
+								<span className="text-[var(--accent)] font-bold text-[12px]">
+									✓ Active
+								</span>
+							)}
+						</div>
+						<p className="text-[11px] text-[var(--ink-muted)]">
+							Automatically detects and synchronizes with your operating system
+							dark/light mode.
+						</p>
+					</button>
+				</div>
 			</div>
 
 			<div className="grid lg:grid-cols-2 gap-6">

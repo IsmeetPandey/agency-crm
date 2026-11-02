@@ -22,10 +22,9 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 	search,
 }) => {
 	const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
-	const [convertingId, setConvertingId] = useState<string | null>(null);
 	const [selectedOwner, setSelectedOwner] = useState<string>("All");
 	const [selectedService, setSelectedService] = useState<string>("All");
-	const { showToast } = useToast();
+	const { toast } = useToast();
 
 	// Distinct owners & services for filtering
 	const owners = useMemo(() => {
@@ -66,14 +65,14 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 		if (!draggedLeadId) return;
 		try {
 			await leadsRepository.updateStage(draggedLeadId, stage);
-			showToast({
+			toast({
 				type: "info",
 				title: "Pipeline Updated",
-				message: `Opportunity moved to "${stage}"`,
+				message: `Lead moved to "${stage}"`,
 			});
 			onRefresh();
 		} catch (e: any) {
-			showToast({
+			toast({
 				type: "error",
 				title: "Update Failed",
 				message: e.message || "Failed to update stage",
@@ -83,39 +82,17 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 		}
 	};
 
-	const handleConvert = async (leadId: string) => {
-		setConvertingId(leadId);
-		try {
-			const { lead, client, opportunity } =
-				await leadsRepository.convertToOpportunityAndClient(leadId);
-			showToast({
-				type: "success",
-				title: "Deal & Client Converted",
-				message: `Created ${opportunity.opportunityNo} and Client "${client.name}" successfully!`,
-			});
-			onRefresh();
-		} catch (e: any) {
-			showToast({
-				type: "error",
-				title: "Conversion Error",
-				message: e.message || "Failed to convert opportunity",
-			});
-		} finally {
-			setConvertingId(null);
-		}
-	};
-
 	return (
 		<div className="space-y-6">
 			{/* Top Header */}
 			<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 				<div>
-					<h2 className="text-[18px] font-bold text-slate-900 tracking-tight">
+					<h2 className="text-[18px] font-bold text-[var(--ink-strong)] tracking-tight">
 						Sales Pipeline & Opportunity Engine
 					</h2>
-					<p className="text-[12px] text-slate-500">
-						Drag opportunity cards across sales stages or convert qualified
-						accounts to active clients
+					<p className="text-[12px] text-[var(--ink-muted)]">
+						Qualify prospective engagements, drag across pipeline stages, and
+						convert to permanent commercial opportunities
 					</p>
 				</div>
 				<button
@@ -123,14 +100,14 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 					onClick={() => onOpenModal("lead")}
 					className="btn-primary !h-[34px]"
 				>
-					+ New Opportunity
+					+ New Prospective Lead
 				</button>
 			</div>
 
 			{/* Filter Controls Bar */}
-			<div className="studio-card p-3 flex flex-wrap items-center gap-4 text-[12px] bg-white">
+			<div className="studio-card p-3 flex flex-wrap items-center gap-4 text-[12px]">
 				<div className="flex items-center gap-2">
-					<span className="text-slate-400 font-mono text-[10px] uppercase font-bold tracking-wider">
+					<span className="text-[var(--ink-muted)] font-mono text-[10px] uppercase font-bold tracking-wider">
 						Owner:
 					</span>
 					<select
@@ -147,7 +124,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 				</div>
 
 				<div className="flex items-center gap-2">
-					<span className="text-slate-400 font-mono text-[10px] uppercase font-bold tracking-wider">
+					<span className="text-[var(--ink-muted)] font-mono text-[10px] uppercase font-bold tracking-wider">
 						Service:
 					</span>
 					<select
@@ -170,7 +147,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 							setSelectedOwner("All");
 							setSelectedService("All");
 						}}
-						className="text-[11px] text-blue-600 font-semibold hover:underline ml-auto"
+						className="text-[11px] text-[var(--accent)] font-semibold hover:underline ml-auto"
 					>
 						Reset Filters
 					</button>
@@ -192,23 +169,23 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 							key={stage}
 							onDragOver={(e) => e.preventDefault()}
 							onDrop={() => handleDrop(stage as LeadStage)}
-							className="studio-card p-3 min-h-[520px] flex flex-col bg-slate-50/70"
+							className="studio-card p-3 min-h-[520px] flex flex-col bg-[var(--surface-sunken)] border-[var(--border)]"
 						>
 							{/* Column Header */}
-							<div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-200">
+							<div className="flex items-center justify-between pb-2 mb-3 border-b border-[var(--border)]">
 								<div className="flex items-center gap-1.5">
 									<span
 										className="w-2.5 h-2.5 rounded-full"
 										style={{ backgroundColor: meta.dot }}
 									/>
-									<span className="text-[12px] font-bold text-slate-900">
+									<span className="text-[12px] font-bold text-[var(--ink-strong)]">
 										{stage}
 									</span>
-									<span className="text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded bg-slate-200/80 text-slate-700">
+									<span className="text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded bg-[var(--surface)] text-[var(--ink-secondary)] border border-[var(--border)]">
 										{stageLeads.length}
 									</span>
 								</div>
-								<span className="text-[11px] font-mono font-bold text-slate-600">
+								<span className="text-[11px] font-mono font-bold text-[var(--ink-secondary)]">
 									₹{(totalVal / 1000).toFixed(0)}k
 								</span>
 							</div>
@@ -216,8 +193,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 							{/* Cards List */}
 							<div className="space-y-2.5 flex-1 overflow-y-auto pr-0.5">
 								{stageLeads.length === 0 && (
-									<div className="h-28 border border-dashed border-slate-300 rounded-lg flex items-center justify-center text-[11px] text-slate-400 font-medium">
-										Drop opportunity here
+									<div className="h-28 border border-dashed border-[var(--border)] rounded-lg flex items-center justify-center text-[11px] text-[var(--ink-muted)] font-medium">
+										Drop leads here
 									</div>
 								)}
 								{stageLeads.map((lead) => (
@@ -225,23 +202,23 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 										key={lead.id}
 										draggable
 										onDragStart={() => handleDragStart(lead.id)}
-										className="p-3.5 rounded-lg bg-white border border-slate-200 hover:border-blue-400 hover:shadow-md cursor-grab active:cursor-grabbing transition space-y-2.5 group"
+										className="p-3.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--accent)] hover:shadow-md cursor-grab active:cursor-grabbing transition space-y-2.5 group"
 									>
 										<div className="flex items-start justify-between gap-2">
 											<button
 												type="button"
 												onClick={() => onOpenModal("lead", { lead })}
-												className="text-[13px] font-bold text-slate-900 leading-tight text-left hover:text-blue-600 transition truncate"
+												className="text-[13px] font-bold text-[var(--ink-strong)] leading-tight text-left hover:text-[var(--accent)] transition truncate"
 											>
 												{lead.name}
 											</button>
-											<span className="text-[11px] font-mono font-bold text-blue-600 shrink-0">
+											<span className="text-[11px] font-mono font-bold text-[var(--accent-text)] shrink-0">
 												₹{(lead.value / 1000).toFixed(0)}k
 											</span>
 										</div>
 
-										<div className="text-[11px] text-slate-500 space-y-0.5 font-mono">
-											<div className="truncate font-sans font-medium text-slate-700">
+										<div className="text-[11px] text-[var(--ink-muted)] space-y-0.5 font-mono">
+											<div className="truncate font-sans font-medium text-[var(--ink)]">
 												{lead.service}
 											</div>
 											<div className="truncate text-[10px]">
@@ -249,14 +226,14 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 											</div>
 											<div className="text-[10px]">
 												Owner:{" "}
-												<span className="font-semibold text-slate-800">
+												<span className="font-semibold text-[var(--ink)]">
 													{lead.owner}
 												</span>
 											</div>
 										</div>
 
 										{lead.notes && (
-											<div className="text-[10px] text-slate-500 italic bg-slate-50 p-2 rounded border border-slate-100 truncate">
+											<div className="text-[10px] text-[var(--ink-muted)] italic bg-[var(--surface-sunken)] p-2 rounded border border-[var(--border)] truncate">
 												{lead.notes}
 											</div>
 										)}
@@ -272,31 +249,37 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 										)}
 
 										{/* Quick actions */}
-										<div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-1">
-											{stage !== "Won" ? (
+										<div className="pt-2 border-t border-[var(--border)] flex items-center justify-between gap-1">
+											{lead.convertedOpportunityNo ? (
 												<button
 													type="button"
-													onClick={() => handleConvert(lead.id)}
-													disabled={convertingId === lead.id}
-													className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition"
+													onClick={() =>
+														onNavigate?.(
+															"opportunity",
+															lead.convertedOpportunityId,
+														)
+													}
+													className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[var(--accent-tint)] text-[var(--accent-text)] hover:opacity-90 border border-[var(--accent-border)] transition flex items-center gap-1 font-mono"
 												>
-													{convertingId === lead.id
-														? "Converting..."
-														: "Convert →"}
+													<span>View Deal →</span>
 												</button>
 											) : (
-												<span className="text-[10px] font-semibold text-emerald-600 font-mono flex items-center gap-1">
-													<span>✓ Client & Deal</span>
-												</span>
+												<button
+													type="button"
+													onClick={() => onOpenModal("convert-lead", { lead })}
+													className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[var(--accent-tint)] text-[var(--accent-text)] hover:opacity-90 border border-[var(--accent-border)] transition"
+												>
+													Convert to Opportunity →
+												</button>
 											)}
 
 											<div className="flex items-center gap-1">
 												<button
 													type="button"
 													onClick={() => onOpenModal("lead", { lead })}
-													className="text-[11px] p-1 rounded text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition"
-													title="Edit Opportunity"
-													aria-label="Edit Opportunity"
+													className="text-[11px] p-1 rounded text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-sunken)] transition"
+													title="Edit Lead"
+													aria-label="Edit Lead"
 												>
 													✎
 												</button>
@@ -306,14 +289,14 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
 														leadsRepository
 															.updateStage(lead.id, e.target.value as LeadStage)
 															.then(() => {
-																showToast({
+																toast({
 																	type: "info",
 																	message: `Stage set to ${e.target.value}`,
 																});
 																onRefresh();
 															});
 													}}
-													className="text-[10px] font-mono bg-white border border-slate-200 rounded px-1.5 py-0.5 text-slate-600"
+													className="text-[10px] font-mono bg-[var(--surface)] border border-[var(--border)] rounded px-1.5 py-0.5 text-[var(--ink-secondary)]"
 												>
 													{STAGES.map((s) => (
 														<option key={s} value={s}>

@@ -55,45 +55,45 @@ export const OpportunityChip: React.FC<OpportunityChipProps> = ({
 		<span
 			className={`inline-flex items-center gap-1.5 font-mono font-medium rounded-md border transition-all ${
 				size === "sm"
-					? "text-[11px] px-2 py-0.5 bg-[#F5F7FA] text-[#333333] border-[#DCE2EB]"
-					: "text-[13px] px-2.5 py-1 bg-[#F5F7FA] text-[#111111] border-[#CCD5E2] font-semibold"
+					? "text-[11px] px-2 py-0.5 bg-[var(--accent-tint)] text-[var(--ink)] border-[var(--accent-border)]"
+					: "text-[12px] px-2.5 py-1 bg-[var(--accent-tint)] text-[var(--ink-strong)] border-[var(--accent-border)] font-semibold shadow-xs"
 			} ${className}`}
 		>
 			{isClickable ? (
 				<button
 					type="button"
 					onClick={handleClick}
-					className="inline-flex items-center gap-1 cursor-pointer hover:text-[#0070BA] focus-visible:underline focus-visible:outline-none"
+					className="inline-flex items-center gap-1 cursor-pointer hover:text-[var(--accent)] hover:underline focus-visible:underline focus-visible:outline-none transition"
 					title={`Click to view opportunity ${opportunityNo}`}
 				>
-					<span className="text-[#888888] font-light">#</span>
-					<span className="tracking-tight">{opportunityNo}</span>
+					<span className="text-[var(--accent-text)] font-semibold">SKU:</span>
+					<span className="tracking-tight font-bold">{opportunityNo}</span>
 				</button>
 			) : (
 				<span className="inline-flex items-center gap-1" title={opportunityNo}>
-					<span className="text-[#888888] font-light">#</span>
-					<span className="tracking-tight">{opportunityNo}</span>
+					<span className="text-[var(--accent-text)] font-semibold">SKU:</span>
+					<span className="tracking-tight font-bold">{opportunityNo}</span>
 				</span>
 			)}
 
 			<button
 				type="button"
 				onClick={handleCopy}
-				className="text-[#999999] hover:text-[#111111] p-0.5 transition cursor-pointer flex items-center justify-center rounded hover:bg-slate-200/50"
+				className="text-[var(--ink-muted)] hover:text-[var(--ink)] p-0.5 transition cursor-pointer flex items-center justify-center rounded hover:bg-[var(--surface-sunken)]"
 				title={
 					copyStatus === "success"
-						? "Copied!"
+						? "Copied to clipboard!"
 						: copyStatus === "error"
 							? "Copy failed"
-							: "Copy Opportunity Number"
+							: "Copy Opportunity Reference"
 				}
-				aria-label="Copy Opportunity Number"
+				aria-label="Copy Opportunity Reference"
 			>
 				{copyStatus === "success" ? (
-					<span className="text-emerald-600 text-[10px] font-bold">✓</span>
+					<span className="text-[var(--success)] text-[10px] font-bold">✓</span>
 				) : copyStatus === "error" ? (
 					<span
-						className="text-rose-600 text-[10px] font-bold"
+						className="text-[var(--danger)] text-[10px] font-bold"
 						title="Copy failed"
 					>
 						!

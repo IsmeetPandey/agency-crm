@@ -46,7 +46,7 @@ describe("E2E CRM Workflow: Complete User Journey", () => {
 
 		expect(createdClient.id).toBeDefined();
 		expect(createdClient.name).toBe(`Apex Systems Test ${testSuffix}`);
-		expect(convertedLead.stage).toBe("Won");
+		expect(convertedLead.stage).toBe("Qualified");
 		expect(convertedLead.convertedClientId).toBe(createdClient.id);
 
 		// 4. Create Delivery Project for the new Client
@@ -240,7 +240,8 @@ describe("E2E CRM Workflow: Complete User Journey", () => {
 		expect(conversion.opportunity).toBeDefined();
 		expect(conversion.opportunity.opportunityNo).toMatch(/^KW-OPP-\d{6}$/);
 		expect(conversion.client.name).toBe(`Omni Dynamics ${testSuffix}`);
-		expect(conversion.lead.stage).toBe("Won");
+		// Truthful pipeline accounting: conversion defaults to Qualified/preserves stage, never forced Won
+		expect(conversion.lead.stage).toBe("Proposal");
 		expect(conversion.lead.convertedOpportunityId).toBe(conversion.opportunity.id);
 		expect(conversion.lead.convertedOpportunityNo).toBe(conversion.opportunity.opportunityNo);
 

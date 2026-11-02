@@ -470,9 +470,33 @@ export interface AppStateData {
 }
 
 export function allocateNextOpportunityNumber(state: AppStateData): string {
-	state.opportunitySeq = (state.opportunitySeq || 3) + 1;
-	const numStr = state.opportunitySeq.toString().padStart(6, "0");
-	return `KW-OPP-${numStr}`;
+	const existingNumbers = new Set(
+		(state.opportunities || [])
+			.map((o) => o.opportunityNo?.toUpperCase().trim())
+			.filter(Boolean),
+	);
+
+	let maxNum = state.opportunitySeq || 0;
+	for (const opp of state.opportunities || []) {
+		const match = opp.opportunityNo?.match(/KW-OPP-(\d+)/i);
+		if (match) {
+			const val = Number.parseInt(match[1], 10);
+			if (!Number.isNaN(val) && val > maxNum) {
+				maxNum = val;
+			}
+		}
+	}
+
+	let candidateNum = Math.max(state.opportunitySeq || 0, maxNum) + 1;
+	let candidateStr = `KW-OPP-${candidateNum.toString().padStart(6, "0")}`;
+
+	while (existingNumbers.has(candidateStr.toUpperCase())) {
+		candidateNum += 1;
+		candidateStr = `KW-OPP-${candidateNum.toString().padStart(6, "0")}`;
+	}
+
+	state.opportunitySeq = candidateNum;
+	return candidateStr;
 }
 
 function initDefaultGates(projects: Project[]): Record<string, ProjectGate[]> {
@@ -529,6 +553,13 @@ export function loadLocalState(): AppStateData {
 					if (!parsed.opportunities) {
 						parsed.opportunities = INITIAL_OPPORTUNITIES;
 						parsed.opportunitySeq = 3;
+					} else {
+						// Ensure all opportunities have valid, unique opportunityNo
+						for (const opp of parsed.opportunities) {
+							if (!opp.opportunityNo) {
+								opp.opportunityNo = allocateNextOpportunityNumber(parsed);
+							}
+						}
 					}
 					inMemoryState = parsed;
 					return parsed;

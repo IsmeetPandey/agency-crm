@@ -1,4 +1,10 @@
-import type { Client, Lead, LeadStage, Opportunity } from "../../types";
+import type {
+	Client,
+	Lead,
+	LeadStage,
+	Opportunity,
+	OpportunityStage,
+} from "../../types";
 import {
 	DEFAULT_ORG_ID,
 	isSupabaseConfigured,
@@ -268,16 +274,33 @@ export const leadsRepository = {
 	/**
 	 * Atomic, idempotent lead-to-opportunity-and-client conversion.
 	 * Protects against duplicate clients, duplicate opportunities, and race conditions.
+	 * Distinguishes qualified conversion from commercial won state (defaults to 'Qualified', never forces 'Won').
 	 */
 	async convertToOpportunityAndClient(
 		leadId: string,
-		actor = "User",
+		actorOrOptions?:
+			| string
+			| {
+					actor?: string;
+					targetClientId?: string;
+					initialStage?: OpportunityStage;
+					title?: string;
+					value?: number;
+					expectedCloseDate?: string;
+			  },
 	): Promise<{
 		lead: Lead;
 		client: Client;
 		opportunity: Opportunity;
 		alreadyConverted: boolean;
 	}> {
+		const opts =
+			typeof actorOrOptions === "object"
+				? actorOrOptions
+				: { actor: actorOrOptions || "User" };
+		const actor = opts.actor || "User";
+		const initialStage: OpportunityStage = opts.initialStage || "Qualified";
+
 		if (isSupabaseConfigured()) {
 			try {
 				const { data, error } = await (supabase.rpc as any)(
@@ -285,6 +308,11 @@ export const leadsRepository = {
 					{
 						p_lead_id: leadId,
 						p_actor: actor,
+						p_target_client_id: opts.targetClientId || null,
+						p_initial_opp_stage: initialStage,
+						p_opportunity_title: opts.title || null,
+						p_estimated_value: opts.value !== undefined ? opts.value : null,
+						p_expected_close_date: opts.expectedCloseDate || null,
 					},
 				);
 
@@ -375,14 +403,22 @@ export const leadsRepository = {
 		}
 
 		// 1. Identify or Create Client Account
-		const existingClients = await clientsRepository.list();
-		let client = existingClients.find(
-			(c) =>
-				(lead.email &&
-					lead.email.trim() &&
-					c.email?.toLowerCase() === lead.email.toLowerCase().trim()) ||
-				c.name.toLowerCase().trim() === lead.name.toLowerCase().trim(),
-		);
+		let client: Client | null = null;
+		if (opts.targetClientId) {
+			client = await clientsRepository.getById(opts.targetClientId);
+		}
+
+		if (!client) {
+			const existingClients = await clientsRepository.list();
+			client =
+				existingClients.find(
+					(c) =>
+						(lead.email &&
+							lead.email.trim() &&
+							c.email?.toLowerCase() === lead.email.toLowerCase().trim()) ||
+						c.name.toLowerCase().trim() === lead.name.toLowerCase().trim(),
+				) || null;
+		}
 
 		if (!client) {
 			client = await clientsRepository.create({
@@ -401,27 +437,41 @@ export const leadsRepository = {
 		if (matchingOpp) {
 			opportunity = matchingOpp;
 		} else {
+			const oppTitle =
+				opts.title ||
+				(lead.service
+					? `${client.name} / ${lead.service}`
+					: `${client.name} Commercial Engagement`);
+
 			opportunity = await opportunitiesRepository.create(
 				{
 					clientId: client.id,
 					sourceLeadId: lead.id,
-					title: lead.service
-						? `${client.name} / ${lead.service}`
-						: `${client.name} Commercial Engagement`,
+					title: oppTitle,
 					service: lead.service || "Consulting & Engineering",
 					description: lead.notes || "",
-					value: lead.value || 0,
-					stage: "Won",
+					value: opts.value !== undefined ? opts.value : lead.value || 0,
+					stage: initialStage,
 					owner: lead.owner || "Abhishek",
-					expectedCloseDate: new Date().toISOString().split("T")[0],
+					expectedCloseDate:
+						opts.expectedCloseDate ||
+						new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
 				},
 				actor,
 			);
 		}
 
 		// 3. Update Lead atomically
+		// Does NOT force "Won" if opportunity was converted into Qualified or Proposal
+		const targetLeadStage: LeadStage =
+			initialStage === "Won"
+				? "Won"
+				: lead.stage === "New" || lead.stage === "Contacted"
+					? "Qualified"
+					: lead.stage;
+
 		const updatedLead = await this.update(leadId, {
-			stage: "Won",
+			stage: targetLeadStage,
 			convertedClientId: client.id,
 			convertedOpportunityId: opportunity.id,
 			convertedOpportunityNo: opportunity.opportunityNo,
@@ -429,7 +479,7 @@ export const leadsRepository = {
 		});
 
 		await activityRepository.log({
-			text: `Lead converted to Opportunity ${opportunity.opportunityNo} and Account "${client.name}"`,
+			text: `Lead converted to Opportunity ${opportunity.opportunityNo} (${opportunity.stage}) and Account "${client.name}"`,
 			actor,
 			entityType: "opportunity",
 			entityId: opportunity.id,

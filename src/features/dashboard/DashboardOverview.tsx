@@ -484,39 +484,42 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 							<AreaChart data={stageDistribution}>
 								<defs>
 									<linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1">
-										<stop offset="5%" stopColor="#49B3FC" stopOpacity={0.25} />
-										<stop offset="95%" stopColor="#49B3FC" stopOpacity={0.0} />
+										<stop offset="5%" stopColor="#0D9488" stopOpacity={0.35} />
+										<stop offset="95%" stopColor="#0D9488" stopOpacity={0.0} />
 									</linearGradient>
 								</defs>
 								<XAxis
 									dataKey="stage"
-									tick={{ fontSize: 11, fill: "#767676" }}
-									axisLine={{ stroke: "#DEDEDE" }}
+									tick={{ fontSize: 11, fill: "var(--ink-muted)" }}
+									axisLine={{ stroke: "var(--border)" }}
 									tickLine={false}
 								/>
 								<YAxis
-									tick={{ fontSize: 11, fill: "#767676" }}
-									axisLine={{ stroke: "#DEDEDE" }}
+									tick={{ fontSize: 11, fill: "var(--ink-muted)" }}
+									axisLine={{ stroke: "var(--border)" }}
 									tickLine={false}
 									unit="k"
 								/>
 								<Tooltip
 									formatter={(val: any) => [`₹${val}k`, "Value"]}
 									contentStyle={{
-										backgroundColor: "#FFFFFF",
-										borderRadius: "4px",
-										border: "1px solid #DEDEDE",
-										boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
-										color: "#111111",
+										backgroundColor: "var(--surface)",
+										borderRadius: "8px",
+										border: "1px solid var(--border)",
+										boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+										color: "var(--ink)",
 										fontSize: "12px",
 									}}
-									itemStyle={{ color: "#111111", fontWeight: 600 }}
-									labelStyle={{ color: "#767676", marginBottom: "4px" }}
+									itemStyle={{ color: "var(--ink)", fontWeight: 600 }}
+									labelStyle={{
+										color: "var(--ink-muted)",
+										marginBottom: "4px",
+									}}
 								/>
 								<Area
 									type="monotone"
 									dataKey="value"
-									stroke="#49B3FC"
+									stroke="#0D9488"
 									strokeWidth={2}
 									fillOpacity={1}
 									fill="url(#colorVal)"

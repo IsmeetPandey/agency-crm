@@ -1,6 +1,7 @@
 import type React from "react";
 import { formatHour } from "../../lib/constants/agency";
 import type { Department } from "../../types";
+import { ThemeToggle } from "../ui/ThemeToggle";
 
 interface SidebarProps {
 	view: string;
@@ -306,7 +307,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 												>
 													<div className="flex items-center gap-2.5 min-w-0">
 														<span
-															className={`text-[13px] font-mono shrink-0 ${active ? "text-[#49B3FC]" : "opacity-75"}`}
+															className={`text-[13px] font-mono shrink-0 ${active ? "text-[var(--accent)]" : "opacity-75"}`}
 														>
 															{item.icon}
 														</span>
@@ -322,7 +323,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 															<span
 																className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono font-semibold ${
 																	active
-																		? "bg-[#49B3FC] text-slate-950"
+																		? "bg-[var(--accent)] text-[var(--accent-contrast)]"
 																		: "bg-white/[0.1] text-slate-300"
 																}`}
 															>
@@ -338,32 +339,41 @@ export const Sidebar: React.FC<SidebarProps> = ({
 						</nav>
 					</div>
 
-					{/* Bottom Area: Operational IST Clock & Department Presence */}
+					{/* Bottom Area: Operational IST Clock & Theme switch */}
 					<div className="pt-3 border-t border-white/[0.08] space-y-2">
 						{!collapsed ? (
-							<div className="p-2.5 rounded-lg bg-white/[0.04] border border-white/[0.06] text-[11px]">
-								<div className="flex items-center justify-between text-slate-300 mb-1">
-									<span className="flex items-center gap-1.5 font-medium">
-										<span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-										IST Operation
-									</span>
-									<span className="font-mono text-emerald-400 font-semibold">
-										{formatHour(istHour)}
-									</span>
+							<div className="space-y-2">
+								<div className="p-2.5 rounded-lg bg-white/[0.04] border border-white/[0.06] text-[11px]">
+									<div className="flex items-center justify-between text-slate-300 mb-1">
+										<span className="flex items-center gap-1.5 font-medium">
+											<span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+											IST Operation
+										</span>
+										<span className="font-mono text-emerald-400 font-semibold">
+											{formatHour(istHour)}
+										</span>
+									</div>
+									<div className="text-[10px] text-slate-400 flex items-center justify-between">
+										<span>Scheduled On-Duty:</span>
+										<span className="font-mono text-white font-medium">
+											{onlineCount} Specialists
+										</span>
+									</div>
 								</div>
-								<div className="text-[10px] text-slate-400 flex items-center justify-between">
-									<span>Scheduled On-Duty:</span>
-									<span className="font-mono text-white font-medium">
-										{onlineCount} Specialists
-									</span>
+								<div className="flex items-center justify-between px-1 text-[11px] text-slate-400">
+									<span>Theme Mode</span>
+									<ThemeToggle />
 								</div>
 							</div>
 						) : (
-							<div
-								className="flex justify-center p-1.5"
-								title={`IST: ${formatHour(istHour)} • ${onlineCount} Specialists Scheduled`}
-							>
-								<span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+							<div className="flex flex-col items-center gap-2 py-1">
+								<div
+									className="flex justify-center p-1"
+									title={`IST: ${formatHour(istHour)} • ${onlineCount} Specialists Scheduled`}
+								>
+									<span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+								</div>
+								<ThemeToggle compact />
 							</div>
 						)}
 					</div>

@@ -182,11 +182,11 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 	};
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in">
-			<div className="studio-modal w-full max-w-xl p-6 space-y-4 bg-white border border-[#DEDEDE] shadow-2xl rounded-xl">
-				<div className="flex items-center justify-between pb-3 border-b border-[#EDEDED]">
+		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in overflow-y-auto">
+			<div className="studio-modal w-full max-w-xl p-6 space-y-4 my-8 max-h-[90vh] overflow-y-auto">
+				<div className="flex items-center justify-between pb-3 border-b border-[var(--border)]">
 					<div className="flex items-center gap-2.5">
-						<h3 className="text-[16px] font-bold text-[#111111]">
+						<h3 className="text-[16px] font-bold text-[var(--ink-strong)]">
 							{isEditing
 								? "Edit Commercial Opportunity"
 								: "New Opportunity Creator"}
@@ -201,15 +201,26 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 					<button
 						type="button"
 						onClick={onClose}
-						className="text-[#808080] hover:text-[#111111] text-[18px]"
+						className="text-[var(--ink-muted)] hover:text-[var(--ink)] text-[20px] transition"
 						aria-label="Close"
 					>
 						×
 					</button>
 				</div>
 
+				{isEditing && initialOpportunity && (
+					<div className="flex items-center justify-between p-2.5 rounded-md bg-[var(--surface-sunken)] border border-[var(--border)] text-[12px]">
+						<span className="text-[var(--ink-muted)]">
+							Permanent SKU (Immutable):
+						</span>
+						<span className="font-mono font-bold text-[var(--accent-text)]">
+							{initialOpportunity.opportunityNo}
+						</span>
+					</div>
+				)}
+
 				{error && (
-					<div className="p-2.5 rounded-md bg-[#FFF0F0] text-[#C62828] border border-[#F8C2C2] text-[12px] font-medium">
+					<div className="p-2.5 rounded-md bg-[var(--danger-bg)] text-[var(--danger-text)] border border-[var(--danger-border)] text-[12px] font-medium">
 						{error}
 					</div>
 				)}
@@ -217,7 +228,7 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 				<form onSubmit={handleSubmit} className="space-y-3.5">
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 						<div>
-							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
+							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[var(--ink-muted)] mb-1 block">
 								Client Account *
 							</label>
 							<select
@@ -241,7 +252,7 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 						</div>
 
 						<div>
-							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
+							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[var(--ink-muted)] mb-1 block">
 								Service / Engagement Type *
 							</label>
 							<input
@@ -255,7 +266,7 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 					</div>
 
 					<div>
-						<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
+						<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[var(--ink-muted)] mb-1 block">
 							Opportunity Title *
 						</label>
 						<input
@@ -269,7 +280,7 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 
 					<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
 						<div>
-							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
+							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[var(--ink-muted)] mb-1 block">
 								Estimated Value (INR ₹) *
 							</label>
 							<input
@@ -284,7 +295,7 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 						</div>
 
 						<div>
-							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
+							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[var(--ink-muted)] mb-1 block">
 								Sales Stage *
 							</label>
 							<select
@@ -302,7 +313,7 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 						</div>
 
 						<div>
-							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
+							<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[var(--ink-muted)] mb-1 block">
 								Assigned Owner
 							</label>
 							<select
@@ -322,7 +333,7 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 					</div>
 
 					<div>
-						<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
+						<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[var(--ink-muted)] mb-1 block">
 							Target Close Date
 						</label>
 						<input
@@ -336,7 +347,7 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 					</div>
 
 					<div>
-						<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-1 block">
+						<label className="text-[11px] font-mono font-bold uppercase tracking-wider text-[var(--ink-muted)] mb-1 block">
 							Scope & Commercial Description
 						</label>
 						<textarea
@@ -344,23 +355,24 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 							rows={3}
 							defaultValue={initialOpportunity?.description || ""}
 							placeholder="Briefly describe project deliverables, client objectives, and commercial terms..."
-							className="studio-input resize-none"
+							className="studio-input !h-auto py-2 resize-none"
 						/>
 					</div>
 
-					<div className="flex items-center justify-between pt-3 border-t border-[#EDEDED]">
+					<div className="flex items-center justify-between pt-3 border-t border-[var(--border)]">
 						{isEditing ? (
 							<button
 								type="button"
 								onClick={handleDelete}
 								disabled={isDeleting}
-								className="text-[12px] font-medium text-rose-600 hover:text-rose-700 underline cursor-pointer"
+								className="text-[12px] font-medium text-[var(--danger)] hover:underline cursor-pointer"
 							>
 								{isDeleting ? "Archiving..." : "Archive Opportunity"}
 							</button>
 						) : (
-							<div className="text-[11px] text-[#777777] font-mono">
-								Opportunity # generated automatically by database sequence
+							<div className="text-[11px] text-[var(--ink-muted)] font-mono">
+								Opportunity # generated automatically by sequence
+								(KW-OPP-XXXXXX)
 							</div>
 						)}
 
@@ -368,14 +380,14 @@ export const OpportunityModal: React.FC<OpportunityModalProps> = ({
 							<button
 								type="button"
 								onClick={onClose}
-								className="px-4 py-2 rounded-lg border border-[#DEDEDE] text-[#666666] hover:bg-[#F5F5F5] text-[13px] font-medium"
+								className="btn-secondary !h-[34px]"
 							>
 								Cancel
 							</button>
 							<button
 								type="submit"
 								disabled={isSubmitting}
-								className="px-4 py-2 rounded-lg bg-[#222222] hover:bg-[#111111] text-white text-[13px] font-medium disabled:opacity-50"
+								className="btn-primary !h-[34px]"
 							>
 								{isSubmitting
 									? "Saving..."

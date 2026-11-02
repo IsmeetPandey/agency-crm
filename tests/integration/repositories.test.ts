@@ -46,9 +46,9 @@ describe("Leads Repository & Idempotent Client Conversion", () => {
     const { lead: converted1, client: client1 } = await leadsRepository.convertToClient(lead.id);
     expect(client1.name).toBe("Zenith Design");
 
-    // Check that lead is now Won and linked
+    // Check that lead is linked without false "Won" forced stage
     const updatedLead = (await leadsRepository.list()).find((l) => l.id === lead.id)!;
-    expect(updatedLead.stage).toBe("Won");
+    expect(updatedLead.stage).toBe("Proposal");
     expect(updatedLead.convertedClientId).toBe(client1.id);
 
     // 2nd conversion retry (must be idempotent!)

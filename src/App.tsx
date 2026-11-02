@@ -5,6 +5,7 @@ import { Sidebar } from "./components/layout/Sidebar";
 import { Topbar } from "./components/layout/Topbar";
 import { ClientModal } from "./components/modals/ClientModal";
 import { ContactModal } from "./components/modals/ContactModal";
+import { ConvertLeadModal } from "./components/modals/ConvertLeadModal";
 import { FinanceModal } from "./components/modals/FinanceModal";
 import { HandoffModal } from "./components/modals/HandoffModal";
 import { LeadModal } from "./components/modals/LeadModal";
@@ -33,6 +34,7 @@ import { TeamView } from "./features/team/TeamView";
 import { AuthProvider, useAuth } from "./lib/auth/auth.context";
 import { DEPARTMENTS, getISTHour } from "./lib/constants/agency";
 import { ToastProvider } from "./lib/feedback/toast.context";
+import { ThemeProvider } from "./lib/theme/theme.context";
 import { activityRepository } from "./lib/repositories/activity.repository";
 import { clientsRepository } from "./lib/repositories/clients.repository";
 import { contactsRepository } from "./lib/repositories/contacts.repository";
@@ -570,6 +572,20 @@ function AgencyOSApp() {
 			/>
 
 			{/* Modals */}
+			{modal?.type === "convert-lead" && modal.data?.lead && (
+				<ConvertLeadModal
+					lead={modal.data.lead}
+					clients={clients}
+					team={team}
+					onClose={() => setModal(null)}
+					onSuccess={() => {
+						loadData();
+					}}
+					onNavigateOpportunity={(oppId) => {
+						openOpportunity(oppId);
+					}}
+				/>
+			)}
 			{modal?.type === "opportunity" && (
 				<OpportunityModal
 					clients={clients}
@@ -663,11 +679,13 @@ function AgencyOSApp() {
 export default function App() {
 	return (
 		<ErrorBoundary>
-			<AuthProvider>
-				<ToastProvider>
-					<AgencyOSApp />
-				</ToastProvider>
-			</AuthProvider>
+			<ThemeProvider>
+				<AuthProvider>
+					<ToastProvider>
+						<AgencyOSApp />
+					</ToastProvider>
+				</AuthProvider>
+			</ThemeProvider>
 		</ErrorBoundary>
 	);
 }
