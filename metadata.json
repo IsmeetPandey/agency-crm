@@ -1,0 +1,6 @@
+{
+  "name": "KREATIWIT AgencyOS",
+  "description": "Studio Command CRM for agency pipeline, delivery, approvals, and team capacity.",
+  "permissions": [],
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

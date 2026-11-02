@@ -3,13 +3,11 @@
   "version": "3.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
-    "preview": "vite preview",
+    "preview": "vite preview --host 0.0.0.0 --port 3000",
     "lint": "biome check .",
-    "format": "biome check --write .",
-    "test": "bun test",
-    "migrate": "bun run scripts/import-legacy-data.ts"
+    "format": "biome check --write ."
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
