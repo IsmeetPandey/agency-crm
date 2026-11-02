@@ -40,7 +40,38 @@ export const leadsRepository = {
 		}
 
 		const state = loadLocalState();
-		return state.leads;
+		return state.leads.filter((l) => l.status !== "archived");
+	},
+
+	async listArchived(): Promise<Lead[]> {
+		if (isSupabaseConfigured()) {
+			const { data, error } = await supabase
+				.from("leads")
+				.select("*")
+				.eq("status", "archived")
+				.order("created_at", { ascending: false });
+
+			if (error) throw error;
+			return (data || []).map((row) => ({
+				id: row.id,
+				legacyId: row.legacy_id || undefined,
+				name: row.name,
+				contact: row.contact_person || "",
+				email: row.email || "",
+				service: row.service || "",
+				value: Number(row.estimated_value) || 0,
+				stage: row.stage as LeadStage,
+				owner: row.owner_name || "Unassigned",
+				followup: row.next_followup || "",
+				notes: row.notes || "",
+				convertedClientId: row.converted_to_client_id || undefined,
+				convertedAt: row.converted_at || undefined,
+				status: "archived" as const,
+			}));
+		}
+
+		const state = loadLocalState();
+		return state.leads.filter((l) => l.status === "archived");
 	},
 
 	async create(payload: Omit<Lead, "id"> & { id?: string }): Promise<Lead> {
@@ -215,7 +246,61 @@ export const leadsRepository = {
 			return;
 		}
 		const state = loadLocalState();
+		const idx = state.leads.findIndex((l) => l.id === id);
+		if (idx !== -1) {
+			state.leads[idx].status = "archived";
+			saveLocalState(state);
+		}
+	},
+
+	async restore(id: string): Promise<void> {
+		if (isSupabaseConfigured()) {
+			await supabase.from("leads").update({ status: "active" }).eq("id", id);
+			return;
+		}
+		const state = loadLocalState();
+		const idx = state.leads.findIndex((l) => l.id === id);
+		if (idx !== -1) {
+			state.leads[idx].status = "active";
+			saveLocalState(state);
+		}
+	},
+
+	async deletePermanently(id: string): Promise<void> {
+		if (isSupabaseConfigured()) {
+			await supabase.from("leads").delete().eq("id", id);
+			return;
+		}
+		const state = loadLocalState();
 		state.leads = state.leads.filter((l) => l.id !== id);
+		saveLocalState(state);
+	},
+
+	async bulkUpdateStage(ids: string[], stage: LeadStage): Promise<void> {
+		if (isSupabaseConfigured()) {
+			await supabase.from("leads").update({ stage }).in("id", ids);
+			return;
+		}
+		const state = loadLocalState();
+		for (const l of state.leads) {
+			if (ids.includes(l.id)) {
+				l.stage = stage;
+			}
+		}
+		saveLocalState(state);
+	},
+
+	async bulkArchive(ids: string[]): Promise<void> {
+		if (isSupabaseConfigured()) {
+			await supabase.from("leads").update({ status: "archived" }).in("id", ids);
+			return;
+		}
+		const state = loadLocalState();
+		for (const l of state.leads) {
+			if (ids.includes(l.id)) {
+				l.status = "archived";
+			}
+		}
 		saveLocalState(state);
 	},
 };

@@ -2,6 +2,8 @@ import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import type {
 	Client,
+	Contact,
+	FinanceItem,
 	Lead,
 	Project,
 	Task,
@@ -16,6 +18,8 @@ interface CommandPaletteProps {
 	projects: Project[];
 	tasks: Task[];
 	team: TeamMemberDetail[];
+	contacts?: Contact[];
+	finance?: FinanceItem[];
 	onNavigate: (view: string, projectId?: string) => void;
 	onOpenModal: (type: string) => void;
 }
@@ -38,6 +42,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 	projects,
 	tasks,
 	team,
+	contacts = [],
+	finance = [],
 	onNavigate,
 	onOpenModal,
 }) => {
@@ -92,6 +98,30 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 			section: "Quick Actions",
 			perform: () => {
 				onOpenModal("client");
+				onClose();
+			},
+		});
+		items.push({
+			id: "action-contact",
+			title: "Add Client Contact",
+			subtitle: "Register stakeholder or decision-maker",
+			badge: "+Contact",
+			icon: "👤",
+			section: "Quick Actions",
+			perform: () => {
+				onOpenModal("contact");
+				onClose();
+			},
+		});
+		items.push({
+			id: "action-finance",
+			title: "Create Invoice / Proposal",
+			subtitle: "Record commercial milestone or quote",
+			badge: "+Finance",
+			icon: "📑",
+			section: "Quick Actions",
+			perform: () => {
+				onOpenModal("finance");
 				onClose();
 			},
 		});
@@ -218,6 +248,49 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 				section: "Team Directory",
 				perform: () => {
 					onNavigate("team");
+					onClose();
+				},
+			});
+		}
+
+		// Contacts
+		const matchingContacts = contacts
+			.filter(
+				(c) =>
+					c.name.toLowerCase().includes(q) ||
+					c.role.toLowerCase().includes(q) ||
+					(c.email && c.email.toLowerCase().includes(q)),
+			)
+			.slice(0, 3);
+		for (const c of matchingContacts) {
+			items.push({
+				id: `con-${c.id}`,
+				title: c.name,
+				subtitle: `${c.role} ${c.isPrimary ? "• Primary" : ""}`,
+				badge: "Contact",
+				icon: "👤",
+				section: "Stakeholders",
+				perform: () => {
+					onNavigate("contacts");
+					onClose();
+				},
+			});
+		}
+
+		// Finance
+		const matchingFinance = finance
+			.filter((f) => f.title.toLowerCase().includes(q))
+			.slice(0, 3);
+		for (const f of matchingFinance) {
+			items.push({
+				id: `fin-${f.id}`,
+				title: f.title,
+				subtitle: `${f.type.toUpperCase()} • ₹${f.amount.toLocaleString()}`,
+				badge: f.status,
+				icon: "📑",
+				section: "Finance & Billing",
+				perform: () => {
+					onNavigate("finance");
 					onClose();
 				},
 			});

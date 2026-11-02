@@ -14,6 +14,10 @@ interface SidebarProps {
 	onlineCount: number;
 	istHour: number;
 	departments: Department[];
+	tasksCount?: number;
+	contactsCount?: number;
+	financeCount?: number;
+	archiveCount?: number;
 	mobileOpen?: boolean;
 	onCloseMobile?: () => void;
 }
@@ -39,6 +43,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 	pendingHandoffsCount,
 	onlineCount,
 	istHour,
+	tasksCount,
+	contactsCount,
+	financeCount,
+	archiveCount,
 	mobileOpen = false,
 	onCloseMobile,
 }) => {
@@ -57,6 +65,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
 					badge: leadsCount,
 				},
 				{ id: "clients", label: "Client Accounts", icon: "◈" },
+				{
+					id: "contacts",
+					label: "Key Contacts",
+					icon: "👤",
+					badge: contactsCount || null,
+				},
+				{
+					id: "finance",
+					label: "Invoices & Proposals",
+					icon: "📑",
+					badge: financeCount || null,
+				},
 			],
 		},
 		{
@@ -67,6 +87,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
 					label: "Projects & Cockpit",
 					icon: "◼",
 					badge: projectsCount,
+				},
+				{
+					id: "tasks",
+					label: "Tasks Masterboard",
+					icon: "☑",
+					badge: tasksCount || null,
 				},
 				{
 					id: "handoffs",
@@ -91,7 +117,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
 		},
 		{
 			title: "System",
-			items: [{ id: "settings", label: "Settings & Storage", icon: "⚙" }],
+			items: [
+				{
+					id: "archive",
+					label: "Recycle & Archive",
+					icon: "♻",
+					badge: archiveCount || null,
+				},
+				{ id: "settings", label: "Settings & Storage", icon: "⚙" },
+			],
 		},
 	];
 

@@ -2,8 +2,11 @@ import type {
 	Activity,
 	ApprovalRequest,
 	Client,
+	Contact,
+	FinanceItem,
 	Handoff,
 	Lead,
+	Note,
 	Project,
 	ProjectGate,
 	RACIAssignment,
@@ -228,11 +231,159 @@ const INITIAL_ACTIVITY: Activity[] = [
 	},
 ];
 
+const INITIAL_CONTACTS: Contact[] = [
+	{
+		id: "con1",
+		clientId: "c1",
+		name: "Avery Quinn",
+		role: "VP Engineering",
+		email: "avery@orbit.example",
+		phone: "+91 98765 43210",
+		isPrimary: true,
+		notes: "Primary technical and budget decision-maker",
+	},
+	{
+		id: "con2",
+		clientId: "c1",
+		name: "Morgan Chen",
+		role: "Lead Product Manager",
+		email: "morgan.c@orbit.example",
+		phone: "+91 98765 43211",
+		isPrimary: false,
+		notes: "Coordinates weekly design sprints and sprint demos",
+	},
+	{
+		id: "con3",
+		clientId: "c2",
+		name: "Taylor Reed",
+		role: "Founder & Creative Director",
+		email: "taylor@serein.example",
+		phone: "+91 98111 22233",
+		isPrimary: true,
+		notes: "Final sign-off on visual direction and branding",
+	},
+	{
+		id: "con4",
+		clientId: "c2",
+		name: "Elena Rostova",
+		role: "Head of Marketing",
+		email: "elena@serein.example",
+		phone: "+91 98111 22234",
+		isPrimary: false,
+		notes: "Campaign and e-commerce launch lead",
+	},
+	{
+		id: "con5",
+		clientId: "c3",
+		name: "Jamie Ellis",
+		role: "Managing Partner",
+		email: "jamie@northstar.example",
+		phone: "+91 97000 88990",
+		isPrimary: true,
+		notes: "Portfolio brand partnerships and board review",
+	},
+];
+
+const INITIAL_FINANCE: FinanceItem[] = [
+	{
+		id: "fin1",
+		clientId: "c1",
+		projectId: "p1",
+		type: "invoice",
+		title: "Orbit / Milestone 1 - Architecture & UX Discovery",
+		amount: 120000,
+		status: "Paid",
+		issuedDate: "2025-08-15",
+		dueDate: "2025-08-30",
+		paidDate: "2025-08-28",
+		notes: "Wire transfer confirmed via HDFC",
+	},
+	{
+		id: "fin2",
+		clientId: "c1",
+		projectId: "p1",
+		type: "invoice",
+		title: "Orbit / Milestone 2 - Design System & Component Library",
+		amount: 120000,
+		status: "Sent",
+		issuedDate: "2025-09-01",
+		dueDate: "2025-09-20",
+		notes: "Net-20 terms. Prototype review approved.",
+	},
+	{
+		id: "fin3",
+		clientId: "c2",
+		projectId: "p2",
+		type: "proposal",
+		title: "Serein / Brand Identity & Next.js Storefront Scope",
+		amount: 180000,
+		status: "Accepted",
+		issuedDate: "2025-08-10",
+		dueDate: "2025-08-25",
+		notes: "Signed master services agreement on file",
+	},
+	{
+		id: "fin4",
+		clientId: "c2",
+		projectId: "p2",
+		type: "invoice",
+		title: "Serein / Retainer Advance 50%",
+		amount: 90000,
+		status: "Paid",
+		issuedDate: "2025-08-12",
+		dueDate: "2025-08-20",
+		paidDate: "2025-08-18",
+		notes: "Advance deposit cleared",
+	},
+	{
+		id: "fin5",
+		clientId: "c3",
+		type: "quotation",
+		title: "Northstar / Venture Brand Sprint & Pitch Deck",
+		amount: 140000,
+		status: "Draft",
+		issuedDate: "2025-09-05",
+		dueDate: "2025-09-25",
+		notes: "Pending partner meeting feedback",
+	},
+];
+
+const INITIAL_NOTES: Note[] = [
+	{
+		id: "n1",
+		entityType: "lead",
+		entityId: "l1",
+		author: "Riya Kapoor",
+		content:
+			"Spoke with Casey Morgan. Focus on high-end luxury residential showcase with 3D floorplans.",
+		createdAt: "2025-09-02T10:30:00.000Z",
+	},
+	{
+		id: "n2",
+		entityType: "lead",
+		entityId: "l2",
+		author: "Arnav",
+		content:
+			"Parker requested technical architecture proposal with HIPAA security compliance notes.",
+		createdAt: "2025-09-03T14:15:00.000Z",
+	},
+	{
+		id: "n3",
+		entityType: "project",
+		entityId: "p1",
+		author: "Ansul",
+		content:
+			"Figma design tokens synced. Frontend build environment ready on Next.js 14.",
+		createdAt: "2025-09-05T09:00:00.000Z",
+	},
+];
+
 const STORAGE_KEY = "kreatiwit_agencyos_v3_state";
 
 export interface AppStateData {
 	leads: Lead[];
 	clients: Client[];
+	contacts: Contact[];
 	projects: Project[];
 	tasks: Task[];
 	handoffs: Handoff[];
@@ -243,6 +394,8 @@ export interface AppStateData {
 	scopeChanges: ScopeChange[];
 	checklists: Record<string, Record<string, boolean>>; // projectId -> itemKey -> checked
 	raci: Record<string, RACIAssignment[]>; // projectId -> assignments
+	finance: FinanceItem[];
+	notes: Note[];
 }
 
 function initDefaultGates(projects: Project[]): Record<string, ProjectGate[]> {
@@ -293,6 +446,9 @@ export function loadLocalState(): AppStateData {
 			if (raw) {
 				const parsed = JSON.parse(raw);
 				if (parsed.leads?.length && parsed.projects?.length) {
+					if (!parsed.contacts) parsed.contacts = INITIAL_CONTACTS;
+					if (!parsed.finance) parsed.finance = INITIAL_FINANCE;
+					if (!parsed.notes) parsed.notes = INITIAL_NOTES;
 					inMemoryState = parsed;
 					return parsed;
 				}
@@ -303,6 +459,7 @@ export function loadLocalState(): AppStateData {
 	const defaultState: AppStateData = {
 		leads: INITIAL_LEADS,
 		clients: INITIAL_CLIENTS,
+		contacts: INITIAL_CONTACTS,
 		projects: INITIAL_PROJECTS,
 		tasks: INITIAL_TASKS,
 		handoffs: INITIAL_HANDOFFS,
@@ -326,6 +483,8 @@ export function loadLocalState(): AppStateData {
 			p2: { "PM-0": true, "Frontend-0": true },
 		},
 		raci: initDefaultRaci(INITIAL_PROJECTS),
+		finance: INITIAL_FINANCE,
+		notes: INITIAL_NOTES,
 	};
 
 	inMemoryState = defaultState;

@@ -58,6 +58,19 @@ export interface Lead {
 	projectId?: string;
 	convertedClientId?: string;
 	convertedAt?: string;
+	status?: "active" | "archived";
+	createdAt?: string;
+}
+
+export interface Contact {
+	id: string;
+	clientId: string;
+	name: string;
+	role: string;
+	email: string;
+	phone?: string;
+	isPrimary: boolean;
+	notes?: string;
 	createdAt?: string;
 }
 
@@ -71,6 +84,39 @@ export interface Client {
 	phone?: string;
 	status?: "active" | "archived";
 	createdAt?: string;
+}
+
+export type FinanceType = "proposal" | "quotation" | "invoice";
+export type FinanceStatus =
+	| "Draft"
+	| "Sent"
+	| "Accepted"
+	| "Paid"
+	| "Overdue"
+	| "Declined";
+
+export interface FinanceItem {
+	id: string;
+	clientId: string;
+	projectId?: string;
+	type: FinanceType;
+	title: string;
+	amount: number;
+	status: FinanceStatus;
+	issuedDate: string;
+	dueDate: string;
+	paidDate?: string;
+	notes?: string;
+	createdAt?: string;
+}
+
+export interface Note {
+	id: string;
+	entityType: "lead" | "client" | "project" | "task";
+	entityId: string;
+	author: string;
+	content: string;
+	createdAt: string;
 }
 
 export type ProjectPhase =

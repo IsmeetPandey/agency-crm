@@ -151,13 +151,60 @@ describe("E2E CRM Workflow: Complete User Journey", () => {
 		expect(createdScopeChange.id).toBeDefined();
 		expect(createdScopeChange.costDelta).toBe(60000);
 
-		// 12. Verify Activity Audit Trail logged the events
+		// 12. Stakeholder Contact Management
+		const { contactsRepository } = await import(
+			"../../src/lib/repositories/contacts.repository"
+		);
+		const createdContact = await contactsRepository.create({
+			clientId: createdClient.id,
+			name: "Elena Rostova",
+			role: "VP Engineering",
+			email: `elena-${testSuffix}@apex.example`,
+			isPrimary: true,
+		});
+		expect(createdContact.id).toBeDefined();
+		expect(createdContact.isPrimary).toBe(true);
+
+		const clientContacts = await contactsRepository.list(createdClient.id);
+		expect(clientContacts.length).toBeGreaterThanOrEqual(1);
+
+		// 13. Financial Milestone & Invoicing
+		const { financeRepository } = await import(
+			"../../src/lib/repositories/finance.repository"
+		);
+		const invoice = await financeRepository.create({
+			title: "Phase 1 Discovery Milestone",
+			type: "invoice",
+			clientId: createdClient.id,
+			projectId: createdProject.id,
+			amount: 150000,
+			status: "Sent",
+			issueDate: "2026-11-01",
+		});
+		expect(invoice.id).toBeDefined();
+		expect(invoice.amount).toBe(150000);
+
+		const paidInvoice = await financeRepository.updateStatus(invoice.id, "Paid");
+		expect(paidInvoice.status).toBe("Paid");
+
+		// 14. Lead Archive & Restore lifecycle
+		await leadsRepository.archive(createdLead.id);
+		const archived = await leadsRepository.listArchived();
+		expect(archived.some((l) => l.id === createdLead.id)).toBe(true);
+
+		await leadsRepository.restore(createdLead.id);
+		const restoredLeads = await leadsRepository.list();
+		expect(restoredLeads.some((l) => l.id === createdLead.id)).toBe(true);
+
+		// 15. Verify Activity Audit Trail logged the events
 		const activities = await activityRepository.list();
 		expect(activities.length).toBeGreaterThan(0);
 
-		// 13. Isolated Test Cleanup
+		// 16. Isolated Test Cleanup
 		await tasksRepository.delete(createdTask.id);
-		await leadsRepository.archive(createdLead.id);
+		await contactsRepository.delete(createdContact.id);
+		await financeRepository.delete(invoice.id);
+		await leadsRepository.deletePermanently(createdLead.id);
 		await clientsRepository.archive(createdClient.id);
 		await projectsRepository.archive(createdProject.id);
 

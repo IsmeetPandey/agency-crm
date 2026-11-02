@@ -18,7 +18,7 @@ export const Topbar: React.FC<TopbarProps> = ({
 	openModal,
 	onMobileMenuToggle,
 }) => {
-	const { user, role } = useAuth();
+	const { user, role, signOut } = useAuth();
 	const [showSyncInfo, setShowSyncInfo] = useState(false);
 	const isConnected = isSupabaseConfigured();
 
@@ -155,14 +155,25 @@ export const Topbar: React.FC<TopbarProps> = ({
 					+ Project
 				</button>
 
-				{/* User Avatar & Role */}
+				{/* User Avatar, Role & Signout */}
 				<div className="flex items-center gap-2 pl-2 border-l border-[#DEDEDE]">
 					<span className="text-[10px] font-mono font-semibold uppercase px-1.5 py-0.5 rounded bg-[#EDEDED] text-[#666666] border border-[#DEDEDE]">
 						{role}
 					</span>
-					<div className="w-7 h-7 rounded-full bg-[#111111] text-white flex items-center justify-center font-bold text-[11px] font-mono shadow-xs">
+					<div
+						className="w-7 h-7 rounded-full bg-[#111111] text-white flex items-center justify-center font-bold text-[11px] font-mono shadow-xs"
+						title={user?.email || user?.name || "User"}
+					>
 						{user?.name?.slice(0, 2).toUpperCase() || "ME"}
 					</div>
+					<button
+						type="button"
+						onClick={() => signOut()}
+						className="text-[11px] font-mono text-[#888888] hover:text-[#C62828] hover:bg-[#FFF0F0] px-1.5 py-1 rounded transition"
+						title="Sign Out of Studio"
+					>
+						Sign Out
+					</button>
 				</div>
 			</div>
 		</header>

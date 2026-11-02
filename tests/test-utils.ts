@@ -20,5 +20,14 @@ export function expect(actual: any) {
 		toBeGreaterThan(expected: number) {
 			assert.ok(actual > expected, `Expected ${actual} > ${expected}`);
 		},
+		toBeGreaterThanOrEqual(expected: number) {
+			assert.ok(actual >= expected, `Expected ${actual} >= ${expected}`);
+		},
+		toBeTruthy() {
+			assert.ok(Boolean(actual));
+		},
+		toBeFalsy() {
+			assert.ok(!actual);
+		},
 	};
 }

@@ -4,6 +4,8 @@ import { CommandPalette } from "./components/layout/CommandPalette";
 import { Sidebar } from "./components/layout/Sidebar";
 import { Topbar } from "./components/layout/Topbar";
 import { ClientModal } from "./components/modals/ClientModal";
+import { ContactModal } from "./components/modals/ContactModal";
+import { FinanceModal } from "./components/modals/FinanceModal";
 import { HandoffModal } from "./components/modals/HandoffModal";
 import { LeadModal } from "./components/modals/LeadModal";
 import { ProjectModal } from "./components/modals/ProjectModal";
@@ -11,20 +13,27 @@ import { ScopeChangeModal } from "./components/modals/ScopeChangeModal";
 import { TaskModal } from "./components/modals/TaskModal";
 import { ToastContainer } from "./components/ui/Toast";
 import { ApprovalsView } from "./features/approvals/ApprovalsView";
+import { ArchiveView } from "./features/archive/ArchiveView";
+import { AuthView } from "./features/auth/AuthView";
 import { ClientsView } from "./features/clients/ClientsView";
+import { ContactsView } from "./features/contacts/ContactsView";
 import { DashboardOverview } from "./features/dashboard/DashboardOverview";
+import { FinanceView } from "./features/finance/FinanceView";
 import { HandoffsView } from "./features/handoffs/HandoffsView";
 import { PipelineView } from "./features/leads/PipelineView";
 import { ProjectDetailView } from "./features/projects/ProjectDetailView";
 import { ProjectsView } from "./features/projects/ProjectsView";
 import { RaciView } from "./features/raci/RaciView";
 import { SettingsView } from "./features/settings/SettingsView";
+import { TasksView } from "./features/tasks/TasksView";
 import { TeamView } from "./features/team/TeamView";
-import { AuthProvider } from "./lib/auth/auth.context";
+import { AuthProvider, useAuth } from "./lib/auth/auth.context";
 import { DEPARTMENTS, getISTHour } from "./lib/constants/agency";
 import { ToastProvider } from "./lib/feedback/toast.context";
 import { activityRepository } from "./lib/repositories/activity.repository";
 import { clientsRepository } from "./lib/repositories/clients.repository";
+import { contactsRepository } from "./lib/repositories/contacts.repository";
+import { financeRepository } from "./lib/repositories/finance.repository";
 import { handoffsRepository } from "./lib/repositories/handoffs.repository";
 import { leadsRepository } from "./lib/repositories/leads.repository";
 import { projectsRepository } from "./lib/repositories/projects.repository";
@@ -35,6 +44,8 @@ import type {
 	Activity,
 	ApprovalRequest,
 	Client,
+	Contact,
+	FinanceItem,
 	Handoff,
 	Lead,
 	Project,
@@ -43,6 +54,7 @@ import type {
 } from "./types";
 
 function AgencyOSApp() {
+	const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
 	const [view, setView] = useState("overview");
 	const [activeProjectId, setActiveProjectId] = useState<string>("p1");
 	const [search, setSearch] = useState("");
@@ -54,6 +66,8 @@ function AgencyOSApp() {
 	// Domain records state
 	const [leads, setLeads] = useState<Lead[]>([]);
 	const [clients, setClients] = useState<Client[]>([]);
+	const [contacts, setContacts] = useState<Contact[]>([]);
+	const [finance, setFinance] = useState<FinanceItem[]>([]);
 	const [projects, setProjects] = useState<Project[]>([]);
 	const [tasks, setTasks] = useState<Task[]>([]);
 	const [handoffs, setHandoffs] = useState<Handoff[]>([]);
@@ -68,9 +82,11 @@ function AgencyOSApp() {
 	// Load authoritative data
 	const loadData = async () => {
 		try {
-			const [l, c, p, t, h, tm, a, app] = await Promise.all([
+			const [l, c, con, fin, p, t, h, tm, a, app] = await Promise.all([
 				leadsRepository.list(),
 				clientsRepository.list(),
+				contactsRepository.list(),
+				financeRepository.list(),
 				projectsRepository.list(),
 				tasksRepository.list(),
 				handoffsRepository.list(),
@@ -80,6 +96,8 @@ function AgencyOSApp() {
 			]);
 			setLeads(l);
 			setClients(c);
+			setContacts(con);
+			setFinance(fin);
 			setProjects(p);
 			setTasks(t);
 			setHandoffs(h);
@@ -142,14 +160,39 @@ function AgencyOSApp() {
 		overview: "Command Center",
 		pipeline: "Sales Pipeline",
 		clients: "Client Accounts",
+		contacts: "Key Client Stakeholders",
+		finance: "Invoices & Proposals",
 		projects: "Projects & Delivery",
 		project: activeProject ? activeProject.name : "Project Cockpit",
+		tasks: "Tasks Masterboard",
 		handoffs: "Department Transit",
 		approvals: "Approval Center",
 		team: "Team & Capacity Intelligence",
 		raci: "RACI Governance Matrix",
+		archive: "Recycle & Archive Bin",
 		settings: "Settings & Storage",
 	};
+
+	if (isAuthLoading) {
+		return (
+			<div className="flex h-screen w-full items-center justify-center studio-canvas">
+				<div className="studio-card p-8 text-center space-y-3 bg-white shadow-xl">
+					<div className="w-8 h-8 rounded-full border-2 border-blue-600 border-t-transparent animate-spin mx-auto" />
+					<div className="text-[14px] font-bold text-slate-900 tracking-tight">
+						Verifying Studio Credentials...
+					</div>
+					<div className="text-[12px] text-slate-500 font-mono">
+						Secure Enterprise Authorization
+					</div>
+				</div>
+			</div>
+		);
+	}
+
+	// Gated authentication flow
+	if (!isAuthenticated) {
+		return <AuthView />;
+	}
 
 	if (isLoading) {
 		return (
@@ -183,6 +226,9 @@ function AgencyOSApp() {
 				pendingHandoffsCount={
 					handoffs.filter((h) => h.status === "Pending").length
 				}
+				tasksCount={tasks.length}
+				contactsCount={contacts.length}
+				financeCount={finance.length}
 				onlineCount={team.length}
 				istHour={istHour}
 				departments={DEPARTMENTS}
@@ -244,6 +290,27 @@ function AgencyOSApp() {
 						/>
 					)}
 
+					{view === "contacts" && (
+						<ContactsView
+							contacts={contacts}
+							clients={clients}
+							onOpenModal={(t, data) => setModal({ type: t, data })}
+							onRefresh={loadData}
+							search={search}
+						/>
+					)}
+
+					{view === "finance" && (
+						<FinanceView
+							finance={finance}
+							clients={clients}
+							projects={projects}
+							onOpenModal={(t, data) => setModal({ type: t, data })}
+							onRefresh={loadData}
+							search={search}
+						/>
+					)}
+
 					{view === "projects" && (
 						<ProjectsView
 							projects={projects}
@@ -266,6 +333,19 @@ function AgencyOSApp() {
 							onBack={() => setView("projects")}
 							onOpenModal={(t, data) => setModal({ type: t, data })}
 							onRefresh={loadData}
+						/>
+					)}
+
+					{view === "tasks" && (
+						<TasksView
+							tasks={tasks}
+							projects={projects}
+							departments={DEPARTMENTS}
+							team={team}
+							onOpenModal={(t, data) => setModal({ type: t, data })}
+							onOpenProject={openProject}
+							onRefresh={loadData}
+							search={search}
 						/>
 					)}
 
@@ -293,6 +373,10 @@ function AgencyOSApp() {
 
 					{view === "raci" && <RaciView projects={projects} />}
 
+					{view === "archive" && (
+						<ArchiveView onRefresh={loadData} search={search} />
+					)}
+
 					{view === "settings" && (
 						<SettingsView
 							leads={leads}
@@ -316,6 +400,8 @@ function AgencyOSApp() {
 				projects={projects}
 				tasks={tasks}
 				team={team}
+				contacts={contacts}
+				finance={finance}
 				onNavigate={(v, pId) => {
 					if (pId) openProject(pId);
 					else setView(v);
@@ -334,6 +420,26 @@ function AgencyOSApp() {
 			{modal?.type === "client" && (
 				<ClientModal
 					initialClient={modal.data?.client}
+					onClose={() => setModal(null)}
+					onSuccess={loadData}
+				/>
+			)}
+			{modal?.type === "contact" && (
+				<ContactModal
+					clients={clients}
+					initialContact={modal.data?.contact}
+					initialClientId={modal.data?.clientId}
+					onClose={() => setModal(null)}
+					onSuccess={loadData}
+				/>
+			)}
+			{modal?.type === "finance" && (
+				<FinanceModal
+					clients={clients}
+					projects={projects}
+					initialItem={modal.data?.item}
+					initialClientId={modal.data?.clientId}
+					initialProjectId={modal.data?.projectId}
 					onClose={() => setModal(null)}
 					onSuccess={loadData}
 				/>
