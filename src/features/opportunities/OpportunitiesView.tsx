@@ -451,7 +451,7 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 
 			{/* Views Content */}
 			{viewMode === "table" ? (
-				<div className="studio-card bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+				<div className="erp-table-container">
 					{filteredOpportunities.length === 0 ? (
 						<div className="py-16 text-center space-y-2">
 							<div className="text-[28px]">⚡</div>
@@ -475,7 +475,7 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 						<div className="overflow-x-auto">
 							<table className="w-full text-left border-collapse text-[12px]">
 								<thead>
-									<tr className="border-b border-slate-200 bg-slate-50/70 text-[11px] font-mono uppercase tracking-wider text-slate-500">
+									<tr className="erp-table-head border-b border-blue-200/50 dark:border-slate-800">
 										<th className="py-3 px-4">Deal Number</th>
 										<th className="py-3 px-4">Title & Client</th>
 										<th className="py-3 px-4">Service</th>
@@ -486,7 +486,7 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 										<th className="py-3 px-4 text-right">Actions</th>
 									</tr>
 								</thead>
-								<tbody className="divide-y divide-slate-100">
+								<tbody className="divide-y divide-[var(--border-subtle)]">
 									{filteredOpportunities.map((opp) => {
 										const client = clientMap.get(opp.clientId);
 										const stageStyle = STAGE_COLORS[opp.stage] || {
@@ -498,7 +498,7 @@ export const OpportunitiesView: React.FC<OpportunitiesViewProps> = ({
 										return (
 											<tr
 												key={opp.id}
-												className="hover:bg-slate-50/80 transition-colors group cursor-pointer"
+												className="erp-table-row group cursor-pointer"
 												onClick={() => onSelectOpportunity(opp.id)}
 											>
 												<td

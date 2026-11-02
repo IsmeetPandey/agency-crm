@@ -7,4 +7,5 @@ dist
 .data-backup/
 *.backup.json
 private/
+reference-video.mp4
 

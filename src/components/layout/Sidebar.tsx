@@ -1,4 +1,5 @@
 import type React from "react";
+import { useEffect, useState } from "react";
 import { formatHour } from "../../lib/constants/agency";
 import type { Department } from "../../types";
 import { ThemeToggle } from "../ui/ThemeToggle";
@@ -24,14 +25,18 @@ interface SidebarProps {
 	onCloseMobile?: () => void;
 }
 
-interface NavSection {
-	title: string;
-	items: {
-		id: string;
-		label: string;
-		icon: string;
-		badge?: number | null;
-	}[];
+interface NavItem {
+	id: string;
+	label: string;
+	icon: string;
+	badge?: number | null;
+}
+
+interface NavGroup {
+	id: string;
+	label: string;
+	icon: string;
+	children: NavItem[];
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -53,14 +58,45 @@ export const Sidebar: React.FC<SidebarProps> = ({
 	mobileOpen = false,
 	onCloseMobile,
 }) => {
-	const sections: NavSection[] = [
+	// Accordion state: track which groups are expanded
+	const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
 		{
-			title: "Studio",
-			items: [{ id: "overview", label: "Command Center", icon: "❖" }],
+			sales: true,
+			delivery: true,
+			finance: true,
+			governance: false,
+			system: false,
 		},
+	);
+
+	// Ensure the parent group of the currently active view is expanded
+	useEffect(() => {
+		if (["pipeline", "opportunities", "clients", "contacts"].includes(view)) {
+			setExpandedGroups((prev) => ({ ...prev, sales: true }));
+		} else if (["projects", "tasks", "handoffs"].includes(view)) {
+			setExpandedGroups((prev) => ({ ...prev, delivery: true }));
+		} else if (["finance"].includes(view)) {
+			setExpandedGroups((prev) => ({ ...prev, finance: true }));
+		} else if (["team", "approvals", "raci"].includes(view)) {
+			setExpandedGroups((prev) => ({ ...prev, governance: true }));
+		} else if (["archive", "settings"].includes(view)) {
+			setExpandedGroups((prev) => ({ ...prev, system: true }));
+		}
+	}, [view]);
+
+	const toggleGroup = (groupId: string) => {
+		setExpandedGroups((prev) => ({
+			...prev,
+			[groupId]: !prev[groupId],
+		}));
+	};
+
+	const navGroups: NavGroup[] = [
 		{
-			title: "Growth",
-			items: [
+			id: "sales",
+			label: "Sales & Deals",
+			icon: "⚑",
+			children: [
 				{
 					id: "pipeline",
 					label: "Sales Pipeline",
@@ -73,24 +109,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
 					icon: "⚡",
 					badge: opportunitiesCount || null,
 				},
-				{ id: "clients", label: "Client Accounts", icon: "◈" },
+				{
+					id: "clients",
+					label: "Client Accounts",
+					icon: "◈",
+				},
 				{
 					id: "contacts",
 					label: "Key Contacts",
 					icon: "👤",
 					badge: contactsCount || null,
 				},
-				{
-					id: "finance",
-					label: "Invoices & Proposals",
-					icon: "📑",
-					badge: financeCount || null,
-				},
 			],
 		},
 		{
-			title: "Delivery",
-			items: [
+			id: "delivery",
+			label: "Delivery & Projects",
+			icon: "◼",
+			children: [
 				{
 					id: "projects",
 					label: "Projects & Cockpit",
@@ -112,8 +148,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
 			],
 		},
 		{
-			title: "People & Governance",
-			items: [
+			id: "finance",
+			label: "Finance & Accounting",
+			icon: "📑",
+			children: [
+				{
+					id: "finance",
+					label: "Sales Invoices & Reports",
+					icon: "📑",
+					badge: financeCount || null,
+				},
+			],
+		},
+		{
+			id: "governance",
+			label: "Governance & Team",
+			icon: "👥",
+			children: [
 				{ id: "team", label: "Team & Capacity", icon: "👥" },
 				{
 					id: "approvals",
@@ -125,8 +176,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 			],
 		},
 		{
-			title: "System",
-			items: [
+			id: "system",
+			label: "System & Settings",
+			icon: "⚙",
+			children: [
 				{
 					id: "archive",
 					label: "Recycle & Archive",
@@ -137,6 +190,209 @@ export const Sidebar: React.FC<SidebarProps> = ({
 			],
 		},
 	];
+
+	const renderNavContent = (isMobile = false) => (
+		<div className="flex flex-col justify-between h-full">
+			<div>
+				{/* Top Branding Section */}
+				<div className="flex items-center justify-between px-2.5 py-3 mb-2 border-b border-[var(--nav-border)]">
+					<div className="flex items-center gap-2.5 min-w-0">
+						<div className="w-9 h-9 rounded-xl bg-[#2563EB] text-white flex items-center justify-center font-bold text-[15px] shrink-0 shadow-sm">
+							K
+						</div>
+						{(!collapsed || isMobile) && (
+							<div className="min-w-0">
+								<div className="text-[14px] font-extrabold tracking-tight text-[#1A253C] dark:text-slate-100 leading-none">
+									KREATIWIT
+								</div>
+								<div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider">
+									AgencyOS Studio
+								</div>
+							</div>
+						)}
+					</div>
+
+					{isMobile ? (
+						<button
+							type="button"
+							onClick={onCloseMobile}
+							className="text-slate-500 hover:text-slate-900 dark:hover:text-white p-1 text-[20px] leading-none cursor-pointer"
+							aria-label="Close menu"
+						>
+							×
+						</button>
+					) : (
+						<button
+							type="button"
+							onClick={() => setCollapsed(!collapsed)}
+							className="text-slate-500 hover:text-[#1A253C] dark:hover:text-white p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-[11px] font-mono transition cursor-pointer"
+							title="Toggle sidebar (⌘B)"
+							aria-label="Toggle sidebar"
+						>
+							{collapsed ? "»" : "«"}
+						</button>
+					)}
+				</div>
+
+				{/* Primary Navigation Rail */}
+				<nav className="space-y-1.5 mt-2 overflow-y-auto max-h-[calc(100vh-210px)] pr-1 custom-scroll">
+					{/* Top-Level Direct Dashboard Item (Matching Reference) */}
+					<button
+						type="button"
+						data-nav="overview"
+						onClick={() => {
+							setView("overview");
+							if (isMobile) onCloseMobile?.();
+						}}
+						className={`w-full nav-link justify-between ${
+							view === "overview" ? "active" : ""
+						}`}
+					>
+						<div className="flex items-center gap-2.5 min-w-0">
+							<span className="text-[14px] shrink-0">❖</span>
+							{(!collapsed || isMobile) && (
+								<span className="truncate text-[13px] font-medium">
+									Dashboard
+								</span>
+							)}
+						</div>
+					</button>
+
+					{/* Expandable Navigation Groups */}
+					{navGroups.map((group) => {
+						const isExpanded = Boolean(expandedGroups[group.id]);
+						const isGroupActive = group.children.some((c) => c.id === view);
+
+						return (
+							<div key={group.id} className="space-y-0.5 pt-1">
+								{/* Group Header Row */}
+								{!collapsed || isMobile ? (
+									<button
+										type="button"
+										onClick={() => toggleGroup(group.id)}
+										className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[12px] font-semibold transition cursor-pointer select-none ${
+											isGroupActive && !isExpanded
+												? "bg-[#1A253C] text-white shadow-xs"
+												: "text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/5"
+										}`}
+									>
+										<div className="flex items-center gap-2 min-w-0">
+											<span className="text-[13px] opacity-80 shrink-0">
+												{group.icon}
+											</span>
+											<span className="truncate">{group.label}</span>
+										</div>
+										<span
+											className={`text-[10px] text-slate-500 transition-transform duration-200 ${
+												isExpanded ? "rotate-180" : ""
+											}`}
+										>
+											▼
+										</span>
+									</button>
+								) : null}
+
+								{/* Group Children (Indented nested items) */}
+								{((isExpanded && !collapsed) || isMobile) && (
+									<div className="space-y-0.5 pl-2 mt-0.5 border-l border-slate-300/60 dark:border-slate-700/60 ml-3">
+										{group.children.map((item) => {
+											const active = view === item.id;
+											return (
+												<button
+													key={item.id}
+													type="button"
+													data-nav={item.id}
+													onClick={() => {
+														setView(item.id);
+														if (isMobile) onCloseMobile?.();
+													}}
+													className={`w-full nav-sublink justify-between ${
+														active ? "active" : ""
+													}`}
+												>
+													<div className="flex items-center gap-2 min-w-0">
+														<span className="text-[12px] opacity-75 shrink-0">
+															{item.icon}
+														</span>
+														<span className="truncate text-[12.5px]">
+															{item.label}
+														</span>
+													</div>
+													{item.badge !== undefined && item.badge !== null && (
+														<span
+															className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-semibold ${
+																active
+																	? "bg-white/20 text-white"
+																	: "bg-white/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+															}`}
+														>
+															{item.badge}
+														</span>
+													)}
+												</button>
+											);
+										})}
+									</div>
+								)}
+
+								{/* Collapsed Icon-Only Mode */}
+								{collapsed && !isMobile && (
+									<div className="space-y-1">
+										{group.children.map((item) => {
+											const active = view === item.id;
+											return (
+												<button
+													key={item.id}
+													type="button"
+													data-nav={item.id}
+													onClick={() => setView(item.id)}
+													title={item.label}
+													className={`w-full h-9 flex items-center justify-center rounded-lg transition ${
+														active
+															? "bg-[#1A253C] text-white shadow-xs"
+															: "text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10"
+													}`}
+												>
+													<span className="text-[14px]">{item.icon}</span>
+												</button>
+											);
+										})}
+									</div>
+								)}
+							</div>
+						);
+					})}
+				</nav>
+			</div>
+
+			{/* Bottom Status & Schedule Footer */}
+			<div className="pt-2 border-t border-[var(--nav-border)]">
+				{(!collapsed || isMobile) && (
+					<div className="p-2.5 rounded-xl bg-white/70 dark:bg-slate-900/60 border border-[var(--nav-border)] text-[11px] mb-2 shadow-2xs">
+						<div className="flex items-center justify-between text-slate-800 dark:text-slate-200 mb-1">
+							<span className="flex items-center gap-1.5 font-semibold">
+								<span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+								IST Operation
+							</span>
+							<span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+								{formatHour(istHour)}
+							</span>
+						</div>
+						<div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center justify-between">
+							<span>Active Duty:</span>
+							<span className="font-mono text-slate-900 dark:text-slate-100 font-bold">
+								{onlineCount} Specialists
+							</span>
+						</div>
+					</div>
+				)}
+
+				<div className="flex items-center justify-between">
+					<ThemeToggle showLabel={!collapsed || isMobile} />
+				</div>
+			</div>
+		</div>
+	);
 
 	return (
 		<>
@@ -150,235 +406,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
 						className="w-[280px] h-full studio-sidebar p-3 flex flex-col justify-between shadow-2xl"
 						onClick={(e) => e.stopPropagation()}
 					>
-						<div>
-							<div className="flex items-center justify-between px-2 py-2 mb-2 border-b border-[var(--border)]">
-								<div className="flex items-center gap-2.5">
-									<div className="w-8 h-8 rounded-lg bg-[var(--accent)] text-[var(--accent-contrast)] flex items-center justify-center font-bold text-[14px]">
-										K
-									</div>
-									<div>
-										<div className="text-[14px] font-bold tracking-tight text-[var(--ink-strong)] leading-none">
-											KREATIWIT
-										</div>
-										<div className="text-[10px] font-medium text-[var(--ink-muted)] mt-1 uppercase tracking-wider">
-											AgencyOS Studio
-										</div>
-									</div>
-								</div>
-								<button
-									type="button"
-									onClick={onCloseMobile}
-									className="text-[var(--ink-muted)] hover:text-[var(--ink-strong)] p-1 text-[18px] leading-none cursor-pointer"
-									aria-label="Close menu"
-								>
-									×
-								</button>
-							</div>
-
-							<nav className="space-y-4 mt-3 overflow-y-auto max-h-[calc(100vh-180px)] pr-1">
-								{sections.map((section) => (
-									<div key={section.title}>
-										<div className="nav-section-title">{section.title}</div>
-										<div className="space-y-0.5">
-											{section.items.map((item) => {
-												const active = view === item.id;
-												return (
-													<button
-														key={item.id}
-														type="button"
-														data-nav={item.id}
-														onClick={() => {
-															setView(item.id);
-															onCloseMobile?.();
-														}}
-														className={`w-full nav-link justify-between ${active ? "active" : ""}`}
-													>
-														<div className="flex items-center gap-2.5 min-w-0">
-															<span
-																className={`text-[13px] font-mono shrink-0 ${active ? "text-[var(--accent-text)]" : "opacity-75"}`}
-															>
-																{item.icon}
-															</span>
-															<span className="truncate text-[13px]">
-																{item.label}
-															</span>
-														</div>
-														{item.badge !== undefined &&
-															item.badge !== null && (
-																<span
-																	className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono font-semibold ${
-																		active
-																			? "bg-[var(--accent)] text-[var(--accent-contrast)]"
-																			: "bg-[var(--surface-raised)] text-[var(--ink-muted)] border border-[var(--border)]"
-																	}`}
-																>
-																	{item.badge}
-																</span>
-															)}
-													</button>
-												);
-											})}
-										</div>
-									</div>
-								))}
-							</nav>
-						</div>
-
-						<div className="pt-3 border-t border-[var(--border)]">
-							<div className="p-2.5 rounded-lg bg-[var(--surface-sunken)] border border-[var(--border)] text-[11px]">
-								<div className="flex items-center justify-between text-[var(--ink)] mb-1">
-									<span className="flex items-center gap-1.5 font-medium">
-										<span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-										IST Operation
-									</span>
-									<span className="font-mono text-emerald-500 font-semibold">
-										{formatHour(istHour)}
-									</span>
-								</div>
-								<div className="text-[10px] text-[var(--ink-muted)] flex items-center justify-between">
-									<span>Scheduled On-Duty:</span>
-									<span className="font-mono text-[var(--ink-strong)] font-medium">
-										{onlineCount} Specialists
-									</span>
-								</div>
-							</div>
-						</div>
+						{renderNavContent(true)}
 					</div>
 				</div>
 			)}
 
+			{/* Desktop Landscape Sidebar Rail (Pale Lavender-Blue #DDE6F5) */}
 			<aside
 				className={`hidden lg:flex shrink-0 flex-col sticky top-0 h-screen transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] studio-sidebar z-40 select-none ${
-					collapsed ? "w-[68px]" : "w-[260px]"
+					collapsed ? "w-[68px]" : "w-[250px]"
 				}`}
 			>
 				<div className="h-full flex flex-col justify-between p-3">
-					{/* Top Area: Logo & Collapse Trigger */}
-					<div>
-						{/* Brand Header */}
-						<div className="flex items-center justify-between px-2 py-2 mb-2 border-b border-[var(--border)]">
-							<div className="flex items-center gap-2.5 min-w-0">
-								<div className="w-8 h-8 rounded-lg bg-[var(--accent)] text-[var(--accent-contrast)] flex items-center justify-center font-bold text-[14px] shrink-0 shadow-sm">
-									K
-								</div>
-								{!collapsed && (
-									<div className="min-w-0">
-										<div className="text-[14px] font-bold tracking-tight text-[var(--ink-strong)] leading-none">
-											KREATIWIT
-										</div>
-										<div className="text-[10px] font-medium text-[var(--ink-muted)] mt-1 uppercase tracking-wider">
-											AgencyOS Studio
-										</div>
-									</div>
-								)}
-							</div>
-
-							<button
-								type="button"
-								onClick={() => setCollapsed(!collapsed)}
-								className="text-[var(--ink-muted)] hover:text-[var(--ink-strong)] p-1 rounded-md hover:bg-[var(--surface-sunken)] text-[11px] font-mono transition cursor-pointer"
-								title="Toggle sidebar (⌘B)"
-								aria-label="Toggle sidebar"
-							>
-								{collapsed ? "»" : "«"}
-							</button>
-						</div>
-
-						{/* Navigation Groups */}
-						<nav className="space-y-4 mt-3 overflow-y-auto max-h-[calc(100vh-220px)] pr-1">
-							{sections.map((section) => (
-								<div key={section.title}>
-									{!collapsed && (
-										<div className="nav-section-title">{section.title}</div>
-									)}
-									<div className="space-y-0.5">
-										{section.items.map((item) => {
-											const active = view === item.id;
-											return (
-												<button
-													key={item.id}
-													type="button"
-													data-nav={item.id}
-													onClick={() => setView(item.id)}
-													className={`w-full nav-link ${active ? "active" : ""} ${
-														collapsed
-															? "justify-center !px-0"
-															: "justify-between"
-													}`}
-													title={collapsed ? item.label : undefined}
-												>
-													<div className="flex items-center gap-2.5 min-w-0">
-														<span
-															className={`text-[13px] font-mono shrink-0 ${active ? "text-[var(--accent-text)]" : "opacity-75"}`}
-														>
-															{item.icon}
-														</span>
-														{!collapsed && (
-															<span className="truncate text-[13px]">
-																{item.label}
-															</span>
-														)}
-													</div>
-													{!collapsed &&
-														item.badge !== undefined &&
-														item.badge !== null && (
-															<span
-																className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono font-semibold ${
-																	active
-																		? "bg-[var(--accent)] text-[var(--accent-contrast)]"
-																		: "bg-[var(--surface-raised)] text-[var(--ink-muted)] border border-[var(--border)]"
-																}`}
-															>
-																{item.badge}
-															</span>
-														)}
-												</button>
-											);
-										})}
-									</div>
-								</div>
-							))}
-						</nav>
-					</div>
-
-					{/* Bottom Area: Operational IST Clock & Theme switch */}
-					<div className="pt-3 border-t border-[var(--border)] space-y-2">
-						{!collapsed ? (
-							<div className="space-y-2">
-								<div className="p-2.5 rounded-lg bg-[var(--surface-sunken)] border border-[var(--border)] text-[11px]">
-									<div className="flex items-center justify-between text-[var(--ink)] mb-1">
-										<span className="flex items-center gap-1.5 font-medium">
-											<span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-											IST Operation
-										</span>
-										<span className="font-mono text-emerald-500 font-semibold">
-											{formatHour(istHour)}
-										</span>
-									</div>
-									<div className="text-[10px] text-[var(--ink-muted)] flex items-center justify-between">
-										<span>Scheduled On-Duty:</span>
-										<span className="font-mono text-[var(--ink-strong)] font-medium">
-											{onlineCount} Specialists
-										</span>
-									</div>
-								</div>
-								<div className="flex items-center justify-between px-1 text-[11px] text-[var(--ink-muted)]">
-									<span>Theme Mode</span>
-									<ThemeToggle />
-								</div>
-							</div>
-						) : (
-							<div className="flex flex-col items-center gap-2 py-1">
-								<div
-									className="flex justify-center p-1"
-									title={`IST: ${formatHour(istHour)} • ${onlineCount} Specialists Scheduled`}
-								>
-									<span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-								</div>
-								<ThemeToggle compact />
-							</div>
-						)}
-					</div>
+					{renderNavContent(false)}
 				</div>
 			</aside>
 		</>

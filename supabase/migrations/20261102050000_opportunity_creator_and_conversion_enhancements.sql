@@ -253,3 +253,4 @@ begin
   );
 end;
 $$ language plpgsql security definer set search_path = public;
+

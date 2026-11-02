@@ -77,14 +77,42 @@
 	--shadow-modal:
 		0 20px 48px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.04);
 
-	/* Sidebar Navigation (Harmonious Light Theme) */
-	--nav-bg: #ffffff;
-	--nav-border: #ededed;
-	--nav-text: #666666;
-	--nav-text-active: #0284c7;
-	--nav-active-bg: rgba(73, 179, 252, 0.1);
-	--nav-hover: #111111;
-	--nav-hover-bg: #f5f5f5;
+	/* Reference CRM/ERP Sidebar Navigation (Pale Periwinkle Rail) */
+	--nav-bg: #dde6f5;
+	--nav-border: #cad7eb;
+	--nav-text: #1e293b;
+	--nav-text-active: #ffffff;
+	--nav-active-bg: #1a253c;
+	--nav-hover: #0f172a;
+	--nav-hover-bg: #cbdcf5;
+	--nav-submenu-bg: rgba(255, 255, 255, 0.45);
+
+	/* Reference Pastel Summary Card System */
+	--kpi-green-bg: #d4f8e2;
+	--kpi-green-border: #b7f0ce;
+	--kpi-green-bar: #10b981;
+	--kpi-green-text: #064e3b;
+
+	--kpi-yellow-bg: #fef3b4;
+	--kpi-yellow-border: #fee78a;
+	--kpi-yellow-bar: #f59e0b;
+	--kpi-yellow-text: #78350f;
+
+	--kpi-pink-bg: #fed8e8;
+	--kpi-pink-border: #fdbdd6;
+	--kpi-pink-bar: #f43f5e;
+	--kpi-pink-text: #881337;
+
+	--kpi-blue-bg: #d0e0fd;
+	--kpi-blue-border: #b9d2fb;
+	--kpi-blue-bar: #3b82f6;
+	--kpi-blue-text: #1e3a8a;
+
+	/* Reference ERP Table System */
+	--erp-table-head: #ebf2fb;
+	--erp-table-head-text: #1a253c;
+	--erp-table-row-hover: #f8fafc;
+	--erp-table-border: #e2e8f0;
 }
 
 [data-theme="dark"] {
@@ -150,14 +178,40 @@
 	--shadow-modal:
 		0 24px 64px rgba(0, 0, 0, 0.85), 0 4px 16px rgba(0, 0, 0, 0.6);
 
-	/* Sidebar Navigation in Dark Mode */
-	--nav-bg: #101217;
-	--nav-border: #232832;
-	--nav-text: #808694;
-	--nav-text-active: #49b3fc;
-	--nav-active-bg: rgba(73, 179, 252, 0.16);
+	/* Reference CRM/ERP Dark Mode Counterpart */
+	--nav-bg: #121824;
+	--nav-border: #1e2638;
+	--nav-text: #94a3b8;
+	--nav-text-active: #ffffff;
+	--nav-active-bg: #22324f;
 	--nav-hover: #ffffff;
-	--nav-hover-bg: #161920;
+	--nav-hover-bg: #1a2234;
+	--nav-submenu-bg: rgba(0, 0, 0, 0.25);
+
+	--kpi-green-bg: #064e3b;
+	--kpi-green-border: #047857;
+	--kpi-green-bar: #34d399;
+	--kpi-green-text: #d1fae5;
+
+	--kpi-yellow-bg: #451a03;
+	--kpi-yellow-border: #78350f;
+	--kpi-yellow-bar: #fbbf24;
+	--kpi-yellow-text: #fef3c7;
+
+	--kpi-pink-bg: #4c0519;
+	--kpi-pink-border: #881337;
+	--kpi-pink-bar: #fb7185;
+	--kpi-pink-text: #ffe4e6;
+
+	--kpi-blue-bg: #172554;
+	--kpi-blue-border: #1e3a8a;
+	--kpi-blue-bar: #60a5fa;
+	--kpi-blue-text: #dbeafe;
+
+	--erp-table-head: #1e293b;
+	--erp-table-head-text: #f1f5f9;
+	--erp-table-row-hover: #151d2c;
+	--erp-table-border: #334155;
 }
 
 /* Base resets & typography */
@@ -249,13 +303,13 @@ h6 {
 .nav-link {
 	display: flex;
 	align-items: center;
-	height: 34px;
-	padding: 0 10px;
-	border-radius: var(--radius-control);
+	height: 38px;
+	padding: 0 12px;
+	border-radius: 10px;
 	color: var(--nav-text);
 	font-size: 13px;
 	font-weight: 500;
-	transition: all 0.12s ease;
+	transition: all 0.14s ease;
 	cursor: pointer;
 }
 
@@ -265,9 +319,69 @@ h6 {
 }
 
 .nav-link.active {
-	color: var(--nav-text-active);
-	background-color: var(--nav-active-bg);
+	color: var(--nav-text-active) !important;
+	background-color: var(--nav-active-bg) !important;
 	font-weight: 600;
+	box-shadow: 0 2px 8px rgba(26, 37, 60, 0.18);
+}
+
+.nav-link.active * {
+	color: var(--nav-text-active) !important;
+}
+
+/* Submenu indented links */
+.nav-sublink {
+	display: flex;
+	align-items: center;
+	height: 34px;
+	padding: 0 10px 0 26px;
+	border-radius: 8px;
+	color: var(--nav-text);
+	font-size: 12.5px;
+	font-weight: 500;
+	transition: all 0.12s ease;
+	cursor: pointer;
+}
+
+.nav-sublink:hover {
+	color: var(--nav-hover);
+	background-color: var(--nav-hover-bg);
+}
+
+.nav-sublink.active {
+	color: var(--nav-text-active) !important;
+	background-color: var(--nav-active-bg) !important;
+	font-weight: 600;
+}
+
+.nav-sublink.active * {
+	color: var(--nav-text-active) !important;
+}
+
+/* Reference ERP Table Classes */
+.erp-table-container {
+	border-radius: 12px;
+	border: 1px solid var(--border);
+	background-color: var(--surface);
+	overflow: hidden;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.erp-table-head {
+	background-color: var(--erp-table-head);
+	color: var(--erp-table-head-text);
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.erp-table-row {
+	border-bottom: 1px solid var(--border-subtle);
+	background-color: var(--surface);
+	transition: background-color 0.12s ease;
+}
+
+.erp-table-row:hover {
+	background-color: var(--erp-table-row-hover);
 }
 
 .nav-section-title {

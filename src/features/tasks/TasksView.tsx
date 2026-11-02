@@ -435,111 +435,113 @@ export const TasksView: React.FC<TasksViewProps> = ({
 					})}
 				</div>
 			) : (
-				<div className="overflow-x-auto bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-xs">
-					<table className="w-full text-left border-collapse text-[13px]">
-						<thead>
-							<tr className="border-b border-[var(--border)] bg-[var(--surface-sunken)] text-[11px] font-mono uppercase tracking-wider text-[var(--ink-muted)]">
-								<th className="py-3 px-4">Task Name</th>
-								<th className="py-3 px-4">Project</th>
-								<th className="py-3 px-4">Dept</th>
-								<th className="py-3 px-4">Owner</th>
-								<th className="py-3 px-4">Priority</th>
-								<th className="py-3 px-4">Due Date</th>
-								<th className="py-3 px-4">Status</th>
-								<th className="py-3 px-4 text-right">Actions</th>
-							</tr>
-						</thead>
-						<tbody className="divide-y divide-[var(--border-subtle)]">
-							{filteredTasks.map((task) => {
-								const project = projectMap.get(task.projectId);
-								const isOverdue =
-									task.status !== "Completed" &&
-									task.due &&
-									task.due < todayStr;
+				<div className="erp-table-container">
+					<div className="overflow-x-auto">
+						<table className="w-full text-left border-collapse text-[13px]">
+							<thead>
+								<tr className="erp-table-head border-b border-blue-200/50 dark:border-slate-800">
+									<th className="py-3 px-4">Task Name</th>
+									<th className="py-3 px-4">Project</th>
+									<th className="py-3 px-4">Dept</th>
+									<th className="py-3 px-4">Owner</th>
+									<th className="py-3 px-4">Priority</th>
+									<th className="py-3 px-4">Due Date</th>
+									<th className="py-3 px-4">Status</th>
+									<th className="py-3 px-4 text-right">Actions</th>
+								</tr>
+							</thead>
+							<tbody className="divide-y divide-[var(--border-subtle)]">
+								{filteredTasks.map((task) => {
+									const project = projectMap.get(task.projectId);
+									const isOverdue =
+										task.status !== "Completed" &&
+										task.due &&
+										task.due < todayStr;
 
-								return (
-									<tr
-										key={task.id}
-										className="hover:bg-[var(--surface-sunken)] transition"
-									>
-										<td className="py-3 px-4 font-semibold text-[var(--ink)]">
-											{task.name}
-										</td>
-										<td className="py-3 px-4">
-											{project ? (
-												<button
-													type="button"
-													onClick={() => onOpenProject?.(project.id)}
-													className="text-[#49B3FC] hover:underline font-mono text-[12px]"
-												>
-													{project.name}
-												</button>
-											) : (
-												<span className="text-[var(--ink-muted)]">—</span>
-											)}
-										</td>
-										<td className="py-3 px-4 font-mono text-[11px] uppercase text-[var(--ink-secondary)]">
-											{task.dept}
-										</td>
-										<td className="py-3 px-4 text-[var(--ink-secondary)] font-medium">
-											{task.owner}
-										</td>
-										<td className="py-3 px-4">
-											<span
-												className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold ${
-													task.priority === "High"
-														? "bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300"
-														: task.priority === "Medium"
-															? "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
-															: "bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[var(--ink-secondary)]"
-												}`}
-											>
-												{task.priority || "Medium"}
-											</span>
-										</td>
-										<td className="py-3 px-4 font-mono text-[12px]">
-											<span
-												className={
-													isOverdue
-														? "text-rose-600 dark:text-rose-400 font-bold"
-														: "text-[var(--ink-muted)]"
-												}
-											>
-												{task.due || "—"} {isOverdue && "(OVERDUE)"}
-											</span>
-										</td>
-										<td className="py-3 px-4">
-											<span className="px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[var(--ink-secondary)]">
-												{task.status}
-											</span>
-										</td>
-										<td className="py-3 px-4 text-right whitespace-nowrap">
-											<div className="inline-flex items-center gap-2">
-												{task.status !== "Completed" && (
+									return (
+										<tr
+											key={task.id}
+											className="hover:bg-[var(--surface-sunken)] transition"
+										>
+											<td className="py-3 px-4 font-semibold text-[var(--ink)]">
+												{task.name}
+											</td>
+											<td className="py-3 px-4">
+												{project ? (
 													<button
 														type="button"
-														onClick={() =>
-															handleStatusChange(task, "Completed")
-														}
-														className="text-[11px] font-medium text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40 px-2 py-1 rounded"
+														onClick={() => onOpenProject?.(project.id)}
+														className="text-[#49B3FC] hover:underline font-mono text-[12px]"
 													>
-														Done ✓
+														{project.name}
 													</button>
+												) : (
+													<span className="text-[var(--ink-muted)]">—</span>
 												)}
-												<button
-													type="button"
-													onClick={() => handleDeleteTask(task)}
-													className="text-[11px] font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40 px-2 py-1 rounded"
+											</td>
+											<td className="py-3 px-4 font-mono text-[11px] uppercase text-[var(--ink-secondary)]">
+												{task.dept}
+											</td>
+											<td className="py-3 px-4 text-[var(--ink-secondary)] font-medium">
+												{task.owner}
+											</td>
+											<td className="py-3 px-4">
+												<span
+													className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold ${
+														task.priority === "High"
+															? "bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300"
+															: task.priority === "Medium"
+																? "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
+																: "bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[var(--ink-secondary)]"
+													}`}
 												>
-													Delete
-												</button>
-											</div>
-										</td>
-									</tr>
-								);
-							})}
-						</tbody>
-					</table>
+													{task.priority || "Medium"}
+												</span>
+											</td>
+											<td className="py-3 px-4 font-mono text-[12px]">
+												<span
+													className={
+														isOverdue
+															? "text-rose-600 dark:text-rose-400 font-bold"
+															: "text-[var(--ink-muted)]"
+													}
+												>
+													{task.due || "—"} {isOverdue && "(OVERDUE)"}
+												</span>
+											</td>
+											<td className="py-3 px-4">
+												<span className="px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[var(--ink-secondary)]">
+													{task.status}
+												</span>
+											</td>
+											<td className="py-3 px-4 text-right whitespace-nowrap">
+												<div className="inline-flex items-center gap-2">
+													{task.status !== "Completed" && (
+														<button
+															type="button"
+															onClick={() =>
+																handleStatusChange(task, "Completed")
+															}
+															className="text-[11px] font-medium text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40 px-2 py-1 rounded"
+														>
+															Done ✓
+														</button>
+													)}
+													<button
+														type="button"
+														onClick={() => handleDeleteTask(task)}
+														className="text-[11px] font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40 px-2 py-1 rounded"
+													>
+														Delete
+													</button>
+												</div>
+											</td>
+										</tr>
+									);
+								})}
+							</tbody>
+						</table>
+					</div>
 				</div>
 			)}
 		</div>

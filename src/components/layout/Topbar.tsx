@@ -70,8 +70,20 @@ export const Topbar: React.FC<TopbarProps> = ({
 
 			{/* Right Actions & Profile */}
 			<div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+				{/* Reference CRM Module Pill & Branch Selector */}
+				<div className="hidden xl:flex items-center gap-2 pr-2 border-r border-[var(--border)]">
+					<span className="text-[11px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 font-mono">
+						CRM
+					</span>
+					<div className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-[var(--border)] bg-[var(--surface-sunken)] text-[11px] text-[var(--ink-strong)] font-medium">
+						<span className="text-slate-400">Branch:</span>
+						<span>Main Studio</span>
+						<span className="text-[9px] text-slate-400">▼</span>
+					</div>
+				</div>
+
 				{/* Theme Selector Toggle */}
-				<ThemeToggle showLabel />
+				<ThemeToggle showLabel={false} />
 
 				{/* Supabase Engine Status Pill */}
 				<div className="relative">
@@ -181,10 +193,10 @@ export const Topbar: React.FC<TopbarProps> = ({
 						{role}
 					</span>
 					<div
-						className="w-7 h-7 rounded-full bg-[var(--surface-raised)] text-[var(--accent)] border border-[var(--border)] flex items-center justify-center font-bold text-[11px] font-mono shadow-xs shrink-0"
+						className="w-7 h-7 rounded-full bg-[#EA580C] text-white flex items-center justify-center font-bold text-[11px] font-mono shadow-xs shrink-0 ring-2 ring-orange-200 dark:ring-orange-900"
 						title={user?.email || user?.name || "User"}
 					>
-						{user?.name?.slice(0, 2).toUpperCase() || "ME"}
+						{user?.name?.slice(0, 2).toUpperCase() || "KR"}
 					</div>
 					<button
 						type="button"
